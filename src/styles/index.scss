@@ -31,7 +31,14 @@
   display: grid;
   min-width: 0;
   gap: 18px;
-  padding: 36px;
+}
+
+.page-action-bar {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .metric-grid {
@@ -128,10 +135,6 @@
 }
 
 @include narrow {
-  .admin-page {
-    padding: 28px;
-  }
-
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -140,7 +143,12 @@
 @include mobile {
   .admin-page {
     gap: 14px;
-    padding: 20px 14px 28px;
+  }
+
+  .page-action-bar {
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
   }
 
   .metric-grid {

@@ -14,7 +14,7 @@
   flex: 1;
   min-width: 0;
   overflow: auto;
-  padding: 0;
+  padding: 32px;
   background: radial-gradient(circle at 45% 0, rgb(31 125 211 / 7%), transparent 34%), #f7f9fc;
 
   @include mobile {

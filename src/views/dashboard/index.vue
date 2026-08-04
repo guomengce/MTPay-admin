@@ -253,8 +253,8 @@ const { page, size, total, pagedData: pagedFlows } = useTablePager(flows);
 
   &__icon {
     display: inline-flex;
-    width: 72px;
-    height: 72px;
+    width: 60px;
+    height: 60px;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
@@ -275,7 +275,7 @@ const { page, size, total, pagedData: pagedFlows } = useTablePager(flows);
 
   strong {
     color: #001b42;
-    font-size: 48px;
+    font-size: 32px;
     font-weight: 950;
     line-height: 0.95;
   }

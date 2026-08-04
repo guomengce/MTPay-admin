@@ -7,6 +7,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/overview/index.vue'),
     meta: {
       title: '营运总览',
+      description: '管理代理、资金与审核流程',
       icon: 'Grid',
       requiresAuth: true,
       hidden: false,
@@ -19,6 +20,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/agent/index.vue'),
     meta: {
       title: '代理帐户',
+      description: '直接新增管理代理帐户',
       icon: 'User',
       requiresAuth: true,
       hidden: false,
@@ -31,6 +33,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/deposit/index.vue'),
     meta: {
       title: '入金审核',
+      description: '确认平台已收到USDT或USDC后，审核通过并增加代理余额',
       icon: 'Wallet',
       requiresAuth: true,
       hidden: false,
@@ -43,6 +46,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/exchange/index.vue'),
     meta: {
       title: '兑换审核',
+      description: '查看资金冻结和处理时间线后完成一次审核',
       icon: 'Switch',
       requiresAuth: true,
       hidden: false,
@@ -55,6 +59,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/whitelist/index.vue'),
     meta: {
       title: '白名单审核',
+      description: '四种类型均只需一次审核',
       icon: 'List',
       requiresAuth: true,
       hidden: false,
@@ -67,6 +72,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/withdrawal/index.vue'),
     meta: {
       title: '出金管理',
+      description: '一次审核后进入付款执行；付款完成不是第二次审核',
       icon: 'Upload',
       requiresAuth: true,
       hidden: false,
@@ -79,6 +85,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/fee/index.vue'),
     meta: {
       title: '比例与费用',
+      description: '下方配置将直接影响代理专属费率与帐金额，请谨慎设定。',
       icon: 'Money',
       requiresAuth: true,
       hidden: false,
@@ -91,6 +98,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/flow/index.vue'),
     meta: {
       title: '资金流水',
+      description: '记录每笔收付款交易详情，资金全链路清晰可追溯',
       icon: 'Tickets',
       requiresAuth: true,
       hidden: false,
@@ -103,6 +111,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/log/index.vue'),
     meta: {
       title: '操作记录',
+      description: '记录管理员在平台上的所有操作行为',
       icon: 'List',
       requiresAuth: true,
       hidden: false,

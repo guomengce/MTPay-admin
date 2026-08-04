@@ -9,7 +9,7 @@
     <div class="notice">订单使用提交时的代理专属比例，后续修改比例不影响已提交订单。</div>
 
     <AdminPanel title="兑换申请列表" :icon="Document">
-      <el-table class="admin-data-table" :data="pagedRows" :row-class-name="getRowClassName">
+      <el-table class="admin-data-table" :data="pagedRows">
         <el-table-column label="编号" min-width="170">
           <template #default="{ row }">
             <div class="row-title">

@@ -3,15 +3,15 @@
     <div class="app-aside__brand">
       <span class="app-aside__mark">M</span>
       <div v-if="!isCollapsed" class="app-aside__brand-text">
-        <strong>MTPay</strong>
+        <strong>MTPay-Admin</strong>
         <span>ADMIN CONSOLE</span>
       </div>
     </div>
-
-    <p v-if="!isCollapsed" class="app-aside__label">管理入口</p>
     <el-menu class="app-aside__menu" :default-active="route.path" :collapse="isCollapsed" router>
       <el-menu-item v-for="menu in routeStore.menus" :key="menu.path" :index="menu.path">
-        <el-icon><component :is="resolveIcon(menu.icon)" /></el-icon>
+        <span class="app-aside__icon">
+          <el-icon><component :is="resolveIcon(menu.icon)" /></el-icon>
+        </span>
         <template #title>
           <span>{{ menu.title }}</span>
         </template>
@@ -108,6 +108,8 @@ async function handleLogout() {
     align-items: center;
     gap: 12px;
     margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgb(125 163 214 / 20%);
   }
 
   &__mark,
@@ -142,13 +144,6 @@ async function handleLogout() {
     }
   }
 
-  &__label {
-    margin: 6px 0 10px 8px;
-    color: #8fa6c6;
-    font-size: 12px;
-    font-weight: 800;
-  }
-
   &__menu {
     flex: 1;
     min-width: 0;
@@ -159,18 +154,37 @@ async function handleLogout() {
 
   :deep(.el-menu-item) {
     height: 50px;
-    margin: 4px 0;
+    margin: 14px 0;
+    padding: 0 10px !important;
     color: #d8e4f6;
     border-radius: 8px;
     font-weight: 800;
   }
 
+  :deep(.el-menu-item .el-icon) {
+    width: 22px;
+    height: 22px;
+    margin-right: 0;
+    color: #d8e9ff;
+    font-size: 22px;
+  }
+
   :deep(.el-menu-item.is-active) {
-    color: #ffffff;
-    background: linear-gradient(90deg, rgb(21 121 255 / 52%), rgb(18 205 188 / 26%));
+    position: relative;
+    overflow: hidden;
+    color: #39f5ec;
+    border: 1px solid rgb(35 224 231 / 64%);
+    background:
+      linear-gradient(90deg, rgb(22 231 217 / 18%), rgb(4 35 73 / 28%) 42%, rgb(7 36 72 / 12%)),
+      rgb(3 28 62 / 22%);
     box-shadow:
-      3px 0 0 #20d5c8 inset,
-      0 14px 28px rgb(0 87 173 / 25%);
+      0 0 0 1px rgb(35 224 231 / 10%) inset,
+      4px 0 14px rgb(38 240 225 / 34%) inset,
+      0 0 22px rgb(22 218 225 / 18%);
+  }
+
+  :deep(.el-menu-item.is-active) .app-aside__icon {
+    border-radius: 50%;
   }
 
   :deep(.el-menu-item:hover) {
@@ -179,6 +193,31 @@ async function handleLogout() {
 
   :deep(.el-menu-tooltip__trigger) {
     justify-content: center;
+  }
+
+  &__icon {
+    position: relative;
+    display: inline-flex;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    overflow: hidden;
+    border: 1px solid rgb(65 135 191 / 28%);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgb(20 69 112 / 70%), rgb(7 37 70 / 88%)), #08284b;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 4%) inset,
+      0 12px 24px rgb(0 0 0 / 18%);
+  }
+
+  &__icon::before {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0, rgb(33 196 217 / 24%), transparent 58%);
+    content: '';
   }
 
   &__badge {

@@ -1,13 +1,9 @@
 <template>
   <footer class="table-pager">
-    <slot name="prefix">
-      <span class="table-pager__total">显示第 {{ start }} - {{ end }} 笔，共 {{ total }} 笔</span>
-    </slot>
     <el-pagination
       v-model:current-page="page"
       v-model:page-size="size"
       :total="total"
-      :page-sizes="[10, 20, 50, 100]"
       layout="prev, pager, next, sizes, jumper"
       background
       small
