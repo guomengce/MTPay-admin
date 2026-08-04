@@ -34,7 +34,7 @@ export const routes: RouteRecordRaw[] = [
     name: 'Forbidden',
     component: () => import('@/views/error/403.vue'),
     meta: {
-      title: '无权限',
+      title: '无权访问',
       icon: '',
       requiresAuth: false,
       hidden: true,

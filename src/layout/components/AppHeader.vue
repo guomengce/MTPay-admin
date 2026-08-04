@@ -8,25 +8,30 @@
         text
         @click="appStore.toggleSidebar"
       />
+      <div class="app-header__crumb">
+        <span>平台管理</span>
+        <el-icon><ArrowRight /></el-icon>
+        <strong>{{ pageTitle }}</strong>
+      </div>
     </div>
 
     <div class="app-header__right">
       <el-tag class="app-header__status" effect="plain" round>
         <span class="app-header__dot"></span>
-        系統正常
+        系统正常
       </el-tag>
-      <el-button class="app-header__bell" :icon="Bell" circle text />
       <el-button class="app-header__admin" plain @click="goAdmin">
-        管理後台
+        代理平台
         <el-icon><TopRight /></el-icon>
       </el-button>
+      <el-button class="app-header__bell" :icon="Bell" circle text />
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Bell, Fold, TopRight } from '@element-plus/icons-vue';
+import { ArrowRight, Bell, Fold, TopRight } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useAppStore } from '@/stores/modules/app';
@@ -35,7 +40,7 @@ const route = useRoute();
 const router = useRouter();
 const appStore = useAppStore();
 
-const pageTitle = computed(() => String(route.meta.title || '業務總覽'));
+const pageTitle = computed(() => String(route.meta.title || '营运总览'));
 
 async function goAdmin() {
   await router.push('/dashboard');
@@ -45,45 +50,42 @@ async function goAdmin() {
 <style scoped lang="scss">
 .app-header {
   display: flex;
-  height: 96px;
-  min-height: 96px;
+  height: 72px;
+  min-height: 72px;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 0 36px;
+  padding: 0 32px;
   background: rgb(255 255 255 / 92%);
   border-bottom: 1px solid #dce5ef;
   backdrop-filter: blur(16px);
 
   &__left,
-  &__right {
+  &__right,
+  &__crumb {
     display: flex;
     min-width: 0;
     align-items: center;
-    gap: 18px;
+    gap: 14px;
   }
 
   &__collapse {
     display: none;
   }
 
-  h1 {
-    margin: 0 0 8px;
-    color: #071833;
-    font-size: 24px;
-    font-weight: 850;
-    letter-spacing: 0;
-  }
+  &__crumb {
+    color: #7d8aa0;
+    font-size: 14px;
+    font-weight: 750;
 
-  p {
-    margin: 0;
-    color: #7c8ba0;
-    font-weight: 600;
+    strong {
+      color: #0b1b35;
+    }
   }
 
   &__status {
-    height: 42px;
-    padding: 0 16px;
+    height: 38px;
+    padding: 0 14px;
     color: #008f83;
     background: #f0fbf8;
     border-color: #cfe9e4;
@@ -105,7 +107,7 @@ async function goAdmin() {
   }
 
   &__admin {
-    height: 42px;
+    height: 38px;
     padding: 0 16px;
     border-color: #d8e1ec;
     border-radius: 8px;
@@ -118,19 +120,16 @@ async function goAdmin() {
   }
 
   @include mobile {
-    height: 72px;
-    min-height: 72px;
+    height: 64px;
+    min-height: 64px;
     padding: 0 14px;
 
     &__collapse {
       display: inline-flex;
     }
 
-    h1 {
-      font-size: 18px;
-    }
-
-    p,
+    &__crumb span,
+    &__crumb .el-icon,
     &__status,
     &__bell {
       display: none;

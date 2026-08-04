@@ -4,9 +4,9 @@ export const featureRoutes: RouteRecordRaw[] = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('@/views/dashboard/index.vue'),
+    component: () => import('@/views/overview/index.vue'),
     meta: {
-      title: '業務總覽',
+      title: '营运总览',
       icon: 'Grid',
       requiresAuth: true,
       hidden: false,
@@ -14,11 +14,23 @@ export const featureRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/agent',
+    name: 'Agent',
+    component: () => import('@/views/agent/index.vue'),
+    meta: {
+      title: '代理帐户',
+      icon: 'User',
+      requiresAuth: true,
+      hidden: false,
+      keepAlive: false,
+    },
+  },
+  {
     path: '/deposit',
     name: 'Deposit',
     component: () => import('@/views/deposit/index.vue'),
     meta: {
-      title: '數字貨幣入金',
+      title: '入金审核',
       icon: 'Wallet',
       requiresAuth: true,
       hidden: false,
@@ -30,7 +42,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     name: 'Exchange',
     component: () => import('@/views/exchange/index.vue'),
     meta: {
-      title: '兌換USD',
+      title: '兑换审核',
       icon: 'Switch',
       requiresAuth: true,
       hidden: false,
@@ -42,7 +54,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     name: 'Whitelist',
     component: () => import('@/views/whitelist/index.vue'),
     meta: {
-      title: '白名單管理',
+      title: '白名单审核',
       icon: 'List',
       requiresAuth: true,
       hidden: false,
@@ -54,7 +66,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     name: 'Withdrawal',
     component: () => import('@/views/withdrawal/index.vue'),
     meta: {
-      title: 'USD出金',
+      title: '出金管理',
       icon: 'Upload',
       requiresAuth: true,
       hidden: false,
@@ -62,11 +74,23 @@ export const featureRoutes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/records',
-    name: 'Records',
-    component: () => import('@/views/records/index.vue'),
+    path: '/fee',
+    name: 'Fee',
+    component: () => import('@/views/fee/index.vue'),
     meta: {
-      title: '交易記錄',
+      title: '比例与费用',
+      icon: 'Money',
+      requiresAuth: true,
+      hidden: false,
+      keepAlive: false,
+    },
+  },
+  {
+    path: '/flow',
+    name: 'Flow',
+    component: () => import('@/views/flow/index.vue'),
+    meta: {
+      title: '资金流水',
       icon: 'Tickets',
       requiresAuth: true,
       hidden: false,
@@ -74,12 +98,12 @@ export const featureRoutes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/account',
-    name: 'Account',
-    component: () => import('@/views/account/index.vue'),
+    path: '/log',
+    name: 'Log',
+    component: () => import('@/views/log/index.vue'),
     meta: {
-      title: '帳戶與安全',
-      icon: 'User',
+      title: '操作记录',
+      icon: 'List',
       requiresAuth: true,
       hidden: false,
       keepAlive: false,
