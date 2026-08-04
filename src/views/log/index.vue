@@ -8,7 +8,7 @@
 
     <AdminPanel title="活动记录" subtitle="共 3 笔记录" :icon="Tickets">
       <div class="timeline">
-        <article v-for="item in logs" :key="item.time">
+        <article v-for="item in pagedLogs" :key="item.time">
           <span class="timeline__dot"></span>
           <span class="timeline__icon"
             ><el-icon><component :is="item.icon" /></el-icon
@@ -23,6 +23,7 @@
           <time>{{ item.time }}</time>
         </article>
       </div>
+      <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
   </section>
 </template>
@@ -32,6 +33,8 @@ import { Clock, Filter, Plus, Setting, SwitchButton, Tickets } from '@element-pl
 
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import TablePager from '@/components/common/TablePager.vue';
+import { useTablePager } from '@/hooks/useTablePager';
 
 const logs = [
   {
@@ -56,6 +59,8 @@ const logs = [
     icon: Plus,
   },
 ];
+
+const { page, size, total, pagedData: pagedLogs } = useTablePager(logs);
 </script>
 
 <style scoped lang="scss">

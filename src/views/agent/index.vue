@@ -18,7 +18,7 @@
     </div>
 
     <AdminPanel>
-      <el-table class="admin-data-table" :data="agents" stripe>
+      <el-table class="admin-data-table" :data="pagedAgents" stripe>
         <el-table-column label="代理" min-width="260">
           <template #default="{ row }">
             <div class="agent-cell">
@@ -65,7 +65,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <footer class="panel-footer">显示第 1 - 2 笔，共 2 笔</footer>
+      <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
   </section>
 </template>
@@ -82,6 +82,8 @@ import {
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import TablePager from '@/components/common/TablePager.vue';
+import { useTablePager } from '@/hooks/useTablePager';
 
 const summary = [
   { label: '代理总数', value: '2', note: '全部代理帐户', icon: UserFilled },
@@ -112,6 +114,8 @@ const agents = [
     balance: '75,920.00 USD',
   },
 ];
+
+const { page, size, total, pagedData: pagedAgents } = useTablePager(agents);
 </script>
 
 <style scoped lang="scss">

@@ -9,7 +9,7 @@
     <div class="notice">订单使用提交时的代理专属比例，后续修改比例不影响已提交订单。</div>
 
     <AdminPanel title="兑换申请列表" :icon="Document">
-      <el-table class="admin-data-table" :data="rows" :row-class-name="getRowClassName">
+      <el-table class="admin-data-table" :data="pagedRows" :row-class-name="getRowClassName">
         <el-table-column label="编号" min-width="170">
           <template #default="{ row }">
             <div class="row-title">
@@ -55,6 +55,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
   </section>
 </template>
@@ -65,6 +66,8 @@ import { Document, Switch } from '@element-plus/icons-vue';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import TablePager from '@/components/common/TablePager.vue';
+import { useTablePager } from '@/hooks/useTablePager';
 
 const rows = [
   {
@@ -92,6 +95,8 @@ const rows = [
     statusType: 'success' as const,
   },
 ];
+
+const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 
 function getRowClassName({ row }: { row: (typeof rows)[number] }) {
   return row.statusType === 'pending' ? 'is-pending' : '';

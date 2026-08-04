@@ -81,7 +81,7 @@
       <template #extra>
         <RouterLink class="text-link" to="/flow">查看全部 →</RouterLink>
       </template>
-      <el-table class="admin-data-table" :data="flows" stripe>
+      <el-table class="admin-data-table" :data="pagedFlows" stripe>
         <el-table-column prop="time" label="时间" min-width="120" />
         <el-table-column prop="agent" label="代理" min-width="220" />
         <el-table-column label="类型" min-width="100">
@@ -114,6 +114,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
   </section>
 </template>
@@ -139,6 +140,8 @@ import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import MetricCard from '@/components/admin/MetricCard.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import TablePager from '@/components/common/TablePager.vue';
+import { useTablePager } from '@/hooks/useTablePager';
 
 const tasks = [
   { title: '入金审核', note: '待确认收款', count: 1, to: '/deposit', icon: Download, tone: 'teal' },
@@ -196,26 +199,24 @@ const flows = [
     statusType: 'success' as const,
   },
 ];
+
+const { page, size, total, pagedData: pagedFlows } = useTablePager(flows);
 </script>
 
 <style scoped lang="scss">
 .overview-page {
   &__split {
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 18px;
   }
-}
-
-.task-panel {
-  grid-column: 1 / -1;
 }
 
 .task-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 28px;
-  padding: 34px 42px 46px;
+  gap: 12px;
+  padding: 22px 18px 24px;
 }
 
 .task-link {
@@ -223,7 +224,7 @@ const flows = [
 }
 
 .task-card {
-  min-height: 310px;
+  min-height: 230px;
   border: 1px solid #dbe7f5;
   border-radius: 8px;
   background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
@@ -236,11 +237,11 @@ const flows = [
   :deep(.el-card__body) {
     display: grid;
     height: 100%;
-    min-height: 310px;
+    min-height: 230px;
     justify-items: center;
     align-content: center;
-    gap: 22px;
-    padding: 38px 24px 28px;
+    gap: 14px;
+    padding: 22px 12px 18px;
     text-align: center;
   }
 
@@ -252,8 +253,8 @@ const flows = [
 
   &__icon {
     display: inline-flex;
-    width: 118px;
-    height: 118px;
+    width: 72px;
+    height: 72px;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
@@ -261,43 +262,47 @@ const flows = [
     background:
       radial-gradient(circle at 50% 38%, rgb(255 255 255 / 70%), transparent 42%),
       color-mix(in srgb, var(--task-tone) 14%, white);
-    font-size: 58px;
+    font-size: 36px;
   }
 
   h3 {
-    margin: 10px 0 0;
+    margin: 6px 0 0;
     color: #061936;
-    font-size: 28px;
+    font-size: 18px;
     font-weight: 950;
     line-height: 1.2;
   }
 
   strong {
     color: #001b42;
-    font-size: 72px;
+    font-size: 48px;
     font-weight: 950;
     line-height: 0.95;
   }
 
   small {
     display: inline-flex;
-    min-width: 158px;
-    height: 48px;
+    min-width: 0;
+    width: 100%;
+    max-width: 140px;
+    height: 36px;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 0 18px;
+    gap: 8px;
+    padding: 0 14px;
     border-radius: 8px;
     color: var(--task-tone);
     background: color-mix(in srgb, var(--task-tone) 9%, #f7fafc);
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 900;
+    white-space: nowrap;
 
     i {
-      width: 9px;
-      height: 9px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: currentColor;
+      flex-shrink: 0;
     }
   }
 
@@ -344,9 +349,13 @@ const flows = [
 }
 
 @include narrow {
+  .overview-page__split {
+    grid-template-columns: 1fr;
+  }
+
   .task-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
     padding: 24px;
   }
 }
@@ -387,6 +396,7 @@ const flows = [
     small {
       height: 42px;
       font-size: 16px;
+      max-width: none;
     }
   }
 }
