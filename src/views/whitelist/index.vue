@@ -7,7 +7,7 @@
     </AdminHero>
 
     <AdminPanel>
-      <el-table class="admin-data-table" :data="rows" :row-class-name="getRowClassName">
+      <el-table class="admin-data-table" :data="rows">
         <el-table-column label="编号" min-width="150">
           <template #default="{ row }">
             <div class="row-title">
@@ -115,10 +115,6 @@ const rows = [
     statusType: 'success' as const,
   },
 ];
-
-function getRowClassName({ row }: { row: (typeof rows)[number] }) {
-  return row.statusType === 'pending' ? 'is-pending' : '';
-}
 </script>
 
 <style scoped lang="scss">

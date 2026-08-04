@@ -6,17 +6,6 @@
       </template>
     </AdminHero>
 
-    <div class="agent-summary">
-      <div v-for="item in summary" :key="item.label">
-        <span
-          ><el-icon><component :is="item.icon" /></el-icon
-        ></span>
-        <p>{{ item.label }}</p>
-        <strong>{{ item.value }}</strong>
-        <small>{{ item.note }}</small>
-      </div>
-    </div>
-
     <AdminPanel>
       <el-table class="admin-data-table" :data="agents" stripe>
         <el-table-column label="代理" min-width="260">
@@ -65,7 +54,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <footer class="panel-footer">显示第 1 - 2 笔，共 2 笔</footer>
     </AdminPanel>
   </section>
 </template>
@@ -82,13 +70,6 @@ import {
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
-
-const summary = [
-  { label: '代理总数', value: '2', note: '全部代理帐户', icon: UserFilled },
-  { label: '正常使用中', value: '2', note: '占比 100%', icon: CircleCheckFilled },
-  { label: '总 USD 可用余额', value: '260,270.00 USD', note: '平台代理总余额', icon: WalletFilled },
-  { label: '平均 USDT 比例', value: '0.9450', note: '加权平均', icon: PieChart },
-];
 
 const agents = [
   {

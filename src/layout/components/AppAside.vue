@@ -14,7 +14,6 @@
         <el-icon><component :is="resolveIcon(menu.icon)" /></el-icon>
         <template #title>
           <span>{{ menu.title }}</span>
-          <em v-if="pendingMap[menu.path]" class="app-aside__badge">{{ pendingMap[menu.path] }}</em>
         </template>
       </el-menu-item>
     </el-menu>
@@ -234,10 +233,11 @@ async function handleLogout() {
 
   &__logout {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: center;
     padding: 18px 14px;
     color: #d8e4f6;
     font-weight: 800;
+    // border: 1px solid #15c4b9;
   }
 }
 </style>

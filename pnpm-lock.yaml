@@ -20,6 +20,9 @@ importers:
       pinia:
         specifier: ^2.3.0
         version: 2.3.1(typescript@5.6.3)(vue@3.5.40(typescript@5.6.3))
+      remixicon:
+        specifier: ^4.9.1
+        version: 4.9.1
       vue:
         specifier: ^3.5.13
         version: 3.5.40(typescript@5.6.3)
@@ -1294,6 +1297,9 @@ packages:
   readdirp@5.0.0:
     resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
     engines: {node: '>= 20.19.0'}
+
+  remixicon@4.9.1:
+    resolution: {integrity: sha512-36gLSoujkabnCFZFDyP17VNh9piuBA/rsXUb4auSJWLGsHVXtmxLj/EM5FjaEAGnk8oIAj1Azob/DZ2N+90lAQ==}
 
   resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
@@ -2635,6 +2641,8 @@ snapshots:
   queue-microtask@1.2.3: {}
 
   readdirp@5.0.0: {}
+
+  remixicon@4.9.1: {}
 
   resolve-from@4.0.0: {}
 

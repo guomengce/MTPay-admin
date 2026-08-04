@@ -49,7 +49,7 @@ defineProps<{
     border-radius: 18px;
     color: #126df0;
     background: linear-gradient(135deg, #dff3ff, #eef0ff);
-    box-shadow: 0 20px 38px rgb(27 98 198 / 12%);
+    // box-shadow: 0 20px 38px rgb(27 98 198 / 12%);
     font-size: 36px;
   }
 
