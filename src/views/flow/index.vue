@@ -11,7 +11,7 @@
     </AdminHero>
 
     <AdminPanel>
-      <el-table class="admin-data-table" :data="rows" stripe>
+      <el-table class="admin-data-table" :data="pagedRows" stripe>
         <el-table-column prop="time" label="时间" sortable min-width="130" />
         <el-table-column prop="agent" label="代理" sortable min-width="220" />
         <el-table-column label="类型" min-width="100">
@@ -45,10 +45,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <footer class="flow-footer">
-        <span>共 7 条</span>
-        <el-pagination background layout="prev, pager, next, sizes" :total="7" :page-size="10" />
-      </footer>
+      <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
   </section>
 </template>
@@ -59,6 +56,8 @@ import { Download, Tickets, View } from '@element-plus/icons-vue';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import TablePager from '@/components/common/TablePager.vue';
+import { useTablePager } from '@/hooks/useTablePager';
 
 const rows = [
   {
@@ -139,6 +138,8 @@ const rows = [
     statusType: 'success' as const,
   },
 ];
+
+const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 </script>
 
 <style scoped lang="scss">
@@ -147,24 +148,5 @@ td small {
   margin-top: 5px;
   color: #64748b;
   font-weight: 700;
-}
-
-.flow-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  padding: 24px;
-
-  span {
-    font-weight: 850;
-  }
-}
-
-@include mobile {
-  .flow-footer {
-    align-items: flex-start;
-    flex-direction: column;
-  }
 }
 </style>

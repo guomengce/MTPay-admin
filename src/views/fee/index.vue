@@ -34,7 +34,7 @@
     </div>
 
     <AdminPanel title="代理专属比例" subtitle="不同代理可设定不同的专属交易比例" :icon="UserFilled">
-      <el-table class="admin-data-table" :data="rows" stripe>
+      <el-table class="admin-data-table" :data="pagedRows" stripe>
         <el-table-column label="代理" min-width="260">
           <template #default="{ row }">
             <strong>{{ row.agent }}</strong> <span class="type-chip">{{ row.code }}</span>
@@ -50,6 +50,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <TablePager v-model="page" v-model:page-size="size" :total="total" />
       <div class="purple-note">代理专属比例优先级高于预设比例，将应用于该代理的所有交易。</div>
     </AdminPanel>
   </section>
@@ -61,6 +62,8 @@ import { Money, PieChart, TrendCharts, UserFilled } from '@element-plus/icons-vu
 
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import TablePager from '@/components/common/TablePager.vue';
+import { useTablePager } from '@/hooks/useTablePager';
 
 const rateForm = reactive({
   defaultUsdt: 0.99,
@@ -88,6 +91,8 @@ const rows = [
     max: '500.00 USD',
   },
 ];
+
+const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 </script>
 
 <style scoped lang="scss">

@@ -7,7 +7,7 @@
     </AdminHero>
 
     <AdminPanel>
-      <el-table class="admin-data-table" :data="rows">
+      <el-table class="admin-data-table" :data="pagedRows">
         <el-table-column label="编号" min-width="150">
           <template #default="{ row }">
             <div class="row-title">
@@ -53,7 +53,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <footer class="pager-line">显示 20 笔，共 7 笔</footer>
+      <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
   </section>
 </template>
@@ -64,6 +64,8 @@ import { Checked } from '@element-plus/icons-vue';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import TablePager from '@/components/common/TablePager.vue';
+import { useTablePager } from '@/hooks/useTablePager';
 
 const rows = [
   {
@@ -115,12 +117,8 @@ const rows = [
     statusType: 'success' as const,
   },
 ];
+
+const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 </script>
 
-<style scoped lang="scss">
-.pager-line {
-  padding: 18px 24px;
-  color: #64748b;
-  font-weight: 800;
-}
-</style>
+<style scoped lang="scss"></style>

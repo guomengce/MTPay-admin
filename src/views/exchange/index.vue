@@ -8,52 +8,55 @@
 
     <div class="notice">订单使用提交时的代理专属比例，后续修改比例不影响已提交订单。</div>
 
-    <el-table class="admin-data-table" :data="rows">
-      <el-table-column label="编号" min-width="170">
-        <template #default="{ row }">
-          <div class="row-title">
-            <strong>{{ row.id }}</strong>
-            <span>{{ row.time }}</span>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="代理" min-width="240">
-        <template #default="{ row }">
-          <div class="row-title">
-            <strong>{{ row.agent }}</strong>
-            <span>{{ row.code }}</span>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="支付资产" min-width="180">
-        <template #default="{ row }">
-          <div class="asset">
-            <span>{{ row.amount }}</span>
-            <small>{{ row.asset }}</small>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="rate" label="比例" min-width="100" />
-      <el-table-column label="获得USD" min-width="160">
-        <template #default="{ row }">
-          <strong>{{ row.usd }}</strong>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" min-width="130">
-        <template #default="{ row }">
-          <StatusBadge :label="row.status" :type="row.statusType" />
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" min-width="220" fixed="right">
-        <template #default="{ row }">
-          <div class="action-group">
-            <el-button plain>详情</el-button>
-            <el-button v-if="row.statusType === 'pending'" type="success">通过</el-button>
-            <el-button v-if="row.statusType === 'pending'" type="danger" plain>拒绝</el-button>
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
+    <AdminPanel title="兑换申请列表" :icon="Document">
+      <el-table class="admin-data-table" :data="pagedRows" :row-class-name="getRowClassName">
+        <el-table-column label="编号" min-width="170">
+          <template #default="{ row }">
+            <div class="row-title">
+              <strong>{{ row.id }}</strong>
+              <span>{{ row.time }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="代理" min-width="240">
+          <template #default="{ row }">
+            <div class="row-title">
+              <strong>{{ row.agent }}</strong>
+              <span>{{ row.code }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="支付资产" min-width="180">
+          <template #default="{ row }">
+            <div class="asset">
+              <span>{{ row.amount }}</span>
+              <small>{{ row.asset }}</small>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="rate" label="比例" min-width="100" />
+        <el-table-column label="获得USD" min-width="160">
+          <template #default="{ row }">
+            <strong>{{ row.usd }}</strong>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" min-width="130">
+          <template #default="{ row }">
+            <StatusBadge :label="row.status" :type="row.statusType" />
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" min-width="220" fixed="right">
+          <template #default="{ row }">
+            <div class="action-group">
+              <el-button plain>详情</el-button>
+              <el-button v-if="row.statusType === 'pending'" type="success">通过</el-button>
+              <el-button v-if="row.statusType === 'pending'" type="danger" plain>拒绝</el-button>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <TablePager v-model="page" v-model:page-size="size" :total="total" />
+    </AdminPanel>
   </section>
 </template>
 
@@ -63,6 +66,8 @@ import { Document, Switch } from '@element-plus/icons-vue';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import TablePager from '@/components/common/TablePager.vue';
+import { useTablePager } from '@/hooks/useTablePager';
 
 const rows = [
   {
@@ -90,6 +95,8 @@ const rows = [
     statusType: 'success' as const,
   },
 ];
+
+const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 </script>
 
 <style scoped lang="scss">

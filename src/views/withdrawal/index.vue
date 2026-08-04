@@ -16,7 +16,7 @@
       <template #extra>
         <span class="pill pill--amber">1 笔待付款</span>
       </template>
-      <el-table class="admin-data-table" :data="rows" stripe>
+      <el-table class="admin-data-table" :data="pagedRows" stripe>
         <el-table-column label="编号" min-width="160">
           <template #default="{ row }">
             <div class="row-title">
@@ -54,6 +54,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
   </section>
 </template>
@@ -64,6 +65,8 @@ import { Document, Search, Wallet } from '@element-plus/icons-vue';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import TablePager from '@/components/common/TablePager.vue';
+import { useTablePager } from '@/hooks/useTablePager';
 
 const rows = [
   {
@@ -89,6 +92,8 @@ const rows = [
     statusType: 'success' as const,
   },
 ];
+
+const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 </script>
 
 <style scoped lang="scss">
