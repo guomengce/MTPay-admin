@@ -2,72 +2,50 @@
   <section class="admin-page">
     <AdminHero title="白名单审核" description="四种类型均只需一次审核" :icon="Checked">
       <template #extra>
-        <span class="pill pill--amber">1 笔待审核</span>
+        <span class="pill pill--amber">{{ pendingCount }} 笔待审核</span>
       </template>
     </AdminHero>
 
     <AdminPanel>
-      <el-table class="admin-data-table" :data="pagedRows">
-        <el-table-column label="编号" min-width="150">
-          <template #default="{ row }">
-            <div class="row-title">
-              <strong>{{ row.id }}</strong>
-              <span>{{ row.time }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="agent" label="代理" min-width="220" />
-        <el-table-column label="类型" min-width="130">
-          <template #default="{ row }">
-            <span class="type-chip">{{ row.type }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="主体" min-width="240">
-          <template #default="{ row }">
-            <div class="row-title">
-              <strong>{{ row.subject }}</strong>
-              <span>{{ row.country }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="关键资料" min-width="250">
-          <template #default="{ row }">
-            <div class="row-title">
-              <strong>{{ row.bank }}</strong>
-              <span>{{ row.account }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" min-width="130">
-          <template #default="{ row }">
-            <StatusBadge :label="row.status" :type="row.statusType" />
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" min-width="220" fixed="right">
-          <template #default="{ row }">
-            <div class="action-group">
-              <el-button plain>详情</el-button>
-              <el-button v-if="row.statusType === 'pending'" type="success">通过</el-button>
-              <el-button v-if="row.statusType === 'pending'" type="danger" plain>拒绝</el-button>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+      <WhitelistTableList
+        :data="pagedRows"
+        @view="openDialog('view', $event)"
+        @approve="openDialog('approve', $event)"
+        @reject="openDialog('reject', $event)"
+      />
+      <WhitelistCardList
+        :data="pagedRows"
+        @view="openDialog('view', $event)"
+        @approve="openDialog('approve', $event)"
+        @reject="openDialog('reject', $event)"
+      />
       <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
+
+    <WhitelistAddDialog
+      v-model="dialogVisible"
+      :row="activeRow"
+      :mode="dialogMode"
+      @submit="handleSubmit"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue';
 import { Checked } from '@element-plus/icons-vue';
 
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
-import StatusBadge from '@/components/admin/StatusBadge.vue';
 import TablePager from '@/components/common/TablePager.vue';
 import { useTablePager } from '@/hooks/useTablePager';
 
-const rows = [
+import WhitelistAddDialog from './components/WhitelistAddDialog.vue';
+import WhitelistCardList from './components/WhitelistCardList.vue';
+import type { WhitelistRow } from './components/WhitelistTableList.vue';
+import WhitelistTableList from './components/WhitelistTableList.vue';
+
+const rows: WhitelistRow[] = [
   {
     id: 'WL-1005',
     time: '08/03 15:38',
@@ -78,7 +56,7 @@ const rows = [
     bank: 'Deutsche Bank',
     account: 'DE8937040044053206194',
     status: '待审核',
-    statusType: 'pending' as const,
+    statusType: 'pending',
   },
   {
     id: 'WL-2002',
@@ -90,7 +68,7 @@ const rows = [
     bank: 'ANZ',
     account: '•• 2711',
     status: '已核准',
-    statusType: 'success' as const,
+    statusType: 'success',
   },
   {
     id: 'WL-2001',
@@ -102,7 +80,7 @@ const rows = [
     bank: 'Financial Institute',
     account: '72839104',
     status: '已核准',
-    statusType: 'success' as const,
+    statusType: 'success',
   },
   {
     id: 'WL-1004',
@@ -114,11 +92,29 @@ const rows = [
     bank: 'Barclays',
     account: 'GB29NWBK601613319501',
     status: '已核准',
-    statusType: 'success' as const,
+    statusType: 'success',
   },
 ];
 
 const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
+
+const pendingCount = computed(() => rows.filter((r) => r.statusType === 'pending').length);
+
+const dialogVisible = ref(false);
+const dialogMode = ref<'view' | 'approve' | 'reject'>('view');
+const activeRow = ref<WhitelistRow | null>(null);
+
+function openDialog(mode: 'view' | 'approve' | 'reject', row: WhitelistRow) {
+  dialogMode.value = mode;
+  activeRow.value = row;
+  dialogVisible.value = true;
+}
+
+function handleSubmit(payload: { row: WhitelistRow; mode: 'approve' | 'reject'; reason?: string }) {
+  // 接入 API：await api.whitelist.review(payload)
+  console.log('whitelist review', payload);
+  dialogVisible.value = false;
+}
 </script>
 
 <style scoped lang="scss"></style>

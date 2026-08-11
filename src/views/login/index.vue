@@ -5,7 +5,7 @@
         <span>M</span>
         <strong>MTPay Admin</strong>
       </div>
-      <p class="login-page__eyebrow">OPERATIONS & REVIEW CONSOLE</p>
+      <p class="login-page__eyebrow">OPERATIONS &amp; REVIEW CONSOLE</p>
       <h1>集中管理代理与每一笔资金流程。</h1>
       <p class="login-page__copy">
         建立代理帐户、设定专属兑换比例，并一次审核白名单、兑换及 USD 出金。
@@ -19,16 +19,19 @@
     </section>
 
     <section class="login-page__form-wrap">
+      <span class="login-page__dots" aria-hidden="true" />
+      <span class="login-page__shield-mark" aria-hidden="true">
+        <el-icon><Lock /></el-icon>
+      </span>
       <el-form class="login-card" :model="form" label-position="top" @submit.prevent="handleLogin">
         <span class="login-card__shield">
           <el-icon><Lock /></el-icon>
         </span>
-        <p class="login-card__mini">安全登录</p>
-        <h2>登入管理后台</h2>
+        <h2 class="login-card__title">登入管理后台</h2>
         <p class="login-card__desc">目前不区分管理员角色，所有重要操作仍会保留记录。</p>
 
         <el-form-item label="管理员 Email" prop="email">
-          <el-input v-model="form.email" size="large" :prefix-icon="User" />
+          <el-input v-model="form.email" size="large" :prefix-icon="User" placeholder="admin@mtpay.test" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input
@@ -37,9 +40,12 @@
             type="password"
             show-password
             :prefix-icon="Lock"
+            placeholder="请输入密码"
           />
         </el-form-item>
-        <el-button native-type="submit" type="primary" size="large">登入管理后台</el-button>
+        <el-button native-type="submit" type="primary" size="large" class="login-card__submit">
+          登入管理后台
+        </el-button>
       </el-form>
     </section>
   </main>
@@ -174,53 +180,75 @@ async function handleLogin() {
     place-items: center;
     padding: 40px;
     background:
-      radial-gradient(circle at 90% 5%, rgb(15 169 154 / 10%), transparent 20%),
-      linear-gradient(135deg, #ffffff, #f1f7fc);
+      radial-gradient(circle at 95% 0%, rgb(16 169 155 / 7%), transparent 28%),
+      linear-gradient(135deg, #ffffff, #f3f8fc);
+  }
+
+  &__dots {
+    position: absolute;
+    top: 36px;
+    right: 36px;
+    width: 260px;
+    height: 260px;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #c7d4e4 1.4px, transparent 1.5px);
+    background-size: 18px 18px;
+    opacity: 0.85;
+    mask-image: linear-gradient(135deg, #000 30%, transparent 75%);
+    -webkit-mask-image: linear-gradient(135deg, #000 30%, transparent 75%);
+  }
+
+  &__shield-mark {
+    position: absolute;
+    top: 70px;
+    right: 86px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    color: #10a99b;
+    background: rgb(16 169 155 / 8%);
+    font-size: 56px;
+    pointer-events: none;
   }
 }
 
 .login-card {
   position: relative;
-  width: min(620px, 100%);
-  padding: 56px 58px 46px;
-  border: 1px solid #cfd9e6;
-  border-radius: 8px;
-  background: rgb(255 255 255 / 72%);
-  box-shadow: 0 28px 70px rgb(25 48 85 / 16%);
-  backdrop-filter: blur(18px);
+  width: min(540px, 100%);
+  padding: 48px 52px 40px;
+  border: 1px solid #e6ecf5;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 28px 60px rgb(13 42 86 / 8%);
 
   &__shield {
     display: inline-flex;
-    width: 42px;
-    height: 42px;
+    width: 48px;
+    height: 48px;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    color: #08a899;
-    background: #e8fffb;
+    color: var(--app-primary);
+    background: var(--app-primary-soft);
     font-size: 22px;
   }
 
-  &__mini {
-    margin: 12px 0 0;
-    color: #08a899;
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: 1px;
-  }
-
-  h2 {
-    margin: 8px 0 12px;
+  &__title {
+    margin: 18px 0 8px;
     color: #061735;
-    font-size: 40px;
+    font-size: 32px;
     font-weight: 950;
+    line-height: 1.2;
   }
 
   &__desc {
-    margin: 0 0 34px;
+    margin: 0 0 28px;
     color: #50617b;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.7;
   }
 
   :deep(.el-form-item) {
@@ -229,15 +257,47 @@ async function handleLogin() {
 
   :deep(.el-form-item__label) {
     color: #071833;
-    font-weight: 900;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.4;
+    padding-bottom: 8px;
   }
 
-  .el-button {
+  :deep(.el-input__wrapper) {
+    padding: 2px 14px;
+    border-radius: 10px;
+    background: #f6f9fc;
+    box-shadow: 0 0 0 1px #e6ecf5 inset;
+    transition: box-shadow 0.18s ease;
+
+    &:hover {
+      box-shadow: 0 0 0 1px #c4d1e0 inset;
+    }
+
+    &.is-focus {
+      box-shadow: 0 0 0 1px var(--app-primary) inset;
+    }
+  }
+
+  :deep(.el-input__inner) {
+    height: 42px;
+    color: #0b1b35;
+    font-size: 15px;
+  }
+
+  :deep(.el-input__prefix-inner > .el-icon),
+  :deep(.el-input__prefix) {
+    color: #94a4b9;
+  }
+
+  &__submit {
     width: 100%;
-    height: 58px;
-    margin-top: 14px;
-    font-size: 20px;
-    font-weight: 900;
+    height: 50px;
+    margin-top: 12px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
   }
 }
 
@@ -267,13 +327,19 @@ async function handleLogin() {
     &__form-wrap {
       padding: 24px;
     }
+
+    &__dots,
+    &__shield-mark {
+      display: none;
+    }
   }
 
   .login-card {
-    padding: 28px 22px;
+    padding: 32px 24px 28px;
+    border-radius: 16px;
 
-    h2 {
-      font-size: 28px;
+    &__title {
+      font-size: 26px;
     }
   }
 }

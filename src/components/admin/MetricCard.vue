@@ -1,6 +1,6 @@
 <template>
   <article class="metric-card" :class="`metric-card--${tone}`">
-    <div>
+    <div class="metric-card__body">
       <p class="metric-card__label">
         {{ label }}
         <span v-if="badge">{{ badge }}</span>
@@ -8,7 +8,7 @@
       <strong>{{ value }}</strong>
       <small>{{ subtext }}</small>
     </div>
-    <span class="metric-card__icon">
+    <span class="metric-card__icon" aria-hidden="true">
       <el-icon><component :is="icon" /></el-icon>
     </span>
   </article>
@@ -33,22 +33,24 @@ withDefaults(
 
 <style scoped lang="scss">
 .metric-card {
-  display: flex;
+  position: relative;
   min-width: 0;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
   padding: 24px;
   border: 1px solid #d8e4ef;
   border-radius: 8px;
   background: radial-gradient(circle at 100% 0, rgb(255 255 255 / 80%), transparent 30%), #ffffff;
   box-shadow: 0 16px 38px rgb(19 40 74 / 6%);
 
+  &__body {
+    min-width: 0;
+  }
+
   &__label {
     display: flex;
     align-items: center;
     gap: 8px;
     margin: 0 0 14px;
+    padding-right: 76px; /* 给绝对定位的 icon 留出空间，避免文字与图标重叠 */
     color: #243554;
     font-weight: 850;
 
@@ -80,16 +82,18 @@ withDefaults(
   }
 
   &__icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
     display: inline-flex;
-    width: 68px;
-    height: 68px;
-    flex: 0 0 68px;
+    width: 60px;
+    height: 60px;
     align-items: center;
     justify-content: center;
-    border-radius: 18px;
+    border-radius: 16px;
     color: var(--tone);
     background: color-mix(in srgb, var(--tone) 12%, white);
-    font-size: 32px;
+    font-size: 30px;
   }
 
   &--teal {
@@ -116,10 +120,16 @@ withDefaults(
     }
 
     &__icon {
-      width: 54px;
-      height: 54px;
-      flex-basis: 54px;
-      font-size: 26px;
+      top: 16px;
+      right: 16px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      font-size: 24px;
+    }
+
+    &__label {
+      padding-right: 60px;
     }
   }
 }

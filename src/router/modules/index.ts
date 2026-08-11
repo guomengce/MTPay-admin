@@ -4,7 +4,7 @@ export const featureRoutes: RouteRecordRaw[] = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('@/views/overview/index.vue'),
+    component: () => import('@/views/dashboard/index.vue'),
     meta: {
       title: '营运总览',
       description: '管理代理、资金与审核流程',

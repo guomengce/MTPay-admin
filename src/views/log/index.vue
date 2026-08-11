@@ -66,13 +66,13 @@ const { page, size, total, pagedData: pagedLogs } = useTablePager(logs);
 <style scoped lang="scss">
 .timeline {
   position: relative;
-  padding: 34px 34px 34px 86px;
+  padding: 24px 24px 24px 70px;
 
   &::before {
     position: absolute;
-    top: 58px;
-    bottom: 58px;
-    left: 50px;
+    top: 46px;
+    bottom: 46px;
+    left: 24px;
     width: 2px;
     background: #cfe8e4;
     content: '';
@@ -81,9 +81,9 @@ const { page, size, total, pagedData: pagedLogs } = useTablePager(logs);
   article {
     position: relative;
     display: grid;
-    grid-template-columns: 78px minmax(0, 1fr) auto;
-    gap: 22px;
-    padding: 28px 0;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    gap: 14px;
+    padding: 18px 0;
     border-bottom: 1px solid #e6edf5;
   }
 
@@ -93,47 +93,48 @@ const { page, size, total, pagedData: pagedLogs } = useTablePager(logs);
 
   &__dot {
     position: absolute;
-    top: 58px;
-    left: -42px;
-    width: 18px;
-    height: 18px;
+    top: 46px;
+    left: -52px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: #20b9a8;
   }
 
   &__icon {
     display: inline-flex;
-    width: 76px;
-    height: 76px;
+    width: 44px;
+    height: 44px;
     align-items: center;
     justify-content: center;
-    border-radius: 14px;
+    border-radius: 10px;
     color: #0aa99a;
     background: #e5faf6;
-    font-size: 34px;
+    font-size: 20px;
   }
 
   h3 {
-    margin: 0 0 12px;
+    margin: 0 0 8px;
     color: #071833;
-    font-size: 22px;
+    font-size: 15px;
+    font-weight: 600;
 
     em {
-      margin-left: 12px;
-      padding: 5px 12px;
+      margin-left: 10px;
+      padding: 3px 10px;
       border-radius: 999px;
       color: #078f82;
       background: #dff6ec;
-      font-size: 14px;
+      font-size: 12px;
       font-style: normal;
     }
   }
 
   p {
-    margin: 0 0 14px;
+    margin: 0 0 10px;
     color: #42516a;
-    font-size: 16px;
-    font-weight: 750;
+    font-size: 13px;
+    font-weight: 400;
   }
 
   small,
@@ -153,13 +154,13 @@ const { page, size, total, pagedData: pagedLogs } = useTablePager(logs);
     }
 
     article {
-      grid-template-columns: 52px minmax(0, 1fr);
+      grid-template-columns: 44px minmax(0, 1fr);
     }
 
     &__icon {
-      width: 52px;
-      height: 52px;
-      font-size: 26px;
+      width: 44px;
+      height: 44px;
+      font-size: 20px;
     }
 
     time {

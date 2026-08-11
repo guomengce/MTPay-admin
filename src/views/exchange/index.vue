@@ -2,74 +2,51 @@
   <section class="admin-page">
     <AdminHero title="兑换审核" description="查看资金冻结和处理时间线后完成一次审核" :icon="Switch">
       <template #extra>
-        <span class="pill pill--amber">2 笔待审核</span>
+        <span class="pill pill--amber">{{ pendingCount }} 笔待审核</span>
       </template>
     </AdminHero>
 
-    <div class="notice">订单使用提交时的代理专属比例，后续修改比例不影响已提交订单。</div>
 
     <AdminPanel title="兑换申请列表" :icon="Document">
-      <el-table class="admin-data-table" :data="pagedRows">
-        <el-table-column label="编号" min-width="170">
-          <template #default="{ row }">
-            <div class="row-title">
-              <strong>{{ row.id }}</strong>
-              <span>{{ row.time }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="代理" min-width="240">
-          <template #default="{ row }">
-            <div class="row-title">
-              <strong>{{ row.agent }}</strong>
-              <span>{{ row.code }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="支付资产" min-width="180">
-          <template #default="{ row }">
-            <div class="asset">
-              <span>{{ row.amount }}</span>
-              <small>{{ row.asset }}</small>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="rate" label="比例" min-width="100" />
-        <el-table-column label="获得USD" min-width="160">
-          <template #default="{ row }">
-            <strong>{{ row.usd }}</strong>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" min-width="130">
-          <template #default="{ row }">
-            <StatusBadge :label="row.status" :type="row.statusType" />
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" min-width="220" fixed="right">
-          <template #default="{ row }">
-            <div class="action-group">
-              <el-button plain>详情</el-button>
-              <el-button v-if="row.statusType === 'pending'" type="success">通过</el-button>
-              <el-button v-if="row.statusType === 'pending'" type="danger" plain>拒绝</el-button>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+      <ExchangeTableList
+        :data="pagedRows"
+        @view="openDialog('view', $event)"
+        @approve="openDialog('approve', $event)"
+        @reject="openDialog('reject', $event)"
+      />
+      <ExchangeCardList
+        :data="pagedRows"
+        @view="openDialog('view', $event)"
+        @approve="openDialog('approve', $event)"
+        @reject="openDialog('reject', $event)"
+      />
       <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
+
+    <ExchangeAddDialog
+      v-model="dialogVisible"
+      :row="activeRow"
+      :mode="dialogMode"
+      @submit="handleSubmit"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue';
 import { Document, Switch } from '@element-plus/icons-vue';
 
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
-import StatusBadge from '@/components/admin/StatusBadge.vue';
 import TablePager from '@/components/common/TablePager.vue';
 import { useTablePager } from '@/hooks/useTablePager';
 
-const rows = [
+import ExchangeAddDialog from './components/ExchangeAddDialog.vue';
+import ExchangeCardList from './components/ExchangeCardList.vue';
+import type { ExchangeRow } from './components/ExchangeTableList.vue';
+import ExchangeTableList from './components/ExchangeTableList.vue';
+
+const rows: ExchangeRow[] = [
   {
     id: 'EX-26073002',
     time: '08/03 16:08',
@@ -80,7 +57,7 @@ const rows = [
     rate: '0.9000',
     usd: '4,500.00 USD',
     status: '待审核',
-    statusType: 'pending' as const,
+    statusType: 'pending',
   },
   {
     id: 'EX-26073001',
@@ -92,34 +69,31 @@ const rows = [
     rate: '0.9900',
     usd: '9,900.00 USD',
     status: '已完成',
-    statusType: 'success' as const,
+    statusType: 'success',
   },
 ];
 
 const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
+
+const pendingCount = computed(() => rows.filter((r) => r.statusType === 'pending').length);
+
+const dialogVisible = ref(false);
+const dialogMode = ref<'view' | 'approve' | 'reject'>('view');
+const activeRow = ref<ExchangeRow | null>(null);
+
+function openDialog(mode: 'view' | 'approve' | 'reject', row: ExchangeRow) {
+  dialogMode.value = mode;
+  activeRow.value = row;
+  dialogVisible.value = true;
+}
+
+function handleSubmit(payload: { row: ExchangeRow; mode: 'approve' | 'reject'; reason?: string }) {
+  // 接入 API：await api.exchanges.review(payload)
+  console.log('exchange review', payload);
+  dialogVisible.value = false;
+}
 </script>
 
 <style scoped lang="scss">
-.notice {
-  padding: 18px 22px;
-  border: 1px solid #f5cc80;
-  border-radius: 8px;
-  color: #9b6510;
-  background: #fff8e8;
-  font-weight: 850;
-}
 
-.asset {
-  display: grid;
-  gap: 5px;
-
-  span {
-    font-weight: 950;
-  }
-
-  small {
-    color: #66758b;
-    font-weight: 750;
-  }
-}
 </style>
