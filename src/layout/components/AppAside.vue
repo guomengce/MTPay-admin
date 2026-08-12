@@ -7,7 +7,7 @@
         <span>ADMIN CONSOLE</span>
       </div>
     </div>
-    <el-menu class="app-aside__menu" :default-active="route.path" :collapse="isCollapsed" router>
+    <el-menu class="app-aside__menu" :default-active="activeMenuPath" :collapse="isCollapsed" router>
       <el-menu-item v-for="menu in routeStore.menus" :key="menu.path" :index="menu.path">
         <span class="app-aside__icon">
           <el-icon><component :is="resolveIcon(menu.icon)" /></el-icon>
@@ -59,13 +59,7 @@ const appStore = useAppStore();
 const authStore = useAuthStore();
 const routeStore = useRouteStore();
 const isCollapsed = computed(() => appStore.sidebarCollapsed && appStore.device !== 'mobile');
-
-const pendingMap: Record<string, number> = {
-  '/deposit': 1,
-  '/exchange': 2,
-  '/whitelist': 1,
-  '/withdrawal': 1,
-};
+const activeMenuPath = computed(() => String(route.meta.activeMenu || route.path));
 
 const icons = {
   Grid,
@@ -91,6 +85,7 @@ async function handleLogout() {
 <style scoped lang="scss">
 .app-aside {
   display: flex;
+  width: 100%;
   height: 100%;
   min-width: 0;
   flex-direction: column;
@@ -150,6 +145,13 @@ async function handleLogout() {
     overflow-x: hidden;
     overflow-y: auto;
     background: transparent;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
   }
 
   :deep(.el-menu-item) {

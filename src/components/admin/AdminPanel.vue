@@ -29,7 +29,7 @@ defineProps<{
   min-width: 0;
   overflow: hidden;
   border: 1px solid #dce5ef;
-  border-radius: 8px;
+  border-radius: 20px;
   background: rgb(255 255 255 / 94%);
   box-shadow: 0 18px 42px rgb(16 42 80 / 7%);
 

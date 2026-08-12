@@ -1,8 +1,5 @@
 <template>
   <AdminPanel class="task-panel" title="待处理业务" :icon="DocumentChecked">
-    <template #extra>
-      <span class="pill pill--amber">3 项</span>
-    </template>
     <div class="task-grid">
       <RouterLink v-for="task in tasks" :key="task.title" :to="task.to" class="task-link">
         <el-card class="task-card" :class="`task-card--${task.tone}`" shadow="never">
@@ -100,13 +97,13 @@ const tasks = [
     margin: 6px 0 0;
     color: #061936;
     font-size: 18px;
-    font-weight: 950;
+    font-weight: 700;
     line-height: 1.2;
   }
 
   strong {
     color: #001b42;
-    font-size: 48px;
+    font-size: 32px;
     font-weight: 950;
     line-height: 0.95;
   }
@@ -161,36 +158,53 @@ const tasks = [
 @include mobile {
   .task-grid {
     grid-template-columns: 1fr;
-    padding: 18px;
+    gap: 10px;
+    padding: 14px;
   }
 
   .task-card {
-    min-height: 246px;
+    min-height: 0;
 
     :deep(.el-card__body) {
-      min-height: 246px;
-      gap: 16px;
-      padding: 28px 18px 22px;
-    }
-
-    &__icon {
-      width: 88px;
-      height: 88px;
-      font-size: 44px;
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      min-height: 0;
+      align-items: center;
+      justify-items: stretch;
+      gap: 12px;
+      padding: 14px;
+      text-align: left;
     }
 
     h3 {
-      font-size: 24px;
+      margin: 0 0 5px;
+      font-size: 17px;
+      line-height: 1.2;
     }
 
     strong {
-      font-size: 58px;
+      grid-column: 2;
+      color: var(--task-tone);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    &__icon {
+      grid-row: 1 / span 2;
+      width: 48px;
+      height: 48px;
+      font-size: 26px;
     }
 
     small {
-      height: 42px;
-      font-size: 16px;
-      max-width: none;
+      grid-column: 3;
+      grid-row: 1 / span 2;
+      width: auto;
+      max-width: 118px;
+      height: 32px;
+      justify-self: end;
+      padding: 0 10px;
+      font-size: 12px;
     }
   }
 }

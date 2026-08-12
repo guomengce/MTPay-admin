@@ -1,25 +1,22 @@
 <template>
   <section class="admin-page">
     <AdminHero
-      title="数字货币入金审核"
-      description="确认平台已收到USDT或USDC后，审核通过并增加代理余额"
+      title="入金审核"
+      description="平台收到USDT/USDC后，审核通过并增加余额"
       :icon="Checked"
     >
-      <template #extra>
-        <span class="pill pill--amber">{{ pendingCount }} 笔待审核</span>
-      </template>
     </AdminHero>
 
-    <AdminPanel title="入金申请" :icon="Wallet">
+    <AdminPanel>
       <DepositTableList
         :data="pagedRows"
-        @view="openDialog('view', $event)"
+        @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
       />
       <DepositCardList
         :data="pagedRows"
-        @view="openDialog('view', $event)"
+        @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
       />
@@ -36,8 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { Checked, Wallet } from '@element-plus/icons-vue';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { Checked } from '@element-plus/icons-vue';
 
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
@@ -59,7 +57,8 @@ const rows: DepositRow[] = [
     hash: '0x98aefd33...1e72f0',
     amount: '12,000.00',
     status: '待审核',
-    statusType: 'pending',
+    statusType: 'warning',
+    statusEffect: 'pending',
   },
   {
     id: 'DEP-26073001',
@@ -86,12 +85,15 @@ const rows: DepositRow[] = [
 ];
 
 const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
-
-const pendingCount = computed(() => rows.filter((r) => r.statusType === 'pending').length);
+const router = useRouter();
 
 const dialogVisible = ref(false);
 const dialogMode = ref<'view' | 'approve' | 'reject'>('view');
 const activeRow = ref<DepositRow | null>(null);
+
+function openDetail(row: DepositRow) {
+  router.push(`/deposit/detail/${row.id}`);
+}
 
 function openDialog(mode: 'view' | 'approve' | 'reject', row: DepositRow) {
   dialogMode.value = mode;
@@ -106,6 +108,4 @@ function handleSubmit(payload: { row: DepositRow; mode: 'approve' | 'reject'; re
 }
 </script>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

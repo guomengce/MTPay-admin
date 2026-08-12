@@ -41,9 +41,9 @@ defineProps<{
 
   &__icon {
     display: inline-flex;
-    width: 72px;
-    height: 72px;
-    flex: 0 0 72px;
+    width: 62px;
+    height: 62px;
+    flex: 0 0 62px;
     align-items: center;
     justify-content: center;
     border-radius: 18px;
@@ -56,7 +56,7 @@ defineProps<{
   h1 {
     margin: 0 0 8px;
     color: #071833;
-    font-size: 42px;
+    font-size: 30px;
     font-weight: 950;
     line-height: 1.15;
   }
@@ -64,13 +64,13 @@ defineProps<{
   p {
     margin: 0;
     color: #64748b;
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 700;
   }
 
   &__art {
     width: 230px;
-    height: 108px;
+    height: 85px;
     flex: 0 0 230px;
     opacity: 0.8;
     background:
@@ -82,24 +82,30 @@ defineProps<{
   @include mobile {
     align-items: flex-start;
     flex-direction: column;
+    gap: 14px;
 
     &__main {
       align-items: flex-start;
+      gap: 14px;
     }
 
     &__icon {
-      width: 58px;
-      height: 58px;
-      flex-basis: 58px;
-      font-size: 30px;
+      width: 52px;
+      height: 52px;
+      flex-basis: 52px;
+      border-radius: 15px;
+      font-size: 27px;
     }
 
     h1 {
-      font-size: 30px;
+      margin-bottom: 6px;
+      font-size: 24px;
+      line-height: 1.18;
     }
 
     p {
-      font-size: 14px;
+      font-size: 13px;
+      line-height: 1.45;
     }
 
     &__art {

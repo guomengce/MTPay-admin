@@ -2,7 +2,7 @@
   <section class="admin-page">
     <AdminHero
       title="比例与费用"
-      description="下方配置将直接影响代理专属费率与帐金额，请谨慎设定。"
+      description="配置将直接影响代理专属费率，请谨慎设定。"
       :icon="PieChart"
     />
 

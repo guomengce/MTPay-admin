@@ -4,7 +4,7 @@
       v-model:current-page="page"
       v-model:page-size="size"
       :total="total"
-      layout="prev, pager, next, sizes, jumper"
+      layout="prev, pager, next"
       background
       small
     />

@@ -85,13 +85,6 @@ onBeforeUnmount(() => {
     }
   }
 
-  @include narrow {
-    .app-layout__aside {
-      width: var(--app-aside-narrow-width);
-      flex-basis: var(--app-aside-narrow-width);
-    }
-  }
-
   @include mobile {
     .app-layout__aside {
       position: fixed;

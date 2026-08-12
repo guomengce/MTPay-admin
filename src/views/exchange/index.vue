@@ -1,22 +1,18 @@
 <template>
   <section class="admin-page">
     <AdminHero title="兑换审核" description="查看资金冻结和处理时间线后完成一次审核" :icon="Switch">
-      <template #extra>
-        <span class="pill pill--amber">{{ pendingCount }} 笔待审核</span>
-      </template>
     </AdminHero>
 
-
-    <AdminPanel title="兑换申请列表" :icon="Document">
+    <AdminPanel>
       <ExchangeTableList
         :data="pagedRows"
-        @view="openDialog('view', $event)"
+        @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
       />
       <ExchangeCardList
         :data="pagedRows"
-        @view="openDialog('view', $event)"
+        @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
       />
@@ -33,8 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { Document, Switch } from '@element-plus/icons-vue';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { Switch } from '@element-plus/icons-vue';
 
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
@@ -57,7 +54,8 @@ const rows: ExchangeRow[] = [
     rate: '0.9000',
     usd: '4,500.00 USD',
     status: '待审核',
-    statusType: 'pending',
+    statusType: 'warning',
+    statusEffect: 'pending',
   },
   {
     id: 'EX-26073001',
@@ -74,12 +72,15 @@ const rows: ExchangeRow[] = [
 ];
 
 const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
-
-const pendingCount = computed(() => rows.filter((r) => r.statusType === 'pending').length);
+const router = useRouter();
 
 const dialogVisible = ref(false);
 const dialogMode = ref<'view' | 'approve' | 'reject'>('view');
 const activeRow = ref<ExchangeRow | null>(null);
+
+function openDetail(row: ExchangeRow) {
+  router.push(`/exchange/detail/${row.id}`);
+}
 
 function openDialog(mode: 'view' | 'approve' | 'reject', row: ExchangeRow) {
   dialogMode.value = mode;
@@ -94,6 +95,4 @@ function handleSubmit(payload: { row: ExchangeRow; mode: 'approve' | 'reject'; r
 }
 </script>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

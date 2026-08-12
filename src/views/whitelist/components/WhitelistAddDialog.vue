@@ -54,7 +54,9 @@
         </div>
         <div>
           <dt>类型</dt>
-          <dd><span class="type-chip">{{ row.type }}</span></dd>
+          <dd>
+            <StatusBadge :label="row.type" type="primary" />
+          </dd>
         </div>
         <div>
           <dt>主体 / 国家</dt>
@@ -75,10 +77,14 @@
     </template>
 
     <template #footer>
-      <el-button @click="emit('update:modelValue', false)">取消</el-button>
-      <el-button v-if="mode === 'view'" type="primary" @click="emit('update:modelValue', false)">关闭</el-button>
-      <el-button v-else-if="mode === 'approve'" type="success" @click="handleSubmit">确认通过</el-button>
-      <el-button v-else type="danger" @click="handleSubmit">确认拒绝</el-button>
+      <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
+      <el-button v-if="mode === 'view'" plain @click="emit('update:modelValue', false)"
+        >关闭</el-button
+      >
+      <el-button v-else-if="mode === 'approve'" type="success" :icon="CircleCheck" @click="handleSubmit"
+        >确认通过</el-button
+      >
+      <el-button v-else type="danger" :icon="CircleClose" @click="handleSubmit">确认拒绝</el-button>
     </template>
   </el-dialog>
 </template>
@@ -86,7 +92,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import { CircleCheck, CircleClose } from '@element-plus/icons-vue';
 
+import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { WhitelistRow } from './WhitelistTableList.vue';
 
 type Mode = 'view' | 'approve' | 'reject';

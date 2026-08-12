@@ -3,25 +3,25 @@
     <AdminHero title="MTPay 营运总览" description="管理代理、资金与审核流程" :icon="DataAnalysis">
     </AdminHero>
 
-    <OverviewMetrics />
+    <HeaderMetrics />
 
     <div class="overview-page__split">
-      <OverviewTasks />
-      <OverviewSettings />
+      <Tasks />
+      <RateSettings />
     </div>
 
-    <OverviewFlows />
+    <AssetFlows />
   </section>
 </template>
 
 <script setup lang="ts">
-import { DataAnalysis, Plus } from '@element-plus/icons-vue';
+import { DataAnalysis } from '@element-plus/icons-vue';
 
 import AdminHero from '@/components/admin/AdminHero.vue';
-import OverviewFlows from './components/OverviewFlows.vue';
-import OverviewMetrics from './components/OverviewMetrics.vue';
-import OverviewSettings from './components/OverviewSettings.vue';
-import OverviewTasks from './components/OverviewTasks.vue';
+import AssetFlows from './components/AssetFlows.vue';
+import HeaderMetrics from './components/HeaderMetrics.vue';
+import RateSettings from './components/RateSettings.vue';
+import Tasks from './components/Tasks.vue';
 </script>
 
 <style scoped lang="scss">
@@ -34,6 +34,12 @@ import OverviewTasks from './components/OverviewTasks.vue';
 }
 
 @include narrow {
+  .overview-page__split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include mobile {
   .overview-page__split {
     grid-template-columns: 1fr;
   }

@@ -2,64 +2,43 @@
   <section class="admin-page">
     <AdminHero
       title="资金流水"
-      description="记录每笔收付款交易详情，资金全链路清晰可追溯"
+      description="记录收付款交易详情，资金全链路清晰可追溯"
       :icon="Tickets"
     >
       <template #extra>
-        <el-button plain :icon="Download">导出CSV</el-button>
+        <el-button type="primary" :icon="Download">导出CSV</el-button>
       </template>
     </AdminHero>
 
     <AdminPanel>
-      <el-table class="admin-data-table" :data="pagedRows" stripe>
-        <el-table-column prop="time" label="时间" sortable min-width="130" />
-        <el-table-column prop="agent" label="代理" sortable min-width="220" />
-        <el-table-column label="类型" min-width="100">
-          <template #default="{ row }">
-            <span class="type-chip">{{ row.type }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="id" label="编号" min-width="150" />
-        <el-table-column prop="content" label="内容" min-width="190" />
-        <el-table-column label="金额" min-width="190">
-          <template #default="{ row }">
-            <div
-              :class="{
-                'amount-success': row.amount.startsWith('+'),
-                'amount-danger': row.amount.startsWith('-'),
-              }"
-            >
-              <strong>{{ row.amount }}</strong>
-              <small>{{ row.usd }}</small>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" min-width="140">
-          <template #default="{ row }">
-            <StatusBadge :label="row.status" :type="row.statusType" />
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="130" fixed="right">
-          <template #default>
-            <el-button plain size="small" :icon="View">查看详情</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <ResponsiveList>
+        <template #desktop>
+          <FlowTableList :data="pagedRows" @view="handleView" />
+        </template>
+        <template #mobile>
+          <FlowCardList :data="pagedRows" @view="handleView" />
+        </template>
+      </ResponsiveList>
       <TablePager v-model="page" v-model:page-size="size" :total="total" />
     </AdminPanel>
   </section>
 </template>
 
 <script setup lang="ts">
-import { Download, Tickets, View } from '@element-plus/icons-vue';
+import { useRouter } from 'vue-router';
+import { Download, Tickets } from '@element-plus/icons-vue';
 
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
-import StatusBadge from '@/components/admin/StatusBadge.vue';
+import ResponsiveList from '@/components/common/ResponsiveList.vue';
 import TablePager from '@/components/common/TablePager.vue';
 import { useTablePager } from '@/hooks/useTablePager';
 
-const rows = [
+import FlowCardList from './components/FlowCardList.vue';
+import type { FlowRow } from './components/FlowTableList.vue';
+import FlowTableList from './components/FlowTableList.vue';
+
+const rows: FlowRow[] = [
   {
     time: '08/03 16:08',
     agent: '代理B · Bluewave Capital',
@@ -69,7 +48,8 @@ const rows = [
     amount: '5,000.00 USDC',
     usd: '≈ 5,000.00 USD',
     status: '待审核',
-    statusType: 'pending' as const,
+    statusType: 'warning',
+    statusEffect: 'pending',
   },
   {
     time: '08/03 15:08',
@@ -77,10 +57,11 @@ const rows = [
     type: '入金',
     id: 'DEP-26073002',
     content: 'USDC · ERC20',
-    amount: '待入帐 12,000.00 USDC',
+    amount: '待入账 12,000.00 USDC',
     usd: '',
     status: '待审核',
-    statusType: 'pending' as const,
+    statusType: 'warning',
+    statusEffect: 'pending',
   },
   {
     time: '08/03 14:08',
@@ -91,7 +72,8 @@ const rows = [
     amount: '-5,050.00 USD',
     usd: '≈ -5,050.00 USD',
     status: '付款处理中',
-    statusType: 'process' as const,
+    statusType: 'primary',
+    statusEffect: 'pending',
   },
   {
     time: '08/02 17:08',
@@ -102,7 +84,8 @@ const rows = [
     amount: '+50,000.00 USDT',
     usd: '≈ 50,000.00 USD',
     status: '已完成',
-    statusType: 'success' as const,
+    statusType: 'success',
+    statusEffect: undefined,
   },
   {
     time: '08/02 15:08',
@@ -113,7 +96,8 @@ const rows = [
     amount: '+25,000.00 USDT',
     usd: '≈ 25,000.00 USD',
     status: '已完成',
-    statusType: 'success' as const,
+    statusType: 'success',
+    statusEffect: undefined,
   },
   {
     time: '08/01 17:08',
@@ -124,7 +108,8 @@ const rows = [
     amount: '+12,500.00 USDC',
     usd: '≈ 12,500.00 USD',
     status: '已完成',
-    statusType: 'success' as const,
+    statusType: 'success',
+    statusEffect: undefined,
   },
   {
     time: '07/31 17:08',
@@ -135,18 +120,15 @@ const rows = [
     amount: '-12,550.00 USD',
     usd: '≈ -12,550.00 USD',
     status: '已完成',
-    statusType: 'success' as const,
+    statusType: 'success',
+    statusEffect: undefined,
   },
 ];
 
 const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
-</script>
+const router = useRouter();
 
-<style scoped lang="scss">
-td small {
-  display: block;
-  margin-top: 5px;
-  color: #64748b;
-  font-weight: 700;
+function handleView(row: FlowRow) {
+  router.push(`/flow/detail/${row.id}`);
 }
-</style>
+</script>

@@ -50,8 +50,8 @@
       </div>
     </el-form>
     <template #footer>
-      <el-button @click="emit('update:modelValue', false)">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">
+      <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
+      <el-button type="primary" :icon="DocumentChecked" :loading="submitting" @click="handleSubmit">
         {{ isEdit ? '保存修改' : '建立代理' }}
       </el-button>
     </template>
@@ -61,6 +61,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import { DocumentChecked } from '@element-plus/icons-vue';
 
 export interface AgentFormModel {
   name: string;

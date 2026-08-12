@@ -1,21 +1,17 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="白名单审核" description="四种类型均只需一次审核" :icon="Checked">
-      <template #extra>
-        <span class="pill pill--amber">{{ pendingCount }} 笔待审核</span>
-      </template>
-    </AdminHero>
+    <AdminHero title="白名单审核" description="四种类型均只需一次审核" :icon="Checked" />
 
     <AdminPanel>
       <WhitelistTableList
         :data="pagedRows"
-        @view="openDialog('view', $event)"
+        @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
       />
       <WhitelistCardList
         :data="pagedRows"
-        @view="openDialog('view', $event)"
+        @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
       />
@@ -32,7 +28,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { Checked } from '@element-plus/icons-vue';
 
 import AdminHero from '@/components/admin/AdminHero.vue';
@@ -56,7 +53,8 @@ const rows: WhitelistRow[] = [
     bank: 'Deutsche Bank',
     account: 'DE8937040044053206194',
     status: '待审核',
-    statusType: 'pending',
+    statusType: 'warning',
+    statusEffect: 'pending',
   },
   {
     id: 'WL-2002',
@@ -97,12 +95,15 @@ const rows: WhitelistRow[] = [
 ];
 
 const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
-
-const pendingCount = computed(() => rows.filter((r) => r.statusType === 'pending').length);
+const router = useRouter();
 
 const dialogVisible = ref(false);
 const dialogMode = ref<'view' | 'approve' | 'reject'>('view');
 const activeRow = ref<WhitelistRow | null>(null);
+
+function openDetail(row: WhitelistRow) {
+  router.push(`/whitelist/detail/${row.id}`);
+}
 
 function openDialog(mode: 'view' | 'approve' | 'reject', row: WhitelistRow) {
   dialogMode.value = mode;

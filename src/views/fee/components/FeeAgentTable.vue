@@ -12,7 +12,7 @@
       <el-table-column prop="max" label="最高 USD 可得" min-width="160" />
       <el-table-column label="操作" width="110" fixed="right">
         <template #default>
-          <el-button plain>修改</el-button>
+          <el-button plain size="small" :icon="Edit">修改</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { UserFilled } from '@element-plus/icons-vue';
+import { Edit, UserFilled } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import TablePager from '@/components/common/TablePager.vue';
@@ -53,3 +53,9 @@ const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 <style scoped lang="scss">
 
 </style>
+
+
+
+
+
+

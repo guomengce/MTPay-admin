@@ -32,7 +32,7 @@
         <div>
           <dt>付款关系</dt>
           <dd>
-            <span class="relation-chip">{{ row.relation }}</span>
+            <StatusBadge :label="row.relation" type="primary" />
             <small>{{ row.parties }}</small>
           </dd>
         </div>
@@ -56,7 +56,11 @@
         @submit.prevent
       >
         <el-form-item label="付款凭证号" prop="reference">
-          <el-input v-model="form.reference" placeholder="例如：银行流水号 / 渠道交易号" maxlength="60" />
+          <el-input
+            v-model="form.reference"
+            placeholder="例如：银行流水号 / 渠道交易号"
+            maxlength="60"
+          />
         </el-form-item>
         <el-form-item label="备注" prop="note">
           <el-input
@@ -71,9 +75,11 @@
     </template>
 
     <template #footer>
-      <el-button @click="emit('update:modelValue', false)">取消</el-button>
-      <el-button v-if="mode === 'view'" type="primary" @click="emit('update:modelValue', false)">关闭</el-button>
-      <el-button v-else type="primary" @click="handleSubmit">确认付款完成</el-button>
+      <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
+      <el-button v-if="mode === 'view'" plain @click="emit('update:modelValue', false)"
+        >关闭</el-button
+      >
+      <el-button v-else type="primary" :icon="CircleCheck" @click="handleSubmit">确认付款完成</el-button>
     </template>
   </el-dialog>
 </template>
@@ -81,7 +87,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import { CircleCheck } from '@element-plus/icons-vue';
 
+import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { WithdrawalRow } from './WithdrawalTableList.vue';
 
 type Mode = 'view' | 'complete';
@@ -94,12 +102,13 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', val: boolean): void;
-  (e: 'submit', payload: { row: WithdrawalRow; mode: Mode; reference?: string; note?: string }): void;
+  (
+    e: 'submit',
+    payload: { row: WithdrawalRow; mode: Mode; reference?: string; note?: string },
+  ): void;
 }>();
 
-const dialogTitle = computed(() =>
-  props.mode === 'view' ? '出金订单详情' : '标记付款完成',
-);
+const dialogTitle = computed(() => (props.mode === 'view' ? '出金订单详情' : '标记付款完成'));
 
 const formRef = ref<FormInstance>();
 const form = reactive({ reference: '', note: '' });
@@ -174,22 +183,9 @@ async function handleSubmit() {
         font-weight: 900;
       }
 
-      .relation-chip {
-        display: inline-flex;
-        height: 22px;
-        align-items: center;
-        padding: 0 10px;
-        margin-right: 8px;
-        border-radius: 999px;
-        color: #126df0;
-        background: #eaf2ff;
-        font-size: 12px;
-        font-weight: 900;
-        letter-spacing: 0.5px;
-        vertical-align: middle;
-      }
-
       small {
+        display: block;
+        margin-top: 6px;
         color: #7a8aa1;
         font-size: 12px;
         font-weight: 700;

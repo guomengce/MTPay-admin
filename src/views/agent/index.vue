@@ -2,7 +2,7 @@
   <section class="admin-page">
     <AdminHero title="代理帐户" description="直接新增管理代理帐户" :icon="UserFilled">
       <template #extra>
-        <el-button type="primary" size="large" :icon="Plus" @click="openCreate">新增代理</el-button>
+        <el-button type="primary"  :icon="Plus" @click="openCreate">新增代理</el-button>
       </template>
     </AdminHero>
 
