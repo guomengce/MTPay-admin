@@ -46,9 +46,6 @@
       <el-table-column label="操作" width="180" fixed="right">
         <template #default="{ row }">
           <el-button plain size="small" :icon="Edit" @click="emit('edit', row)">编辑</el-button>
-          <el-button type="primary" plain size="small" :icon="Setting" @click="emit('settings', row)"
-            >设定</el-button
-          >
         </template>
       </el-table-column>
     </el-table>

@@ -33,7 +33,6 @@ const cardItems = computed<AdminCardItem[]>(() =>
     ],
     actions: [
       { key: 'edit', label: '编辑', icon: Edit, plain: true },
-      { key: 'settings', label: '设定', icon: Setting, type: 'primary', plain: true },
     ],
   })),
 );

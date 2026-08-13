@@ -1,19 +1,22 @@
 <template>
-  <AdminPanel class="deposit-fund-impact">
-    <h2>资金变化</h2>
+  <AdminPanel class="detail-fund-impact">
+    <h2>{{ title }}</h2>
 
-    <div class="deposit-fund-impact__flow">
-      <div class="deposit-fund-impact__node">
-        <span class="deposit-fund-impact__icon is-blue">
-          <Wallet />
+    <div v-if="flow" class="detail-fund-impact__flow">
+      <div class="detail-fund-impact__node">
+        <span class="detail-fund-impact__icon" :class="flow.tone ? `is-${flow.tone}` : 'is-blue'">
+          <component :is="flow.icon" />
         </span>
         <div>
-          <span>当前：</span>
-          <strong>尚未入账</strong>
+          <span>{{ flow.label }}</span>
+          <strong>
+            {{ flow.value }}
+            <small v-if="flow.suffix">{{ flow.suffix }}</small>
+          </strong>
         </div>
       </div>
 
-      <div class="deposit-fund-impact__arrow" aria-hidden="true">
+      <div class="detail-fund-impact__arrow" aria-hidden="true">
         <span></span>
         <i>
           <Right />
@@ -21,34 +24,57 @@
         <span></span>
       </div>
 
-      <div class="deposit-fund-impact__node is-positive">
-        <span class="deposit-fund-impact__icon is-mt">
-          <TrendCharts />
+      <div class="detail-fund-impact__node is-positive">
+        <span class="detail-fund-impact__icon" :class="result.tone ? `is-${result.tone}` : 'is-mt'">
+          <component :is="result.icon" />
         </span>
         <div>
-          <span>审核通过后：</span>
+          <span>{{ result.label }}</span>
           <strong>
-            代理余额
-            <em>+{{ detail.balanceChange }}</em>
-            <small>{{ detail.currency }}</small>
+            {{ result.value }}
+            <em v-if="result.delta">+{{ result.delta }}</em>
+            <small v-if="result.suffix">{{ result.suffix }}</small>
           </strong>
         </div>
       </div>
+    </div>
+
+    <div v-else class="detail-fund-impact__single">
+      <span>{{ result.label }}</span>
+      <strong>
+        {{ result.value }}
+        <small v-if="result.suffix">{{ result.suffix }}</small>
+      </strong>
     </div>
   </AdminPanel>
 </template>
 
 <script setup lang="ts">
-import { Right, TrendCharts, Wallet } from '@element-plus/icons-vue';
+import { Right } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
-import type { DepositDetail } from '../types';
 
-defineProps<{ detail: DepositDetail }>();
+export interface FundImpactNode {
+  icon: unknown;
+  tone?: 'mt' | 'blue' | 'purple' | 'amber';
+  label: string;
+  value: string;
+  delta?: string;
+  suffix?: string;
+}
+
+withDefaults(
+  defineProps<{
+    title?: string;
+    flow?: FundImpactNode;
+    result: FundImpactNode;
+  }>(),
+  { title: '资金变化', flow: undefined },
+);
 </script>
 
 <style scoped lang="scss">
-.deposit-fund-impact {
+.detail-fund-impact {
   padding: 28px;
   border-color: #cfe1ff;
   background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
@@ -62,9 +88,9 @@ defineProps<{ detail: DepositDetail }>();
 
   &__flow {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 190px minmax(0, 1.18fr);
+    grid-template-columns: minmax(0, 1fr) 220px minmax(0, 1.18fr);
     align-items: center;
-    gap: 18px;
+    gap: 24px;
   }
 
   &__node {
@@ -76,6 +102,10 @@ defineProps<{ detail: DepositDetail }>();
     border: 1px solid #d8e6f5;
     border-radius: 14px;
     background: #fbfdff;
+
+    > div {
+      min-width: 0;
+    }
 
     &.is-positive {
       background: linear-gradient(135deg, rgb(57 245 236 / 9%), #ffffff);
@@ -90,6 +120,7 @@ defineProps<{ detail: DepositDetail }>();
     strong {
       display: block;
       margin-top: 8px;
+      overflow-wrap: break-word;
       color: #126df0;
       font-size: 24px;
       font-weight: 950;
@@ -118,7 +149,7 @@ defineProps<{ detail: DepositDetail }>();
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-size: 30px;
+    font-size: 26px;
 
     &.is-blue {
       color: #126df0;
@@ -157,6 +188,36 @@ defineProps<{ detail: DepositDetail }>();
     }
   }
 
+  &__single {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 22px 26px;
+    border: 1px solid #d8e6f5;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ffffff, #f7fbff);
+
+    span {
+      color: #061936;
+      font-size: 16px;
+      font-weight: 850;
+    }
+
+    strong {
+      color: #126df0;
+      font-size: 22px;
+      font-weight: 950;
+    }
+
+    small {
+      margin-left: 6px;
+      color: #126df0;
+      font-size: 14px;
+      font-weight: 850;
+    }
+  }
+
   @include narrow {
     padding: 22px 24px;
 
@@ -178,7 +239,7 @@ defineProps<{ detail: DepositDetail }>();
     &__icon {
       width: 48px;
       height: 48px;
-      font-size: 24px;
+      font-size: 22px;
     }
 
     &__arrow {
@@ -198,6 +259,19 @@ defineProps<{ detail: DepositDetail }>();
 
     em {
       font-size: 24px;
+    }
+
+    &__single {
+      gap: 14px;
+      padding: 16px 18px;
+
+      span {
+        font-size: 15px;
+      }
+
+      strong {
+        font-size: 17px;
+      }
     }
   }
 
@@ -250,6 +324,21 @@ defineProps<{ detail: DepositDetail }>();
 
     em {
       font-size: 22px;
+    }
+
+    &__single {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 8px;
+      padding: 14px 16px;
+
+      span {
+        font-size: 14px;
+      }
+
+      strong {
+        font-size: 16px;
+      }
     }
   }
 }

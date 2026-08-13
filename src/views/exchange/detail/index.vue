@@ -1,24 +1,33 @@
 <template>
   <section class="admin-page exchange-detail-page">
-    <ExchangeDetailHero
-      :detail="detail"
+    <DetailHero
+      order="兑换审核"
+      :title="detail.title"
+      :description="detail.description"
+      :order-id="detail.id"
+      :status="heroStatus"
+      :actions="heroActions"
       @back="goBack"
       @approve="openReviewDialog('approve')"
       @reject="openReviewDialog('reject')"
     />
 
-    <ExchangeSummaryCards :detail="detail" />
+    <DetailSummaryCard :items="summaryItems" />
 
-    <div class="exchange-detail-page__grid">
-      <main class="exchange-detail-page__main">
-        <ExchangeBusinessInfo :detail="detail" />
-        <ExchangeFundImpact :detail="detail" />
-      </main>
+    <div class="exchange-detail-page__split">
+      <DetailBusinessInfo
+        title="业务信息"
+        :sections="businessSections"
+        :status="detail.status ? { type: detail.statusType, effect: detail.statusEffect } : undefined"
+      />
 
-      <aside class="exchange-detail-page__aside">
-        <ExchangeTimeline :detail="detail" />
-      </aside>
+      <DetailTimelinePanel title="处理时间线" :items="detail.timeline" />
     </div>
+
+    <DetailFundImpact
+      :flow="fundFlowNode"
+      :result="fundResultNode"
+    />
 
     <ExchangeAddDialog
       v-model="dialogVisible"
@@ -31,15 +40,26 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import {
+  CircleCheck,
+  CircleClose,
+  Clock,
+  Document,
+  Money,
+  Switch,
+  Tickets,
+  TrendCharts,
+} from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
+
+import DetailBusinessInfo, { type DetailSection } from '@/components/detail/DetailBusinessInfo.vue';
+import DetailFundImpact, { type FundImpactNode } from '@/components/detail/DetailFundImpact.vue';
+import DetailHero, { type HeroAction } from '@/components/detail/DetailHero.vue';
+import DetailSummaryCard, { type SummaryItem } from '@/components/detail/DetailSummaryCard.vue';
+import DetailTimelinePanel from '@/components/detail/DetailTimelinePanel.vue';
 
 import ExchangeAddDialog from '../components/ExchangeAddDialog.vue';
 import type { ExchangeRow } from '../components/ExchangeTableList.vue';
-import ExchangeBusinessInfo from './components/ExchangeBusinessInfo.vue';
-import ExchangeDetailHero from './components/ExchangeDetailHero.vue';
-import ExchangeFundImpact from './components/ExchangeFundImpact.vue';
-import ExchangeSummaryCards from './components/ExchangeSummaryCards.vue';
-import ExchangeTimeline from './components/ExchangeTimeline.vue';
 import type { ExchangeDetail } from './types';
 
 const route = useRoute();
@@ -87,14 +107,76 @@ const detail = computed<ExchangeDetail>(() => {
         description: '订单将使用提交时的0.9000比例。',
         state: 'active',
       },
-      {
-        key: 'done',
-        title: '审核通过 / 拒绝',
-        state: 'pending',
-      },
+      { key: 'done', title: '审核通过 / 拒绝', state: 'pending' },
     ],
   };
 });
+
+const heroStatus = computed(() => ({
+  label: detail.value.status,
+  type: detail.value.statusType,
+  effect: detail.value.statusEffect,
+}));
+
+const heroActions: HeroAction[] = [
+  { label: '通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
+  { label: '拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' },
+];
+
+const summaryItems = computed<SummaryItem[]>(() => [
+  { label: '支付数量', value: detail.value.payAmount, suffix: detail.value.payAsset, icon: Money, tone: 'blue' },
+  { label: '兑换方向', value: detail.value.direction, icon: Switch, tone: 'mt' },
+  { label: '采用比例', value: detail.value.rate, icon: TrendCharts, tone: 'purple' },
+  { label: '提交时间', value: detail.value.submittedAt, icon: Clock, tone: 'blue' },
+]);
+
+const businessSections = computed<DetailSection[]>(() => [
+  {
+    title: '基础信息',
+    icon: Tickets,
+    fields: [
+      { label: '交易编号：', value: detail.value.id },
+      { label: '代理编号：', value: detail.value.agentCode },
+      { label: '代理：', value: detail.value.agent },
+      { label: '当前状态：', value: detail.value.status, badge: true },
+    ],
+  },
+  {
+    title: '兑换明细',
+    icon: Switch,
+    fields: [
+      { label: '兑换方向：', value: detail.value.direction },
+      { label: '支付数量：', value: `${detail.value.payAmount} ${detail.value.payAsset}` },
+      { label: '采用比例：', value: detail.value.rate },
+      { label: '获得金额：', value: `${detail.value.receiveAmount} ${detail.value.receiveAsset}` },
+    ],
+  },
+  {
+    title: '备注',
+    icon: Document,
+    fields: [
+      { label: '提交时间：', value: detail.value.submittedAt },
+      { label: '业务备注：', value: detail.value.remark },
+    ],
+  },
+]);
+
+const fundFlowNode: FundImpactNode = {
+  icon: Money,
+  tone: 'blue',
+  label: '当前：',
+  value: '已冻结',
+  suffix: 'USDC',
+};
+
+const fundResultNode = computed<FundImpactNode>(() => ({
+  icon: TrendCharts,
+  tone: 'mt',
+  label: '审核通过后：',
+  value: '代理余额',
+  delta: detail.value.receiveAmount,
+  suffix: detail.value.receiveAsset,
+}));
 
 const reviewRow = computed<ExchangeRow>(() => ({
   id: detail.value.id,
@@ -133,43 +215,13 @@ function handleSubmit(payload: { row: ExchangeRow; mode: 'approve' | 'reject'; r
 .exchange-detail-page {
   gap: 20px;
 
-  &__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 360px;
-    gap: 24px;
-    align-items: start;
-  }
-
-  &__main,
-  &__aside {
+  &__split {
     display: grid;
     gap: 20px;
-    min-width: 0;
-  }
+    grid-template-columns: 1fr;
 
-  @include narrow {
-    &__grid {
-      grid-template-columns: minmax(0, 1fr) 300px;
-      gap: 18px;
-    }
-
-    &__main,
-    &__aside {
-      gap: 16px;
-    }
-  }
-
-  @include mobile {
-    gap: 14px;
-
-    &__grid {
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
-    &__main,
-    &__aside {
-      gap: 14px;
+    @media (min-width: 1311px) {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     }
   }
 }

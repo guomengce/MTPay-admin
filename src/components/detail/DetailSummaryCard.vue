@@ -1,11 +1,15 @@
 <template>
-  <section class="exchange-summary-card">
-    <div v-for="item in summaryItems" :key="item.label" class="exchange-summary-card__item">
-      <span class="exchange-summary-card__icon" :class="`is-${item.tone}`">
+  <section class="detail-summary-card">
+    <div
+      v-for="item in items"
+      :key="item.label"
+      class="detail-summary-card__item"
+    >
+      <span class="detail-summary-card__icon" :class="`is-${item.tone}`">
         <component :is="item.icon" />
       </span>
 
-      <div class="exchange-summary-card__body">
+      <div class="detail-summary-card__body">
         <span>{{ item.label }}</span>
         <strong>
           {{ item.value }}
@@ -17,44 +21,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Clock, Money, Switch, TrendCharts } from '@element-plus/icons-vue';
+export interface SummaryItem {
+  icon: unknown;
+  tone: 'mt' | 'blue' | 'purple';
+  label: string;
+  value: string | number;
+  suffix?: string;
+}
 
-import type { ExchangeDetail } from '../types';
-
-const props = defineProps<{ detail: ExchangeDetail }>();
-
-const summaryItems = computed(() => [
-  {
-    label: '支付数量',
-    value: props.detail.payAmount,
-    suffix: props.detail.payAsset,
-    icon: Money,
-    tone: 'blue',
-  },
-  {
-    label: '兑换方向',
-    value: props.detail.direction,
-    icon: Switch,
-    tone: 'mt',
-  },
-  {
-    label: '采用比例',
-    value: props.detail.rate,
-    icon: TrendCharts,
-    tone: 'purple',
-  },
-  {
-    label: '提交时间',
-    value: props.detail.submittedAt,
-    icon: Clock,
-    tone: 'blue',
-  },
-]);
+defineProps<{ items: SummaryItem[] }>();
 </script>
 
 <style scoped lang="scss">
-.exchange-summary-card {
+.detail-summary-card {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   overflow: hidden;
@@ -83,7 +62,7 @@ const summaryItems = computed(() => [
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-size: 25px;
+    font-size: 22px;
 
     &.is-mt {
       color: #079d96;
@@ -149,7 +128,7 @@ const summaryItems = computed(() => [
     &__icon {
       width: 42px;
       height: 42px;
-      font-size: 22px;
+      font-size: 20px;
     }
 
     &__body {
@@ -189,7 +168,7 @@ const summaryItems = computed(() => [
     &__icon {
       width: 40px;
       height: 40px;
-      font-size: 22px;
+      font-size: 20px;
     }
 
     &__body {

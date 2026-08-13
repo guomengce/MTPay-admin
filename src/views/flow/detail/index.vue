@@ -1,30 +1,48 @@
 <template>
   <section class="admin-page flow-detail-page">
-    <FlowDetailHero :detail="detail" @back="goBack" />
+    <DetailHero
+      order="资金流水"
+      :title="detail.title"
+      :description="detail.description"
+      :order-id="detail.id"
+      :status="heroStatus"
+      @back="goBack"
+    />
 
-    <FlowSummaryCards :detail="detail" />
-    <div class="flow-detail-page__grid">
-      <main class="flow-detail-page__main">
-        <FlowBusinessInfo :detail="detail" />
-        <FlowFundChange :detail="detail" />
-      </main>
+    <DetailSummaryCard :items="summaryItems" />
 
-      <aside class="flow-detail-page__aside">
-        <FlowTimeline :detail="detail" />
-      </aside>
+    <div class="flow-detail-page__split">
+      <DetailBusinessInfo
+        title="交易信息"
+        :sections="businessSections"
+        :status="detail.status ? { type: detail.statusType, effect: detail.statusEffect } : undefined"
+      />
+
+      <DetailTimelinePanel title="处理时间线" :items="detail.timeline" />
     </div>
+
+    <DetailFundImpact :result="fundResultNode" />
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import {
+  Clock,
+  Money,
+  Switch,
+  Tickets,
+  UserFilled,
+  Wallet,
+} from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import FlowBusinessInfo from './components/FlowBusinessInfo.vue';
-import FlowDetailHero from './components/FlowDetailHero.vue';
-import FlowFundChange from './components/FlowFundChange.vue';
-import FlowSummaryCards from './components/FlowSummaryCards.vue';
-import FlowTimeline from './components/FlowTimeline.vue';
+import DetailBusinessInfo, { type DetailSection } from '@/components/detail/DetailBusinessInfo.vue';
+import DetailFundImpact, { type FundImpactNode } from '@/components/detail/DetailFundImpact.vue';
+import DetailHero from '@/components/detail/DetailHero.vue';
+import DetailSummaryCard, { type SummaryItem } from '@/components/detail/DetailSummaryCard.vue';
+import DetailTimelinePanel from '@/components/detail/DetailTimelinePanel.vue';
+
 import type { FlowDetail } from './types';
 
 const route = useRoute();
@@ -77,6 +95,57 @@ const detail = computed<FlowDetail>(() => {
   };
 });
 
+const heroStatus = computed(() => ({
+  label: detail.value.status,
+  type: detail.value.statusType,
+  effect: detail.value.statusEffect,
+}));
+
+const summaryItems = computed<SummaryItem[]>(() => [
+  { label: '流水类型', value: detail.value.flowType, icon: Switch, tone: 'mt' },
+  { label: '代理', value: detail.value.agent, icon: UserFilled, tone: 'blue' },
+  {
+    label: '交易金额',
+    value: detail.value.payAmount,
+    suffix: detail.value.payAsset,
+    icon: Money,
+    tone: 'mt',
+  },
+  { label: '提交时间', value: detail.value.submittedAt, icon: Clock, tone: 'blue' },
+]);
+
+const businessSections = computed<DetailSection[]>(() => [
+  {
+    title: '基础信息',
+    icon: Tickets,
+    fields: [
+      { label: '交易编号：', value: detail.value.id },
+      { label: '代理：', value: detail.value.agent },
+      { label: '流水类型：', value: detail.value.flowType },
+      { label: '当前状态：', value: detail.value.status, badge: true },
+    ],
+  },
+  {
+    title: '兑换明细',
+    icon: Switch,
+    fields: [
+      { label: '兑换方向：', value: detail.value.direction },
+      { label: '支付数量：', value: `${detail.value.payAmount} ${detail.value.payAsset}` },
+      { label: '采用比例：', value: detail.value.rate },
+      { label: '获得金额：', value: `${detail.value.receiveAmount} ${detail.value.receiveAsset}` },
+      { label: '提交时间：', value: detail.value.submittedAt },
+    ],
+  },
+]);
+
+const fundResultNode = computed<FundImpactNode>(() => ({
+  icon: Wallet,
+  tone: 'blue',
+  label: detail.value.fundChangeLabel,
+  value: detail.value.fundChangeAmount,
+  suffix: detail.value.payAsset,
+}));
+
 function goBack() {
   router.push('/flow');
 }
@@ -86,41 +155,13 @@ function goBack() {
 .flow-detail-page {
   gap: 20px;
 
-  &__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 360px;
-    gap: 24px;
-    align-items: start;
-  }
-
-  &__main,
-  &__aside {
+  &__split {
     display: grid;
     gap: 20px;
-    min-width: 0;
-  }
+    grid-template-columns: 1fr;
 
-  @include narrow {
-    &__grid {
-      grid-template-columns: minmax(0, 1fr) 300px;
-      gap: 18px;
-    }
-
-    &__main,
-    &__aside {
-      gap: 18px;
-    }
-  }
-
-  @include mobile {
-    &__grid {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    &__main,
-    &__aside {
-      gap: 16px;
+    @media (min-width: 1311px) {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     }
   }
 }

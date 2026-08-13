@@ -9,7 +9,6 @@
         <p>{{ description }}</p>
       </div>
     </div>
-    <div class="admin-hero__art" aria-hidden="true"></div>
     <slot name="extra" />
   </header>
 </template>
@@ -68,17 +67,6 @@ defineProps<{
     font-weight: 700;
   }
 
-  &__art {
-    width: 230px;
-    height: 85px;
-    flex: 0 0 230px;
-    opacity: 0.8;
-    background:
-      radial-gradient(circle at 70% 40%, rgb(67 130 255 / 24%), transparent 30%),
-      linear-gradient(135deg, rgb(54 144 255 / 18%), rgb(34 211 190 / 8%));
-    clip-path: polygon(15% 20%, 82% 0, 100% 65%, 43% 100%, 0 80%);
-  }
-
   @include mobile {
     align-items: flex-start;
     flex-direction: column;
@@ -106,14 +94,6 @@ defineProps<{
     p {
       font-size: 13px;
       line-height: 1.45;
-    }
-
-    &__art {
-      position: absolute;
-      right: -80px;
-      bottom: -40px;
-      width: 190px;
-      height: 90px;
     }
   }
 }
