@@ -12,6 +12,7 @@ export * from './types';
 export * as AuthApi from './modules/auth';
 export * as DashboardApi from './modules/dashboard';
 export * as AgentApi from './modules/agent';
+export * as CurrencyApi from './modules/currency';
 export * as DepositApi from './modules/deposit';
 export * as ExchangeApi from './modules/exchange';
 export * as WhitelistApi from './modules/whitelist';

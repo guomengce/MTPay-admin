@@ -6,48 +6,51 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Edit, Setting } from '@element-plus/icons-vue';
-
 import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
-import type { AgentRow } from './AgentTableList.vue';
+import type { AgentAccount } from '@/api/modules/agent';
+import type { AgentStatus } from './AgentTableList.vue';
 
-const props = defineProps<{ data: AgentRow[] }>();
+const props = defineProps<{ data: AgentAccount[] }>();
 const emit = defineEmits<{
-  (e: 'edit', row: AgentRow): void;
-  (e: 'settings', row: AgentRow): void;
+  (e: 'detail', row: AgentAccount): void;
+  (e: 'edit', row: AgentAccount): void;
+  (e: 'status', row: AgentAccount, status: AgentStatus): void;
 }>();
 
 const cardItems = computed<AdminCardItem[]>(() =>
   props.data.map((row) => ({
-    key: row.code,
-    title: row.name,
-    subtitle: row.code,
-    status: { label: '正常使用', type: 'success' },
+    key: String(row.id),
+    title: row.company_name,
+    subtitle: row.agent_code,
+    status: { label: row.status_name, type: row.status === 1 ? 'success' : row.status === 3 ? 'danger' : 'warning' },
     fields: [
       { label: 'Email', value: row.email },
       { label: '电话', value: row.phone },
-      { label: 'USDT比例', badge: { label: row.usdt, type: 'mt' } },
-      { label: 'USDC比例', badge: { label: row.usdc, type: 'primary' } },
-      { label: 'USD可用', value: row.balance, strong: true },
+      { label: '创建时间', value: row.created_at || '—' },
     ],
     actions: [
-      { key: 'edit', label: '编辑', icon: Edit, plain: true },
+      { key: 'detail', label: '详情', plain: true },
+      { key: 'edit', label: '修改', plain: true },
+      ...(row.status === 0
+        ? [{ key: 'status-3', label: '停用', plain: true }]
+        : row.status === 1
+          ? [{ key: 'status-2', label: '暂停', plain: true }, { key: 'status-3', label: '停用', plain: true }]
+          : row.status === 2
+            ? [{ key: 'status-1', label: '恢复正常', plain: true }, { key: 'status-3', label: '停用', plain: true }]
+            : []),
     ],
   })),
 );
 
 function handleAction(actionKey: string, itemKey: string) {
-  const row = props.data.find((item) => item.code === itemKey);
+  const row = props.data.find((item) => String(item.id) === itemKey);
   if (!row) return;
 
-  if (actionKey === 'edit') {
-    emit('edit', row);
-    return;
-  }
-
-  if (actionKey === 'settings') {
-    emit('settings', row);
+  if (actionKey === 'detail') emit('detail', row);
+  if (actionKey === 'edit') emit('edit', row);
+  if (actionKey.startsWith('status-')) {
+    emit('status', row, Number(actionKey.slice(7)) as AgentStatus);
   }
 }
 </script>

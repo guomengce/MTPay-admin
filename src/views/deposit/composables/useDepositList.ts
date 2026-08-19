@@ -1,60 +1,33 @@
-/**
- * deposit 列表 composable 骨架
- */
-import { reactive, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { fetchDepositList } from '@/api/modules/deposit';
+import type { DepositRow } from './mapper';
+import { toDepositRow } from './mapper';
 
-import * as DepositApi from '@/api/modules/deposit';
-import type { DepositListParams } from '@/api/modules/deposit';
-
-export interface UseDepositListOptions {
-  pageSize?: number;
-  defaultQuery?: Partial<DepositListParams>;
-}
-
-export function useDepositList(options: UseDepositListOptions = {}) {
+/** 入金审核列表：真实后端分页，不做前端假分页。 */
+export function useDepositList() {
   const loading = ref(false);
-  const list = ref<DepositApi.DepositListItem[]>([]);
+  const list = ref<DepositRow[]>([]);
   const total = ref(0);
   const page = ref(1);
-  const pageSize = ref(options.pageSize ?? 10);
-  const query = reactive<Partial<DepositListParams>>({ ...(options.defaultQuery ?? {}) });
+  const limit = ref(15);
 
-  async function fetchList() {
+  async function loadList() {
     loading.value = true;
     try {
-      const result = await DepositApi.fetchDepositList({
-        page: page.value,
-        pageSize: pageSize.value,
-        ...query,
-      });
-      list.value = result.list;
+      const result = await fetchDepositList({ page: page.value, limit: limit.value });
+      list.value = result.data.map(toDepositRow);
       total.value = result.total;
     } finally {
       loading.value = false;
     }
   }
 
-  async function refresh() {
-    page.value = 1;
-    await fetchList();
-  }
+  watch(page, () => void loadList());
+  watch(limit, () => {
+    if (page.value !== 1) page.value = 1;
+    else void loadList();
+  });
+  onMounted(loadList);
 
-  function resetQuery() {
-    for (const k of Object.keys(query)) {
-      delete query[k as keyof DepositListParams];
-    }
-    page.value = 1;
-  }
-
-  return {
-    loading,
-    list,
-    total,
-    page,
-    pageSize,
-    query,
-    fetchList,
-    refresh,
-    resetQuery,
-  };
+  return { loading, list, total, page, limit, loadList };
 }

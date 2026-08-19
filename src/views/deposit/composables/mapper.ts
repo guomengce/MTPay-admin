@@ -1,45 +1,42 @@
-/**
- * deposit mapper
- * 后端 DTO → 页面视图模型；状态映射集中维护。
- */
+import type { DepositOrder } from '@/api/modules/deposit';
 import type { StatusBadgeEffect, StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 
-import type { DepositListItem } from '@/api/modules/deposit';
-
-/* -----------------------------------------------------------------------------
- * 状态 → badge
- * -------------------------------------------------------------------------- */
-export interface StatusBadgeMeta {
-  type: StatusBadgeType;
-  effect?: StatusBadgeEffect;
+export interface DepositRow {
+  businessId: number;
+  id: string;
+  time: string;
+  agent: string;
+  agentCode: string;
+  asset: string;
+  network: string;
+  hash: string;
+  amount: string;
+  status: string;
+  statusCode: 0 | 1 | 2;
+  statusType: StatusBadgeType;
+  statusEffect?: StatusBadgeEffect;
 }
 
-const DEPOSIT_STATUS_BADGE_MAP: Record<string, StatusBadgeMeta> = {
-  pending: { type: 'warning', effect: 'pending' },
-  approved: { type: 'success' },
-  rejected: { type: 'danger' },
-  processing: { type: 'primary' },
-  finished: { type: 'success' },
+const statusMeta = {
+  0: { type: 'warning' as const, effect: 'pending' as const },
+  1: { type: 'success' as const },
+  2: { type: 'danger' as const },
 };
 
-export function toDepositStatusBadge(status: string): StatusBadgeMeta {
-  return DEPOSIT_STATUS_BADGE_MAP[status] ?? { type: 'gray' };
-}
-
-/* -----------------------------------------------------------------------------
- * 列表行 → 视图模型
- * -------------------------------------------------------------------------- */
-export interface DepositListView extends DepositListItem {
-  statusMeta: StatusBadgeMeta;
-}
-
-export function toDepositListView(row: DepositListItem): DepositListView {
+export function toDepositRow(order: DepositOrder): DepositRow {
   return {
-    ...row,
-    statusMeta: toDepositStatusBadge(row.status),
+    businessId: order.id,
+    id: order.order_no,
+    time: order.submitted_at ?? '—',
+    agent: order.user.company_name,
+    agentCode: order.user.agent_code,
+    asset: order.currency.code,
+    network: order.network.code,
+    hash: order.txid,
+    amount: order.amount,
+    status: order.status_name,
+    statusCode: order.status,
+    statusType: statusMeta[order.status].type,
+    statusEffect: order.status === 0 ? statusMeta[0].effect : undefined,
   };
-}
-
-export function toDepositListViewBatch(rows: DepositListItem[]): DepositListView[] {
-  return rows.map(toDepositListView);
 }

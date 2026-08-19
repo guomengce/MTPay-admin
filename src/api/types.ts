@@ -6,9 +6,11 @@
 
 /** 业务信封：所有接口约定的返回结构 */
 export interface ApiResponse<T = unknown> {
-  code: number;
+  status: number | string;
   message: string;
   data: T;
+  is_popup?: boolean;
+  sign?: string;
 }
 
 /** 通用分页请求参数 */
@@ -49,4 +51,4 @@ export interface IdPayload {
 /** 异步执行结果包装，用于 composable 内不抛异常的场景 */
 export type AsyncResult<T> =
   | { ok: true; data: T }
-  | { ok: false; error: ApiError | Error };
+  | { ok: false; error: Error };

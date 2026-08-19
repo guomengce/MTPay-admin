@@ -81,9 +81,9 @@ withDefaults(
 
   h2 {
     margin: 0 0 20px;
-    color: #061936;
+    color: var(--app-text-heading);
     font-size: 24px;
-    font-weight: 950;
+    font-weight: 700;
   }
 
   &__flow {
@@ -112,9 +112,9 @@ withDefaults(
     }
 
     span {
-      color: #66758b;
+      color: var(--app-text-label);
       font-size: 14px;
-      font-weight: 750;
+      font-weight: 400;
     }
 
     strong {
@@ -123,7 +123,7 @@ withDefaults(
       overflow-wrap: break-word;
       color: #126df0;
       font-size: 24px;
-      font-weight: 950;
+      font-weight: 600;
       line-height: 1.2;
     }
 
@@ -137,7 +137,7 @@ withDefaults(
       margin-left: 6px;
       color: #079d96;
       font-size: 14px;
-      font-weight: 850;
+      font-weight: 600;
     }
   }
 
@@ -199,22 +199,22 @@ withDefaults(
     background: linear-gradient(135deg, #ffffff, #f7fbff);
 
     span {
-      color: #061936;
+      color: var(--app-text-heading);
       font-size: 16px;
-      font-weight: 850;
+      font-weight: 600;
     }
 
     strong {
       color: #126df0;
       font-size: 22px;
-      font-weight: 950;
+      font-weight: 600;
     }
 
     small {
       margin-left: 6px;
       color: #126df0;
       font-size: 14px;
-      font-weight: 850;
+      font-weight: 600;
     }
   }
 

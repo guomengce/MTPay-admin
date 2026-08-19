@@ -5,7 +5,8 @@
     width="560px"
     :close-on-click-modal="false"
     align-center
-    @update:model-value="(val) => emit('update:modelValue', val)"
+    @open="resetForm"
+    @update:model-value="handleVisibleChange"
   >
     <template v-if="row">
       <p class="deposit-dialog__hint">
@@ -33,7 +34,7 @@
             type="textarea"
             :rows="3"
             placeholder="例如：金额与链上转账记录不符"
-            maxlength="200"
+            maxlength="1000"
             show-word-limit
           />
         </el-form-item>
@@ -70,10 +71,22 @@
     <template #footer>
       <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
       <el-button v-if="mode === 'view'" plain @click="handleViewClose">关闭</el-button>
-      <el-button v-else-if="mode === 'approve'" type="success" :icon="CircleCheck" @click="handleSubmit"
+      <el-button
+        v-else-if="mode === 'approve'"
+        type="success"
+        :icon="CircleCheck"
+        :loading="submitting"
+        @click="handleSubmit"
         >确认通过</el-button
       >
-      <el-button v-else type="danger" :icon="CircleClose" @click="handleSubmit">确认拒绝</el-button>
+      <el-button
+        v-else
+        type="danger"
+        :icon="CircleClose"
+        :loading="submitting"
+        @click="handleSubmit"
+        >确认拒绝</el-button
+      >
     </template>
   </el-dialog>
 </template>
@@ -91,11 +104,12 @@ const props = defineProps<{
   modelValue: boolean;
   row: DepositRow | null;
   mode: Mode;
+  submitting?: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:modelValue', val: boolean): void;
-  (e: 'submit', payload: { row: DepositRow; mode: Mode; reason?: string }): void;
+  (e: 'submit', payload: { row: DepositRow; mode: 'approve' | 'reject'; reason?: string }): void;
 }>();
 
 const dialogTitle = computed(() =>
@@ -106,11 +120,23 @@ const formRef = ref<FormInstance>();
 const reasonForm = reactive({ reason: '' });
 
 const rules: FormRules<{ reason: string }> = {
-  reason: [{ required: true, message: '请填写拒绝原因', trigger: 'blur' }],
+  reason: [
+    { required: true, message: '请填写拒绝原因', trigger: 'blur' },
+    { max: 1000, message: '拒绝原因不能超过 1000 个字符', trigger: 'blur' },
+  ],
 };
+
+function resetForm() {
+  reasonForm.reason = '';
+  formRef.value?.clearValidate();
+}
 
 function handleViewClose() {
   emit('update:modelValue', false);
+}
+
+function handleVisibleChange(value: boolean) {
+  emit('update:modelValue', value);
 }
 
 async function handleSubmit() {
@@ -124,7 +150,7 @@ async function handleSubmit() {
     });
     return;
   }
-  emit('submit', { row: props.row, mode: props.mode });
+  if (props.mode === 'approve') emit('submit', { row: props.row, mode: 'approve' });
 }
 </script>
 
@@ -137,7 +163,7 @@ async function handleSubmit() {
     color: #50617b;
     background: #f3f8fc;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.6;
   }
 
@@ -158,21 +184,21 @@ async function handleSubmit() {
     }
 
     dt {
-      color: #6f7e94;
+      color: var(--app-text-label);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 600;
     }
 
     dd {
       margin: 0;
       color: #1f2a37;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
 
       &.strong {
-        color: #071833;
+        color: var(--app-text-heading);
         font-size: 16px;
-        font-weight: 900;
+        font-weight: 600;
       }
 
       &.mono {
@@ -188,8 +214,8 @@ async function handleSubmit() {
       margin-bottom: 0;
     }
     :deep(.el-form-item__label) {
-      color: #071833;
-      font-weight: 800;
+      color: var(--app-text-heading);
+      font-weight: 600;
       padding-bottom: 6px;
     }
   }

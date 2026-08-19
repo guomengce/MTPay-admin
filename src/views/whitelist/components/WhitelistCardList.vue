@@ -6,17 +6,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { CircleCheck, CircleClose, View } from '@element-plus/icons-vue';
+import { CircleCheck, CircleClose, DocumentAdd, View } from '@element-plus/icons-vue';
 
 import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
-import type { WhitelistRow } from './WhitelistTableList.vue';
+import type { WhitelistRow } from '../composables/mapper';
 
 const props = defineProps<{ data: WhitelistRow[] }>();
 const emit = defineEmits<{
   (e: 'view', row: WhitelistRow): void;
   (e: 'approve', row: WhitelistRow): void;
   (e: 'reject', row: WhitelistRow): void;
+  (e: 'supplement', row: WhitelistRow): void;
 }>();
 
 const cardItems = computed<AdminCardItem[]>(() =>
@@ -29,14 +30,14 @@ const cardItems = computed<AdminCardItem[]>(() =>
       type: row.statusType,
       effect: row.statusEffect,
     },
-    pending: row.statusEffect === 'pending',
+    pending: row.statusCode === 0 || row.statusCode === 1,
     fields: [
       { label: '编号', value: row.id, strong: true },
       { label: '时间', value: row.time },
-      { label: '代理', value: row.agent, strong: true },
+      { label: '代理', value: row.agent, subValue: row.agentCode, strong: true },
       { label: '类型', badge: { label: row.type, type: 'primary' } },
       { label: '主体', value: row.subject, subValue: row.country, strong: true },
-      { label: '资料', value: row.bank, subValue: row.account, strong: true },
+      { label: '附件', value: `${row.fileCount} 个` },
     ],
     actions: [
       { key: 'view', label: '详情', icon: View, plain: true },
@@ -46,7 +47,15 @@ const cardItems = computed<AdminCardItem[]>(() =>
         icon: CircleCheck,
         type: 'success',
         plain: true,
-        visible: row.statusEffect === 'pending',
+        visible: row.statusCode === 0,
+      },
+      {
+        key: 'supplement',
+        label: '补件',
+        icon: DocumentAdd,
+        type: 'primary',
+        plain: true,
+        visible: row.statusCode === 0,
       },
       {
         key: 'reject',
@@ -54,7 +63,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
         icon: CircleClose,
         type: 'danger',
         plain: true,
-        visible: row.statusEffect === 'pending',
+        visible: row.statusCode === 0 || row.statusCode === 1,
       },
     ],
   })),
@@ -67,6 +76,7 @@ function handleCardAction(actionKey: string, itemKey: string) {
   if (actionKey === 'view') emit('view', row);
   if (actionKey === 'approve') emit('approve', row);
   if (actionKey === 'reject') emit('reject', row);
+  if (actionKey === 'supplement') emit('supplement', row);
 }
 </script>
 

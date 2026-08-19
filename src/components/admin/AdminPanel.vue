@@ -39,7 +39,7 @@ defineProps<{
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 24px 28px;
+    padding: 20px;
     border-bottom: 1px solid #e2e9f2;
   }
 
@@ -65,15 +65,15 @@ defineProps<{
 
   h2 {
     margin: 0;
-    color: #0a1b35;
-    font-size: 23px;
-    font-weight: 900;
+    color: var(--app-text-heading);
+    font-size: 20px;
+    font-weight: 700;
   }
 
   p {
     margin: 5px 0 0;
-    color: #63728a;
-    font-weight: 650;
+    color: var(--app-text-label);
+    font-weight: 500;
   }
 
   @include mobile {

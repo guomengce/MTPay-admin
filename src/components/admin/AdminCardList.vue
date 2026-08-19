@@ -263,8 +263,8 @@ function resolveBoolean(
   return fallback;
 }
 
-function stringifyValue(value: unknown) {
-  if (value === undefined || value === null) return undefined;
+function stringifyValue(value: unknown): string {
+  if (value === undefined || value === null) return '';
   return String(value);
 }
 
@@ -316,18 +316,18 @@ function getByPath(row: AdminCardRecord, path: string) {
     gap: 5px;
 
     strong {
-      color: #071833;
+      color: var(--app-text-heading);
       font-size: 16px;
-      font-weight: 900;
+      font-weight: 600;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
     span {
-      color: #7a8aa1;
+      color: var(--app-text-subtle);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 400;
     }
   }
 
@@ -350,16 +350,16 @@ function getByPath(row: AdminCardRecord, path: string) {
   }
 
   &__label {
-    color: #6f7e94;
+    color: var(--app-text-label);
     font-size: 12px;
-    font-weight: 800;
+    font-weight: 400;
   }
 
   &__content {
     min-width: 0;
-    color: #1f2a37;
+    color: var(--app-text-body);
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 500;
   }
 
   &__value {
@@ -370,8 +370,8 @@ function getByPath(row: AdminCardRecord, path: string) {
     white-space: nowrap;
 
     &.is-strong {
-      color: #071833;
-      font-weight: 900;
+      color: var(--app-text-body);
+      font-weight: 600;
     }
 
     &.is-mono {
@@ -384,9 +384,9 @@ function getByPath(row: AdminCardRecord, path: string) {
   &__sub-value {
     display: block;
     margin-top: 3px;
-    color: #7a8aa1;
+    color: var(--app-text-subtle);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 400;
   }
 
   &__actions {

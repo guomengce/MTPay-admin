@@ -1,52 +1,93 @@
-/**
- * withdrawal 详情 composable 骨架
- */
+/** 管理端出金详情：加载详情并执行审核、补件、付款和追加凭证动作。 */
 import { ref } from 'vue';
 
-import * as WithdrawalApi from '@/api/modules/withdrawal';
-import type { AsyncResult, Id } from '@/api/types';
-import type { WithdrawalDetail } from '@/views/withdrawal/detail/types';
+import {
+  appendWithdrawalPaymentFiles,
+  fetchWithdrawalDetail,
+  processWithdrawalPayment,
+  requestWithdrawalSupplement,
+  reviewWithdrawal,
+  uploadWithdrawalFile,
+} from '@/api/modules/withdrawal';
+import type {
+  AppendWithdrawalPaymentFilesPayload,
+  ProcessWithdrawalPaymentPayload,
+  RequestWithdrawalSupplementPayload,
+  ReviewWithdrawalPayload,
+  WithdrawalOrderDetail,
+} from '@/api/modules/withdrawal';
 
 export function useWithdrawalDetail() {
+  const detail = ref<WithdrawalOrderDetail | null>(null);
   const loading = ref(false);
-  const detail = ref<WithdrawalDetail | null>(null);
-  const error = ref<string | null>(null);
+  const submitting = ref(false);
+  const uploading = ref(false);
 
-  async function fetchDetail(id: Id): Promise<AsyncResult<WithdrawalDetail>> {
+  async function loadDetail(id: number) {
     loading.value = true;
-    error.value = null;
     try {
-      const data = await WithdrawalApi.fetchWithdrawalDetail(id);
-      detail.value = data;
-      return { ok: true, data };
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : '详情加载失败';
-      return { ok: false, error: e instanceof Error ? e : new Error('failed') };
+      detail.value = await fetchWithdrawalDetail(id);
+      return detail.value;
     } finally {
       loading.value = false;
     }
   }
 
-  async function completeWithdrawal(payload: WithdrawalApi.CompleteWithdrawalPayload) {
-    return WithdrawalApi.fetchCompleteWithdrawal(payload);
+  async function execute(
+    request: () => Promise<WithdrawalOrderDetail>,
+  ): Promise<WithdrawalOrderDetail> {
+    submitting.value = true;
+    try {
+      detail.value = await request();
+      return detail.value;
+    } finally {
+      submitting.value = false;
+    }
   }
 
-  async function returnWithdrawal(payload: WithdrawalApi.ReturnWithdrawalPayload) {
-    return WithdrawalApi.fetchReturnWithdrawal(payload);
+  function requestSupplement(payload: RequestWithdrawalSupplementPayload) {
+    return execute(() => requestWithdrawalSupplement(payload));
   }
 
-  function reset() {
-    detail.value = null;
-    error.value = null;
+  function submitReview(payload: ReviewWithdrawalPayload) {
+    return execute(() => reviewWithdrawal(payload));
+  }
+
+  function submitPayment(payload: ProcessWithdrawalPaymentPayload) {
+    return execute(() => processWithdrawalPayment(payload));
+  }
+
+  function appendPaymentFiles(payload: AppendWithdrawalPaymentFilesPayload) {
+    return execute(() => appendWithdrawalPaymentFiles(payload));
+  }
+
+  /** 每个文件单独上传，全部成功后再提交绑定 file_id 的业务动作。 */
+  async function uploadFiles(files: File[]) {
+    uploading.value = true;
+    try {
+      const ids: number[] = [];
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const uploaded = await uploadWithdrawalFile(formData);
+        ids.push(uploaded.file_id);
+      }
+      return ids;
+    } finally {
+      uploading.value = false;
+    }
   }
 
   return {
-    loading,
     detail,
-    error,
-    fetchDetail,
-    completeWithdrawal,
-    returnWithdrawal,
-    reset,
+    loading,
+    submitting,
+    uploading,
+    loadDetail,
+    requestSupplement,
+    submitReview,
+    submitPayment,
+    appendPaymentFiles,
+    uploadFiles,
   };
 }

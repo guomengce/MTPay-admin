@@ -1,49 +1,80 @@
-/**
- * withdrawal 列表 composable 骨架
- */
+/** 管理端出金列表：后端分页与真实筛选参数。 */
 import { reactive, ref } from 'vue';
 
-import * as WithdrawalApi from '@/api/modules/withdrawal';
-import type { WithdrawalListParams } from '@/api/modules/withdrawal';
+import { fetchWithdrawalList } from '@/api/modules/withdrawal';
+import type { WithdrawalListParams, WithdrawalStatus } from '@/api/modules/withdrawal';
 
-export interface UseWithdrawalListOptions {
-  pageSize?: number;
-  defaultQuery?: Partial<WithdrawalListParams>;
+import { toWithdrawalRow, type WithdrawalRow } from './mapper';
+
+export interface WithdrawalQuery {
+  status?: WithdrawalStatus;
+  keyword: string;
+  order_no: string;
+  started_at: string;
+  ended_at: string;
 }
 
-export function useWithdrawalList(options: UseWithdrawalListOptions = {}) {
+const INITIAL_QUERY: WithdrawalQuery = {
+  status: undefined,
+  keyword: '',
+  order_no: '',
+  started_at: '',
+  ended_at: '',
+};
+
+export function useWithdrawalList() {
   const loading = ref(false);
-  const list = ref<WithdrawalApi.WithdrawalListItem[]>([]);
+  const list = ref<WithdrawalRow[]>([]);
   const total = ref(0);
   const page = ref(1);
-  const pageSize = ref(options.pageSize ?? 10);
-  const query = reactive<Partial<WithdrawalListParams>>({ ...(options.defaultQuery ?? {}) });
+  const limit = ref(15);
+  const query = reactive<WithdrawalQuery>({ ...INITIAL_QUERY });
 
-  async function fetchList() {
+  function buildParams(): WithdrawalListParams {
+    return {
+      page: page.value,
+      limit: limit.value,
+      status: query.status,
+      keyword: query.keyword.trim() || undefined,
+      order_no: query.order_no.trim() || undefined,
+      started_at: query.started_at || undefined,
+      ended_at: query.ended_at || undefined,
+    };
+  }
+
+  async function loadList() {
     loading.value = true;
     try {
-      const result = await WithdrawalApi.fetchWithdrawalList({
-        page: page.value,
-        pageSize: pageSize.value,
-        ...query,
-      });
-      list.value = result.list;
+      const result = await fetchWithdrawalList(buildParams());
+      list.value = result.data.map(toWithdrawalRow);
       total.value = result.total;
+      page.value = result.current_page;
+      limit.value = result.per_page;
     } finally {
       loading.value = false;
     }
   }
 
-  async function refresh() {
+  function search() {
     page.value = 1;
-    await fetchList();
+    void loadList();
   }
 
-  function resetQuery() {
-    for (const k of Object.keys(query)) {
-      delete query[k as keyof WithdrawalListParams];
-    }
+  function reset() {
+    Object.assign(query, INITIAL_QUERY);
     page.value = 1;
+    void loadList();
+  }
+
+  function setPage(value: number) {
+    page.value = value;
+    void loadList();
+  }
+
+  function setLimit(value: number) {
+    limit.value = value;
+    page.value = 1;
+    void loadList();
   }
 
   return {
@@ -51,10 +82,12 @@ export function useWithdrawalList(options: UseWithdrawalListOptions = {}) {
     list,
     total,
     page,
-    pageSize,
+    limit,
     query,
-    fetchList,
-    refresh,
-    resetQuery,
+    loadList,
+    search,
+    reset,
+    setPage,
+    setLimit,
   };
 }

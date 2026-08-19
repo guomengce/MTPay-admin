@@ -1,209 +1,253 @@
 <template>
-  <section class="admin-page deposit-detail-page">
-    <DetailHero
-      order="入金审核"
-      :title="detail.title"
-      :description="detail.description"
-      :order-id="detail.id"
-      :status="heroStatus"
-      :actions="heroActions"
-      @back="goBack"
-      @approve="openReviewDialog('approve')"
-      @reject="openReviewDialog('reject')"
-    />
-
-    <DetailSummaryCard :items="summaryItems" />
-
-    <div class="deposit-detail-page__split">
-      <DetailBusinessInfo
-        title="业务信息"
-        :sections="businessSections"
-        :status="detail.status ? { type: detail.statusType, effect: detail.statusEffect } : undefined"
+  <section v-loading="loading" class="admin-page deposit-detail-page">
+    <template v-if="detail">
+      <DetailHero
+        compact
+        order="订单号"
+        title="数字货币入金审核"
+        description="核对链上凭证与申报金额后完成审核"
+        :order-id="detail.order_no"
+        :status="heroStatus"
+        :actions="heroActions"
+        @back="goBack"
+        @approve="openReviewDialog('approve')"
+        @reject="openReviewDialog('reject')"
       />
 
-      <DetailTimelinePanel title="处理时间线" :items="detail.timeline" />
-    </div>
+      <section class="deposit-core">
+        <div class="deposit-core__amount">
+          <span class="deposit-core__icon">
+            <el-icon><Wallet /></el-icon>
+          </span>
+          <div>
+            <small>申报入金金额</small>
+            <p>
+              <strong>{{ detail.amount }}</strong
+              ><span>{{ detail.currency.code }}</span>
+            </p>
+            <em
+              >{{ detail.currency.name }} · {{ detail.network.name }}（{{
+                detail.network.code
+              }}）</em
+            >
+          </div>
+        </div>
+        <div class="deposit-core__meta">
+          <article>
+            <span class="is-purple">
+              <el-icon><UserFilled /></el-icon>
+            </span>
+            <div>
+              <small>申请代理</small><strong>{{ detail.user.company_name }}</strong>
+              <p>{{ detail.user.agent_code }} · {{ detail.user.email }}</p>
+            </div>
+          </article>
+          <article>
+            <span class="is-blue">
+              <el-icon><Calendar /></el-icon>
+            </span>
+            <div>
+              <small>提交时间</small><strong>{{ detail.submitted_at || '—' }}</strong>
+            </div>
+          </article>
+        </div>
+      </section>
 
-    <DetailFundImpact
-      :flow="fundFlowNode"
-      :result="fundResultNode"
-    />
+      <div v-if="detail.status === 0" class="review-impact">
+        <span>
+          <el-icon><InfoFilled /></el-icon>
+        </span>
+        <p>
+          <strong>审核影响</strong>通过后将为 {{ detail.user.company_name }} 增加
+          <b>{{ detail.amount }} {{ detail.currency.code }}</b> 可用余额。
+        </p>
+      </div>
 
-    <DepositAddDialog
-      v-model="dialogVisible"
-      :row="reviewRow"
-      :mode="dialogMode"
-      @submit="handleSubmit"
-    />
+      <div class="deposit-detail-page__split">
+        <AdminPanel
+          class="chain-verification"
+          title="链上核验"
+          subtitle="确认交易哈希与平台收款地址一致"
+          :icon="Link"
+        >
+          <dl class="chain-verification__list">
+            <div>
+              <dt>交易哈希 Txid</dt>
+              <dd>
+                <code>{{ detail.txid }}</code>
+                <el-button
+                  text
+                  circle
+                  :icon="DocumentCopy"
+                  aria-label="复制交易哈希"
+                  @click="copyValue('交易哈希', detail.txid)"
+                />
+              </dd>
+            </div>
+            <div>
+              <dt>平台收款地址</dt>
+              <dd>
+                <code>{{ detail.receiving_address_snapshot }}</code>
+                <el-button
+                  text
+                  circle
+                  :icon="DocumentCopy"
+                  aria-label="复制平台收款地址"
+                  @click="copyValue('平台收款地址', detail.receiving_address_snapshot)"
+                />
+              </dd>
+            </div>
+          </dl>
+        </AdminPanel>
+
+        <AdminPanel v-if="timelineItems.length" class="deposit-timeline">
+          <AdminTimeline title="处理时间线" :items="timelineItems" />
+        </AdminPanel>
+      </div>
+
+      <AdminPanel
+        v-if="resultItems.length"
+        class="review-result"
+        :title="detail.status === 1 ? '入账结果' : '驳回结果'"
+        :subtitle="detail.status === 1 ? '审核完成后的资金入账记录' : '本次入金未通过审核'"
+        :icon="detail.status === 1 ? CircleCheck : CircleClose"
+      >
+        <dl class="review-result__grid">
+          <div v-for="item in resultItems" :key="item.label" :class="{ 'is-wide': item.wide }">
+            <dt>{{ item.label }}</dt>
+            <dd :class="{ 'is-accent': item.accent }">{{ item.value }}</dd>
+          </div>
+        </dl>
+      </AdminPanel>
+
+      <DepositAddDialog
+        v-model="dialogVisible"
+        :row="reviewRow"
+        :mode="dialogMode"
+        :submitting="reviewing"
+        @submit="handleSubmit"
+      />
+    </template>
+    <el-empty v-else-if="!loading" description="未找到入金订单" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { CircleCheck, CircleClose, Document, Link, Tickets, TrendCharts, Wallet } from '@element-plus/icons-vue';
+/** 管理端入金审核详情：直接使用详情接口数据，避免展示模型丢字段或制造假数据。 */
+import { computed, onMounted, ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import {
+  Calendar,
+  CircleCheck,
+  CircleClose,
+  DocumentCopy,
+  InfoFilled,
+  Link,
+  UserFilled,
+  Wallet,
+} from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import DetailBusinessInfo, {
-  type DetailSection,
-} from '@/components/detail/DetailBusinessInfo.vue';
-import DetailFundImpact, {
-  type FundImpactNode,
-} from '@/components/detail/DetailFundImpact.vue';
+import AdminPanel from '@/components/admin/AdminPanel.vue';
+import AdminTimeline from '@/components/admin/AdminTimeline.vue';
+import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
+import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import DetailHero, { type HeroAction } from '@/components/detail/DetailHero.vue';
-import DetailSummaryCard, {
-  type SummaryItem,
-} from '@/components/detail/DetailSummaryCard.vue';
-import DetailTimelinePanel from '@/components/detail/DetailTimelinePanel.vue';
 
 import DepositAddDialog from '../components/DepositAddDialog.vue';
-import type { DepositRow } from '../components/DepositTableList.vue';
-import type { DepositDetail } from './types';
+import type { DepositRow } from '../composables/mapper';
+import { useDepositDetail } from '../composables/useDepositDetail';
+
+interface ResultItem {
+  label: string;
+  value: string;
+  wide?: boolean;
+  accent?: boolean;
+}
 
 const route = useRoute();
 const router = useRouter();
+const { detail, loading, reviewing, loadDetail, submitReview } = useDepositDetail();
 
-const detail = computed<DepositDetail>(() => {
-  const id = String(route.params.id || 'DEP-26073002');
-
-  return {
-    id,
-    title: '数字货币入金详情',
-    description: '核对链上交易、代理信息与资金入账影响',
-    status: '待审核',
-    statusType: 'warning',
-    statusEffect: 'pending',
-    amount: '12,000.00',
-    currency: 'USDC',
-    asset: 'USDC',
-    network: 'ERC20',
-    agent: '代理A · Apex Trading',
-    agentCode: 'AG-A',
-    hash: '0x98aefd33e5571d507234239c1a698bc7801e72f0',
-    address: '0x98d1C74E49C7F46C7D7FA82C31A73D05A6F41C28',
-    submittedAt: '2026/08/10 16:09:26',
-    remark: '等待后台核对链上到账',
-    balanceChange: '12,000.00',
-    timeline: [
-      {
-        key: 'submit',
-        title: '代理提交入金',
-        time: '2026/08/10 16:09:26',
-        description: '代理提交12,000.00 USDC入金记录及交易哈希。',
-        state: 'done',
-      },
-      {
-        key: 'reviewing',
-        title: '等待后台审核',
-        time: '2026/08/10 16:09:27',
-        state: 'active',
-      },
-      {
-        key: 'done',
-        title: '审核通过 / 拒绝',
-        state: 'pending',
-      },
-    ],
-  };
+const statusType = computed<StatusBadgeType>(() => {
+  if (detail.value?.status === 1) return 'success';
+  if (detail.value?.status === 2) return 'danger';
+  return 'warning';
 });
 
 const heroStatus = computed(() => ({
-  label: detail.value.status,
-  type: detail.value.statusType,
-  effect: detail.value.statusEffect,
+  label: detail.value?.status_name || '未知状态',
+  type: statusType.value,
+  effect: detail.value?.status === 0 ? ('pending' as const) : undefined,
 }));
 
-const heroActions: HeroAction[] = [
-  { label: '通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
-  { label: '拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' },
-];
+const heroActions = computed<HeroAction[]>(() =>
+  detail.value?.status === 0
+    ? [
+        { label: '通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
+        { label: '拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' },
+      ]
+    : [],
+);
 
-const summaryItems = computed<SummaryItem[]>(() => [
-  {
-    label: '申报金额',
-    value: detail.value.amount,
-    suffix: detail.value.currency,
-    icon: Wallet,
-    tone: 'mt',
-  },
-  {
-    label: '资产 / 网络',
-    value: `${detail.value.asset} · ${detail.value.network}`,
-    icon: Link,
-    tone: 'blue',
-  },
-  {
-    label: '代理',
-    value: detail.value.agent,
-    icon: Tickets,
-    tone: 'purple',
-  },
-  {
-    label: '提交时间',
-    value: detail.value.submittedAt,
-    icon: Document,
-    tone: 'blue',
-  },
-]);
+const timelineItems = computed<AdminTimelineItem[]>(() => {
+  const source = detail.value?.timeline ?? [];
+  const activeIndex = source.findIndex((item) => !item.time);
+  return source.map((item, index) => ({
+    key: `${item.event}-${index}`,
+    title: item.name,
+    time: item.time || undefined,
+    state: item.time ? 'done' : index === activeIndex ? 'active' : 'pending',
+  }));
+});
 
-const businessSections = computed<DetailSection[]>(() => [
-  {
-    title: '基础信息',
-    icon: Tickets,
-    fields: [
-      { label: '交易编号：', value: detail.value.id },
-      { label: '代理编号：', value: detail.value.agentCode },
-      { label: '当前状态：', value: detail.value.status, badge: true },
-    ],
-  },
-  {
-    title: '链上信息',
-    icon: Link,
-    fields: [
-      { label: '交易哈希：', value: detail.value.hash, copyable: true, mono: true },
-      { label: '入金地址：', value: detail.value.address, copyable: true, mono: true },
-    ],
-  },
-  {
-    title: '备注',
-    icon: Document,
-    fields: [{ label: '业务备注：', value: detail.value.remark }],
-  },
-]);
+const resultItems = computed<ResultItem[]>(() => {
+  if (!detail.value || detail.value.status === 0) return [];
 
-const fundFlowNode: FundImpactNode = {
-  icon: Wallet,
-  tone: 'blue',
-  label: '当前：',
-  value: '尚未入账',
-};
+  const items: ResultItem[] = [];
+  if (detail.value.status === 1 && detail.value.credited_at) {
+    items.push({ label: '资金入账时间', value: detail.value.credited_at, accent: true });
+  }
+  if (detail.value.review?.admin_name) {
+    items.push({ label: '审核人', value: detail.value.review.admin_name });
+  }
+  if (detail.value.review?.reviewed_at) {
+    items.push({ label: '审核时间', value: detail.value.review.reviewed_at });
+  }
+  if (detail.value.review?.note) {
+    items.push({
+      label: detail.value.status === 2 ? '驳回原因' : '审核备注',
+      value: detail.value.review.note,
+      wide: true,
+    });
+  }
+  return items;
+});
 
-const fundResultNode = computed<FundImpactNode>(() => ({
-  icon: TrendCharts,
-  tone: 'mt',
-  label: '审核通过后：',
-  value: '代理余额',
-  delta: detail.value.balanceChange,
-  suffix: detail.value.currency,
-}));
-
-const reviewRow = computed<DepositRow>(() => ({
-  id: detail.value.id,
-  time: '08/03 15:08',
-  agent: detail.value.agent,
-  asset: detail.value.asset,
-  network: detail.value.network,
-  hash: `${detail.value.hash.slice(0, 10)}...${detail.value.hash.slice(-6)}`,
-  amount: detail.value.amount,
-  status: detail.value.status,
-  statusType: 'warning',
-  statusEffect: 'pending',
-}));
+const reviewRow = computed<DepositRow | null>(() => {
+  if (!detail.value) return null;
+  return {
+    businessId: detail.value.id,
+    id: detail.value.order_no,
+    time: detail.value.submitted_at || '—',
+    agent: detail.value.user.company_name,
+    agentCode: detail.value.user.agent_code,
+    asset: detail.value.currency.code,
+    network: detail.value.network.code,
+    hash: detail.value.txid,
+    amount: detail.value.amount,
+    status: detail.value.status_name,
+    statusCode: detail.value.status,
+    statusType: statusType.value,
+    statusEffect: detail.value.status === 0 ? 'pending' : undefined,
+  };
+});
 
 const dialogVisible = ref(false);
 const dialogMode = ref<'approve' | 'reject'>('approve');
 
 function goBack() {
-  router.push('/deposit');
+  void router.push('/deposit');
 }
 
 function openReviewDialog(mode: 'approve' | 'reject') {
@@ -211,25 +255,350 @@ function openReviewDialog(mode: 'approve' | 'reject') {
   dialogVisible.value = true;
 }
 
-function handleSubmit(payload: { row: DepositRow; mode: 'approve' | 'reject'; reason?: string }) {
-  // 接入 API：await api.deposits.review(payload)
-  console.log('deposit detail review', payload);
+async function handleSubmit(payload: {
+  row: DepositRow;
+  mode: 'approve' | 'reject';
+  reason?: string;
+}) {
+  await submitReview({
+    id: payload.row.businessId,
+    decision: payload.mode,
+    review_note: payload.mode === 'reject' ? payload.reason?.trim() : undefined,
+  });
+  ElMessage.success(payload.mode === 'approve' ? '入金审核已通过' : '入金申请已拒绝');
   dialogVisible.value = false;
 }
+
+async function copyValue(label: string, value: string) {
+  try {
+    await navigator.clipboard.writeText(value);
+    ElMessage.success(`${label}已复制`);
+  } catch {
+    ElMessage.error('复制失败，请手动复制');
+  }
+}
+
+onMounted(() => {
+  const id = Number(route.params.id);
+  if (Number.isInteger(id) && id > 0) void loadDetail(id);
+});
 </script>
 
 <style scoped lang="scss">
 .deposit-detail-page {
   gap: 20px;
+}
 
-  &__split {
-    display: grid;
+.deposit-core {
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: minmax(320px, 1.1fr) minmax(0, 1fr);
+  border: 1px solid #dce7f2;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 14px 34px rgb(15 42 78 / 7%);
+
+  &__amount {
+    display: flex;
+    min-width: 0;
+    align-items: center;
     gap: 20px;
+    padding: 28px 32px;
+    background: linear-gradient(135deg, #f3fffd, #f4f9ff);
+  }
+
+  &__icon,
+  &__meta article > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    width: 62px;
+    height: 62px;
+    flex: 0 0 62px;
+    border-radius: 18px;
+    color: #fff;
+    background: linear-gradient(135deg, #19b8a8, #268ee6);
+    box-shadow: 0 10px 24px rgb(20 166 174 / 24%);
+    font-size: 30px;
+  }
+
+  small {
+    display: block;
+    color: var(--app-text-label);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &__amount p {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 10px;
+    margin: 7px 0 5px;
+  }
+
+  &__amount strong {
+    color: var(--app-text-heading);
+    font-size: clamp(30px, 3.2vw, 42px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+
+  &__amount p span {
+    color: #0c8f8b;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  &__amount em {
+    color: var(--app-text-label);
+    font-size: 14px;
+    font-style: normal;
+  }
+
+  &__meta {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1.25fr) minmax(185px, 0.75fr);
+  }
+
+  &__meta article {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 14px;
+    padding: 24px;
+    border-left: 1px solid #e5ebf2;
+  }
+
+  &__meta article > span {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 13px;
+    font-size: 22px;
+
+    &.is-purple {
+      color: #7457e8;
+      background: #f0edff;
+    }
+
+    &.is-blue {
+      color: #2678da;
+      background: #eaf3ff;
+    }
+  }
+
+  &__meta article div {
+    min-width: 0;
+  }
+
+  &__meta strong {
+    display: block;
+    margin-top: 5px;
+    color: var(--app-text-body);
+    font-size: 16px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  &__meta p {
+    margin: 5px 0 0;
+    color: var(--app-text-label);
+    font-size: 13px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+}
+
+.review-impact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border: 1px solid #bde9e5;
+  border-radius: 14px;
+  color: #315a5b;
+  background: #f1fbfa;
+
+  > span {
+    display: inline-flex;
+    color: #0aa39e;
+    font-size: 20px;
+  }
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  strong {
+    margin-right: 10px;
+    color: #087f7b;
+  }
+
+  b {
+    color: #087f7b;
+  }
+}
+
+.deposit-detail-page__split {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.75fr);
+  gap: 20px;
+}
+
+.chain-verification__list,
+.review-result__grid {
+  margin: 0;
+  padding: 4px 24px 24px;
+}
+
+.chain-verification__list > div {
+  padding: 20px 0;
+  border-bottom: 1px dashed #dde6f0;
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+.chain-verification dt,
+.review-result dt {
+  color: var(--app-text-label);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.chain-verification dd {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 0;
+}
+
+.chain-verification code {
+  min-width: 0;
+  color: var(--app-text-body);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: break-all;
+}
+
+.chain-verification :deep(.el-button) {
+  flex: 0 0 auto;
+  color: #138f91;
+  background: #effafa;
+}
+
+.deposit-timeline {
+  padding: 24px;
+}
+
+.review-result__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 24px;
+}
+
+.review-result__grid > div {
+  min-width: 0;
+  padding: 20px 0;
+  border-bottom: 1px dashed #dde6f0;
+
+  &.is-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.review-result dd {
+  margin: 8px 0 0;
+  color: var(--app-text-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+
+  &.is-accent {
+    color: #078f89;
+  }
+}
+
+@include narrow {
+  .deposit-core {
     grid-template-columns: 1fr;
 
-    @media (min-width: 1311px) {
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    &__meta article:first-child {
+      border-left: 0;
     }
+
+    &__meta article {
+      border-top: 1px solid #e5ebf2;
+    }
+  }
+
+  .deposit-detail-page__split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include mobile {
+  .deposit-detail-page {
+    gap: 16px;
+  }
+
+  .deposit-core {
+    &__amount {
+      align-items: flex-start;
+      padding: 22px 18px;
+    }
+
+    &__icon {
+      width: 50px;
+      height: 50px;
+      flex-basis: 50px;
+      border-radius: 14px;
+      font-size: 24px;
+    }
+
+    &__meta {
+      grid-template-columns: 1fr;
+    }
+
+    &__meta article {
+      padding: 18px;
+      border-left: 0;
+    }
+  }
+
+  .review-impact {
+    align-items: flex-start;
+  }
+
+  .chain-verification__list,
+  .review-result__grid {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .review-result__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .review-result__grid > div.is-wide {
+    grid-column: auto;
   }
 }
 </style>

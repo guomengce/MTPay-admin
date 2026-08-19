@@ -1,35 +1,35 @@
 <template>
   <div class="whitelist-table-list">
-    <el-table class="admin-data-table" :data="data" stripe>
-      <el-table-column label="编号" min-width="150">
+    <el-table v-loading="loading" class="admin-data-table" :data="data" stripe>
+      <el-table-column label="白名单编号" min-width="180">
         <template #default="{ row }">
           <div class="row-title">
-            <strong>{{ row.id }}</strong>
-            <span>{{ row.time }}</span>
+            <strong>{{ row.id }}</strong
+            ><span>{{ row.time }}</span>
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="agent" label="代理" min-width="220" />
-      <el-table-column label="类型" min-width="130">
-        <template #default="{ row }">
-          <StatusBadge :label="row.type" type="primary" />
-        </template>
-      </el-table-column>
-      <el-table-column label="主体" min-width="240">
+      <el-table-column label="代理" min-width="190">
         <template #default="{ row }">
           <div class="row-title">
-            <strong>{{ row.subject }}</strong>
-            <span>{{ row.country }}</span>
+            <strong>{{ row.agent }}</strong
+            ><span>{{ row.agentCode }}</span>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="关键资料" min-width="250">
+      <el-table-column label="主体身份" min-width="150">
+        <template #default="{ row }"><StatusBadge :label="row.type" type="primary" /></template>
+      </el-table-column>
+      <el-table-column label="主体" min-width="220">
         <template #default="{ row }">
           <div class="row-title">
-            <strong>{{ row.bank }}</strong>
-            <span>{{ row.account }}</span>
+            <strong>{{ row.subject }}</strong
+            ><span>{{ row.country }}</span>
           </div>
         </template>
+      </el-table-column>
+      <el-table-column label="附件" width="90" align="center">
+        <template #default="{ row }">{{ row.fileCount }}</template>
       </el-table-column>
       <el-table-column label="状态" min-width="130">
         <template #default="{ row }">
@@ -38,19 +38,26 @@
       </el-table-column>
       <el-table-column label="操作" width="110" fixed="right">
         <template #default="{ row }">
-          <el-dropdown trigger="click" @command="(command) => handleCommand(command, row)">
-            <el-button plain size="small" :icon="MoreFilled">操作</el-button>
+          <el-dropdown
+            trigger="click"
+            @command="(command: string | number | object) => handleCommand(command, row)"
+          >
+            <el-button plain :icon="MoreFilled">操作</el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="view" :icon="View">详情</el-dropdown-item>
-                <template v-if="row.statusEffect === 'pending'">
-                  <el-dropdown-item command="approve" :icon="CircleCheck">
-                    <span class="review-command review-command--success">通过</span>
-                  </el-dropdown-item>
-                  <el-dropdown-item command="reject" :icon="CircleClose">
-                    <span class="review-command review-command--danger">拒绝</span>
-                  </el-dropdown-item>
+                <template v-if="row.statusCode === 0">
+                  <el-dropdown-item command="approve" :icon="CircleCheck">通过</el-dropdown-item>
+                  <el-dropdown-item command="supplement" :icon="DocumentAdd"
+                    >要求补件</el-dropdown-item
+                  >
                 </template>
+                <el-dropdown-item
+                  v-if="row.statusCode === 0 || row.statusCode === 1"
+                  command="reject"
+                  :icon="CircleClose"
+                  >驳回</el-dropdown-item
+                >
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -61,35 +68,26 @@
 </template>
 
 <script setup lang="ts">
-import { CircleCheck, CircleClose, MoreFilled, View } from '@element-plus/icons-vue';
+import { CircleCheck, CircleClose, DocumentAdd, MoreFilled, View } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import type { WhitelistRow } from '../composables/mapper';
+export type { WhitelistRow } from '../composables/mapper';
 
-export interface WhitelistRow {
-  id: string;
-  time: string;
-  agent: string;
-  type: string;
-  subject: string;
-  country: string;
-  bank: string;
-  account: string;
-  status: string;
-  statusType: 'warning' | 'success' | 'danger';
-  statusEffect?: 'pending';
-}
-
-defineProps<{ data: WhitelistRow[] }>();
+defineProps<{ data: WhitelistRow[]; loading?: boolean }>();
 const emit = defineEmits<{
-  (e: 'view', row: WhitelistRow): void;
-  (e: 'approve', row: WhitelistRow): void;
-  (e: 'reject', row: WhitelistRow): void;
+  (e: 'view' | 'approve' | 'reject' | 'supplement', row: WhitelistRow): void;
 }>();
 
 function handleCommand(command: string | number | object, row: WhitelistRow) {
-  if (command === 'view') emit('view', row);
-  if (command === 'approve') emit('approve', row);
-  if (command === 'reject') emit('reject', row);
+  if (
+    command === 'view' ||
+    command === 'approve' ||
+    command === 'reject' ||
+    command === 'supplement'
+  ) {
+    emit(command, row);
+  }
 }
 </script>
 
@@ -99,18 +97,6 @@ function handleCommand(command: string | number | object, row: WhitelistRow) {
 
   @include mobile {
     display: none;
-  }
-}
-
-.review-command {
-  font-weight: 850;
-
-  &--success {
-    color: #16a34a;
-  }
-
-  &--danger {
-    color: #dc2626;
   }
 }
 </style>

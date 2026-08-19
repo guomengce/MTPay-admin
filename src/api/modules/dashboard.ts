@@ -1,65 +1,104 @@
 /**
- * dashboard 模块接口骨架
+ * 管理端运营总览 API
  * -----------------------------------------------------------------------------
- * 营运总览面板所需的指标、图表、待办列表等接口。
+ * 首页只调用一次聚合接口，禁止前端分别拉取业务列表后自行统计。
  */
 import request from '../request';
 
-/** 顶部 4 个统计卡 */
-export interface DashboardMetric {
-  label: string;
-  value: string | number;
-  subtext?: string;
+export interface OperationAgentSummary {
+  total_count: number;
+  active_count: number;
+  active_percentage: number;
 }
 
-export function fetchDashboardMetrics() {
-  return request.get<unknown, DashboardMetric[]>('/dashboard/metrics');
+export interface OperationCurrency {
+  id: number;
+  code: string;
+  name: string;
+  type: number;
+  type_name: string;
+  decimal_places: number;
 }
 
-/** 待办列表 */
-export interface DashboardTask {
-  id: string;
-  type: 'deposit' | 'exchange' | 'whitelist' | 'withdrawal';
-  title: string;
-  createdAt: string;
+export interface OperationBalanceTotal {
+  currency: OperationCurrency;
+  available_balance: string;
+  frozen_balance: string;
+  total_balance: string;
+  frozen_percentage: string;
 }
 
-export function fetchDashboardTasks() {
-  return request.get<unknown, DashboardTask[]>('/dashboard/tasks');
+export interface OperationPendingBusinesses {
+  deposit: number;
+  exchange: number;
+  whitelist: number;
+  withdrawal: number;
+  total: number;
 }
 
-/** 资产流向图表数据 */
-export interface DashboardFlowPoint {
+export interface OperationTrendItem {
   date: string;
   deposit: number;
-  withdrawal: number;
   exchange: number;
+  withdrawal: number;
+  total: number;
 }
 
-export function fetchDashboardFlows(params: { range: '7d' | '30d' | '90d' }) {
-  return request.get<unknown, DashboardFlowPoint[]>('/dashboard/flows', { params });
+export interface OperationTransactionTrend {
+  days: number;
+  started_at: string;
+  ended_at: string;
+  total: number;
+  items: OperationTrendItem[];
 }
 
-/** 比例设定快照 */
-export interface DashboardRateSnapshot {
-  usdt: string;
-  usdc: string;
-  fixedFee: string;
-  updatedAt: string;
+export type TransactionBusinessType = 'deposit' | 'exchange' | 'withdrawal';
+
+export interface OperationTransactionUser {
+  id: number;
+  agent_code: string;
+  company_name: string;
+  email: string;
 }
 
-export function fetchDashboardRateSnapshot() {
-  return request.get<unknown, DashboardRateSnapshot>('/dashboard/rate-snapshot');
+export interface OperationTransactionItem {
+  transaction_key: string;
+  business_type: TransactionBusinessType;
+  business_name: string;
+  id: number;
+  business_id: number;
+  order_no: string;
+  user: OperationTransactionUser;
+  currency_code: string;
+  network_code: string | null;
+  amount: string;
+  target_currency_code: string | null;
+  target_amount: string | null;
+  exchange_rate: string | null;
+  fee_amount: string | null;
+  total_amount: string | null;
+  payer_name: string | null;
+  payee_name: string | null;
+  status: number;
+  status_name: string;
+  status_group: string;
+  status_group_name: string;
+  submitted_at: string;
+  completed_at: string | null;
+  finished_at: string | null;
+  detail_type: TransactionBusinessType;
+  detail_id: number;
 }
 
-/** 汇总 */
-export interface DashboardOverview {
-  metrics: DashboardMetric[];
-  tasks: DashboardTask[];
-  flows: DashboardFlowPoint[];
-  rateSnapshot: DashboardRateSnapshot;
+export interface OperationOverview {
+  agent_summary: OperationAgentSummary;
+  balance_totals: OperationBalanceTotal[];
+  pending_businesses: OperationPendingBusinesses;
+  transaction_trend: OperationTransactionTrend;
+  recent_transactions: OperationTransactionItem[];
 }
 
-export function fetchDashboardOverview(params: { range?: '7d' | '30d' | '90d' }) {
-  return request.get<unknown, DashboardOverview>('/dashboard/overview', { params });
+/** 获取管理端运营总览。GET /admin/getOperationOverview（无参数） */
+export function fetchOperationOverview() {
+  return request.get<unknown, OperationOverview>('/admin/getOperationOverview');
 }

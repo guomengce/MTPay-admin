@@ -20,13 +20,13 @@ import { RouterLink } from 'vue-router';
 
   h1 {
     margin: 0;
-    color: #071833;
+    color: var(--app-text-heading);
     font-size: 72px;
   }
 
   a {
     color: #126df0;
-    font-weight: 900;
+    font-weight: 700;
   }
 }
 </style>

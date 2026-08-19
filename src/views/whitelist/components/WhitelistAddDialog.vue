@@ -5,86 +5,61 @@
     width="560px"
     :close-on-click-modal="false"
     align-center
-    @update:model-value="(val) => emit('update:modelValue', val)"
+    @open="resetForm"
+    @update:model-value="emit('update:modelValue', $event)"
   >
     <template v-if="row">
-      <p class="whitelist-dialog__hint">
-        {{
-          mode === 'view'
-            ? '四种类型（收款人/付款人 B/C）均只需一次审核。'
-            : mode === 'approve'
-              ? '审核通过后，该主体将立即进入代理可用白名单。'
-              : '拒绝后将通知代理重新提交，请填写拒绝原因。'
-        }}
-      </p>
+      <p class="whitelist-dialog__hint">{{ dialogHint }}</p>
+
+      <dl class="whitelist-dialog__summary">
+        <div>
+          <dt>白名单编号</dt>
+          <dd>{{ row.id }}</dd>
+        </div>
+        <div>
+          <dt>主体</dt>
+          <dd>{{ row.subject }}</dd>
+        </div>
+        <div>
+          <dt>主体身份</dt>
+          <dd>{{ row.type }}</dd>
+        </div>
+        <div>
+          <dt>所属代理</dt>
+          <dd>{{ row.agent }} · {{ row.agentCode }}</dd>
+        </div>
+      </dl>
 
       <el-form
-        v-if="mode === 'reject'"
+        v-if="mode !== 'approve'"
         ref="formRef"
-        class="whitelist-dialog__form"
-        :model="reasonForm"
+        :model="formState"
         :rules="rules"
         label-position="top"
         @submit.prevent
       >
-        <el-form-item label="拒绝原因" prop="reason">
+        <el-form-item :label="mode === 'reject' ? '驳回原因' : '补件要求'" prop="message">
           <el-input
-            v-model="reasonForm.reason"
+            v-model="formState.message"
             type="textarea"
-            :rows="3"
-            placeholder="例如：资料与证件不一致"
-            maxlength="200"
+            :rows="4"
+            :placeholder="mode === 'reject' ? '请说明驳回原因' : '请明确说明需要代理补充的文件'"
+            maxlength="1000"
             show-word-limit
           />
         </el-form-item>
       </el-form>
-
-      <dl v-else class="whitelist-dialog__detail">
-        <div>
-          <dt>编号</dt>
-          <dd>{{ row.id }}</dd>
-        </div>
-        <div>
-          <dt>提交时间</dt>
-          <dd>{{ row.time }}</dd>
-        </div>
-        <div>
-          <dt>代理</dt>
-          <dd>{{ row.agent }}</dd>
-        </div>
-        <div>
-          <dt>类型</dt>
-          <dd>
-            <StatusBadge :label="row.type" type="primary" />
-          </dd>
-        </div>
-        <div>
-          <dt>主体 / 国家</dt>
-          <dd>
-            <strong>{{ row.subject }}</strong>
-            <small>{{ row.country }}</small>
-          </dd>
-        </div>
-        <div>
-          <dt>开户行</dt>
-          <dd class="strong">{{ row.bank }}</dd>
-        </div>
-        <div>
-          <dt>账号</dt>
-          <dd class="mono">{{ row.account }}</dd>
-        </div>
-      </dl>
     </template>
 
     <template #footer>
       <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
-      <el-button v-if="mode === 'view'" plain @click="emit('update:modelValue', false)"
-        >关闭</el-button
+      <el-button
+        :type="mode === 'reject' ? 'danger' : mode === 'approve' ? 'success' : 'primary'"
+        :icon="mode === 'reject' ? CircleClose : mode === 'approve' ? CircleCheck : DocumentAdd"
+        :loading="submitting"
+        @click="handleSubmit"
+        >{{ submitLabel }}</el-button
       >
-      <el-button v-else-if="mode === 'approve'" type="success" :icon="CircleCheck" @click="handleSubmit"
-        >确认通过</el-button
-      >
-      <el-button v-else type="danger" :icon="CircleClose" @click="handleSubmit">确认拒绝</el-button>
     </template>
   </el-dialog>
 </template>
@@ -92,47 +67,59 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import { CircleCheck, CircleClose } from '@element-plus/icons-vue';
+import { CircleCheck, CircleClose, DocumentAdd } from '@element-plus/icons-vue';
 
-import StatusBadge from '@/components/admin/StatusBadge.vue';
-import type { WhitelistRow } from './WhitelistTableList.vue';
+import type { WhitelistRow } from '../composables/mapper';
 
-type Mode = 'view' | 'approve' | 'reject';
+export type WhitelistActionMode = 'approve' | 'reject' | 'supplement';
 
 const props = defineProps<{
   modelValue: boolean;
   row: WhitelistRow | null;
-  mode: Mode;
+  mode: WhitelistActionMode;
+  submitting?: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', val: boolean): void;
-  (e: 'submit', payload: { row: WhitelistRow; mode: Mode; reason?: string }): void;
+  (e: 'update:modelValue', value: boolean): void;
+  (e: 'submit', payload: { row: WhitelistRow; mode: WhitelistActionMode; message?: string }): void;
 }>();
 
 const dialogTitle = computed(() =>
-  props.mode === 'view' ? '白名单详情' : props.mode === 'approve' ? '审核通过' : '拒绝申请',
+  props.mode === 'approve' ? '审核通过' : props.mode === 'reject' ? '驳回白名单' : '要求补件',
+);
+const dialogHint = computed(() =>
+  props.mode === 'approve'
+    ? '通过后该主体将立即进入代理可用白名单，请确认资料完整且一致。'
+    : props.mode === 'reject'
+      ? '驳回后本次申请结束，请填写清晰、可追溯的原因。'
+      : '提交后状态变为待补充文件，请明确告知代理需要提供的材料。',
+);
+const submitLabel = computed(() =>
+  props.mode === 'approve' ? '确认通过' : props.mode === 'reject' ? '确认驳回' : '发送补件要求',
 );
 
 const formRef = ref<FormInstance>();
-const reasonForm = reactive({ reason: '' });
-
-const rules: FormRules<{ reason: string }> = {
-  reason: [{ required: true, message: '请填写拒绝原因', trigger: 'blur' }],
+const formState = reactive({ message: '' });
+const rules: FormRules<{ message: string }> = {
+  message: [{ required: true, message: '请填写处理说明', trigger: 'blur' }],
 };
+
+function resetForm() {
+  formState.message = '';
+  formRef.value?.clearValidate();
+}
 
 async function handleSubmit() {
   if (!props.row) return;
-  if (props.mode === 'reject') {
-    if (!formRef.value) return;
-    await formRef.value.validate((valid) => {
-      if (valid) {
-        emit('submit', { row: props.row!, mode: 'reject', reason: reasonForm.reason });
-      }
-    });
-    return;
+  if (props.mode !== 'approve') {
+    if (!formRef.value || !(await formRef.value.validate().catch(() => false))) return;
   }
-  emit('submit', { row: props.row, mode: props.mode });
+  emit('submit', {
+    row: props.row,
+    mode: props.mode,
+    message: formState.message.trim() || undefined,
+  });
 }
 </script>
 
@@ -140,80 +127,46 @@ async function handleSubmit() {
 .whitelist-dialog {
   &__hint {
     margin: 0 0 18px;
-    padding: 10px 14px;
-    border-radius: 8px;
+    padding: 12px 14px;
+    border-radius: 10px;
     color: #50617b;
     background: #f3f8fc;
     font-size: 13px;
-    font-weight: 700;
     line-height: 1.6;
   }
 
-  &__detail {
+  &__summary {
     display: grid;
-    margin: 0;
-    padding: 4px 0;
-    border-top: 1px solid #eef2f7;
+    margin: 0 0 18px;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 
     div {
-      display: grid;
-      grid-template-columns: 110px 1fr;
-      align-items: start;
-      gap: 12px;
-      padding: 12px 4px;
-      border-bottom: 1px solid #eef2f7;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid #e3eaf1;
+      border-radius: 10px;
+      background: #fbfcfe;
     }
 
     dt {
-      padding-top: 2px;
-      color: #6f7e94;
-      font-size: 13px;
-      font-weight: 800;
+      color: var(--app-text-label);
+      font-size: 12px;
     }
 
     dd {
-      margin: 0;
-      color: #1f2a37;
+      margin: 6px 0 0;
+      color: var(--app-text-body);
       font-size: 14px;
-      font-weight: 700;
-
-      &.strong {
-        color: #071833;
-        font-size: 15px;
-        font-weight: 900;
-      }
-
-      &.mono {
-        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-        font-size: 13px;
-        word-break: break-all;
-      }
-
-      strong {
-        display: block;
-        color: #071833;
-        font-size: 15px;
-        font-weight: 900;
-      }
-
-      small {
-        display: block;
-        color: #7a8aa1;
-        font-size: 12px;
-        font-weight: 700;
-      }
+      font-weight: 600;
+      overflow-wrap: anywhere;
     }
   }
+}
 
-  &__form {
-    :deep(.el-form-item) {
-      margin-bottom: 0;
-    }
-    :deep(.el-form-item__label) {
-      color: #071833;
-      font-weight: 800;
-      padding-bottom: 6px;
-    }
+@include mobile {
+  .whitelist-dialog__summary {
+    grid-template-columns: 1fr;
   }
 }
 </style>

@@ -20,10 +20,10 @@
 
     <div class="app-aside__profile">
       <div class="app-aside__profile-main">
-        <span class="app-aside__avatar">M</span>
+        <span class="app-aside__avatar">{{ adminInitial }}</span>
         <div v-if="!isCollapsed">
-          <strong>MTPay 管理员</strong>
-          <span>admin@mtpay.test</span>
+          <strong>{{ adminName }}</strong>
+          <span>{{ adminEmail }}</span>
         </div>
       </div>
       <el-button class="app-aside__logout" text @click="handleLogout">
@@ -60,6 +60,9 @@ const authStore = useAuthStore();
 const routeStore = useRouteStore();
 const isCollapsed = computed(() => appStore.sidebarCollapsed && appStore.device !== 'mobile');
 const activeMenuPath = computed(() => String(route.meta.activeMenu || route.path));
+const adminName = computed(() => authStore.userInfo?.name || 'MTPay 管理员');
+const adminEmail = computed(() => authStore.userInfo?.email || '—');
+const adminInitial = computed(() => adminName.value.trim().charAt(0).toUpperCase() || 'M');
 
 const icons = {
   Grid,
@@ -119,7 +122,7 @@ async function handleLogout() {
     color: #00152d;
     background: linear-gradient(135deg, #23dac7, #10aab8);
     box-shadow: 0 12px 30px rgb(20 221 201 / 26%);
-    font-weight: 850;
+    font-weight: 600;
   }
 
   &__brand-text {
@@ -134,7 +137,7 @@ async function handleLogout() {
     span {
       color: #c4d7ef;
       font-size: 11px;
-      font-weight: 850;
+      font-weight: 600;
       letter-spacing: 1.4px;
     }
   }
@@ -160,7 +163,7 @@ async function handleLogout() {
     padding: 0 10px !important;
     color: #d8e4f6;
     border-radius: 8px;
-    font-weight: 800;
+    font-weight: 600;
   }
 
   :deep(.el-menu-item .el-icon) {
@@ -277,7 +280,7 @@ async function handleLogout() {
     justify-content: center;
     padding: 18px 14px;
     color: #d8e4f6;
-    font-weight: 800;
+    font-weight: 600;
     // border: 1px solid #15c4b9;
   }
 }

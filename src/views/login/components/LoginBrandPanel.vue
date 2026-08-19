@@ -67,7 +67,7 @@
       color: #032044;
       background: linear-gradient(135deg, #31d9c5, #0aaebc);
       font-size: 34px;
-      font-weight: 950;
+      font-weight: 700;
     }
 
     strong { font-size: 34px; }
@@ -77,14 +77,14 @@
     margin: 0 0 34px;
     color: #20eee0;
     font-size: 17px;
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: 8px;
   }
 
   h1 {
     margin: 0;
     font-size: clamp(44px, 4.25vw, 64px);
-    font-weight: 950;
+    font-weight: 700;
     line-height: 1.28;
   }
 
@@ -118,7 +118,7 @@
     article > span {
       color: #23e6d7;
       font-size: 12px;
-      font-weight: 900;
+      font-weight: 700;
       letter-spacing: 1px;
     }
 
@@ -134,7 +134,7 @@
     margin: 25px 0 0;
     color: rgb(181 210 235 / 60%);
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 600;
     letter-spacing: 3px;
 
     i {

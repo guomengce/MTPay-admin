@@ -2,11 +2,7 @@
   <AdminPanel class="detail-business-info">
     <h2>{{ title }}</h2>
 
-    <section
-      v-for="section in sections"
-      :key="section.title"
-      class="detail-business-info__section"
-    >
+    <section v-for="section in sections" :key="section.title" class="detail-business-info__section">
       <h3 v-if="section.title">
         <span v-if="section.icon">
           <component :is="section.icon" />
@@ -15,16 +11,9 @@
       </h3>
 
       <div class="detail-business-info__fields">
-        <div
-          v-for="field in section.fields"
-          :key="field.label"
-          class="detail-business-info__field"
-        >
+        <div v-for="field in section.fields" :key="field.label" class="detail-business-info__field">
           <span class="detail-business-info__label">{{ field.label }}</span>
-          <div
-            class="detail-business-info__value"
-            :class="{ 'is-mono': field.mono }"
-          >
+          <div class="detail-business-info__value" :class="{ 'is-mono': field.mono }">
             <StatusBadge
               v-if="field.badge && status"
               :label="field.value"
@@ -53,6 +42,7 @@ import { ElMessage } from 'element-plus';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import type { StatusBadgeEffect, StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 
 export interface DetailField {
   label: string;
@@ -72,7 +62,7 @@ withDefaults(
   defineProps<{
     title: string;
     sections: DetailSection[];
-    status?: { type: string; effect?: string };
+    status?: { type: StatusBadgeType; effect?: StatusBadgeEffect };
   }>(),
   { status: undefined },
 );
@@ -96,9 +86,9 @@ async function copyText(value: string) {
 
   h2 {
     margin: 0 0 24px;
-    color: #061936;
+    color: var(--app-text-heading);
     font-size: 24px;
-    font-weight: 950;
+    font-weight: 700;
   }
 
   &__section {
@@ -122,7 +112,7 @@ async function copyText(value: string) {
     margin: 0 0 18px;
     color: #079d96;
     font-size: 17px;
-    font-weight: 950;
+    font-weight: 600;
 
     span {
       display: inline-flex;
@@ -151,9 +141,9 @@ async function copyText(value: string) {
   }
 
   &__label {
-    color: #66758b;
+    color: var(--app-text-label);
     font-size: 15px;
-    font-weight: 800;
+    font-weight: 400;
   }
 
   &__value {
@@ -161,9 +151,9 @@ async function copyText(value: string) {
     min-width: 0;
     align-items: center;
     gap: 10px;
-    color: #061936;
+    color: var(--app-text-body);
     font-size: 15px;
-    font-weight: 850;
+    font-weight: 500;
 
     > span {
       min-width: 0;

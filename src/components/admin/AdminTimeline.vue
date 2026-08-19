@@ -16,6 +16,7 @@
           <strong>{{ item.title }}</strong>
           <time v-if="item.time">{{ item.time }}</time>
           <p v-if="item.description">{{ item.description }}</p>
+          <slot name="item-extra" :item="item" />
         </div>
       </el-timeline-item>
     </el-timeline>
@@ -61,9 +62,9 @@ const getColor = (item: AdminTimelineItem) => {
 .admin-timeline {
   &__title {
     margin: 0 0 28px;
-    color: #061936;
+    color: var(--app-text-heading);
     font-size: 24px;
-    font-weight: 950;
+    font-weight: 700;
   }
 
   :deep(.el-timeline) {
@@ -101,18 +102,18 @@ const getColor = (item: AdminTimelineItem) => {
   &__content {
     strong {
       display: block;
-      color: #061936;
+      color: var(--app-text-body);
       font-size: 17px;
-      font-weight: 900;
+      font-weight: 600;
     }
 
     time,
     p {
       display: block;
       margin-top: 8px;
-      color: #66758b;
+      color: var(--app-text-label);
       font-size: 14px;
-      font-weight: 650;
+      font-weight: 400;
       line-height: 1.5;
     }
 

@@ -70,7 +70,7 @@ import AdminPanel from '@/components/admin/AdminPanel.vue';
     justify-content: center;
     border-radius: 50%;
     font-size: 17px;
-    font-weight: 950;
+    font-weight: 500;
     line-height: 1;
 
     &--teal {
@@ -95,7 +95,7 @@ import AdminPanel from '@/components/admin/AdminPanel.vue';
     min-width: 0;
     color: #243554;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   &__divider {
@@ -105,9 +105,9 @@ import AdminPanel from '@/components/admin/AdminPanel.vue';
   }
 
   &__value {
-    color: #0b1b35;
+    color: var(--app-text-body);
     font-size: 18px;
-    font-weight: 900;
+    font-weight: 600;
     letter-spacing: 0.3px;
   }
 }
@@ -121,7 +121,7 @@ import AdminPanel from '@/components/admin/AdminPanel.vue';
   color: #2e6bf5;
   background: color-mix(in srgb, #2e6bf5 10%, white);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   transition: background 0.18s ease;
 
   &:hover {

@@ -1,0 +1,85 @@
+/**
+ * 管理端统一交易记录
+ * -----------------------------------------------------------------------------
+ * 聚合入金、兑换、出金三类订单；列表与详情均只读。
+ */
+import request from '../request';
+
+export type TransactionBusinessType = 'deposit' | 'exchange' | 'withdrawal';
+
+export interface TransactionUserRef {
+  id: number;
+  agent_code: string;
+  company_name: string;
+  email: string;
+}
+
+export interface TransactionItem {
+  transaction_key: string;
+  business_type: TransactionBusinessType;
+  business_name: string;
+  id: number;
+  business_id: number;
+  order_no: string;
+  user: TransactionUserRef;
+  currency_code: string;
+  network_code: string | null;
+  amount: string;
+  target_currency_code: string | null;
+  target_amount: string | null;
+  exchange_rate: string | null;
+  fee_amount: string | null;
+  total_amount: string | null;
+  payer_name: string | null;
+  payee_name: string | null;
+  status: number;
+  status_name: string;
+  status_group: string;
+  status_group_name: string;
+  submitted_at: string | null;
+  completed_at: string | null;
+  finished_at: string | null;
+  detail_type: TransactionBusinessType;
+  detail_id: number;
+}
+
+export interface TransactionListParams {
+  user_id?: number;
+  business_type?: TransactionBusinessType;
+  status_group?: string;
+  currency_code?: string;
+  order_no?: string;
+  keyword?: string;
+  started_at?: string;
+  ended_at?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface TransactionPageResult {
+  current_page: number;
+  data: TransactionItem[];
+  per_page: number;
+  total: number;
+  last_page: number;
+}
+
+export interface TransactionInfoResult {
+  transaction: TransactionItem;
+  detail: Record<string, unknown>;
+}
+
+/** 统一交易分页列表。 */
+export function fetchTransactionList(params: TransactionListParams = {}) {
+  return request.get<unknown, TransactionPageResult>('/admin/getTransactionList', { params });
+}
+
+/** 统一交易详情（只读，返回交易公共字段 + 对应业务详情）。 */
+export function fetchTransactionInfo(payload: {
+  business_type: TransactionBusinessType;
+  business_id: number;
+}) {
+  return request.get<unknown, TransactionInfoResult>('/admin/getTransactionInfo', {
+    params: payload,
+  });
+}

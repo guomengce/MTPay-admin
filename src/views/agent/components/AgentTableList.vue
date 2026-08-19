@@ -1,51 +1,45 @@
 <template>
   <div class="agent-table-list">
-    <el-table class="admin-data-table agent-table" :data="data" stripe>
-      <el-table-column label="代理" min-width="260">
+    <el-table v-loading="loading" class="admin-data-table" :data="data" stripe>
+      <el-table-column label="代理" min-width="240">
         <template #default="{ row }">
           <div class="agent-cell">
-            <span>{{ row.avatar }}</span>
-            <div class="row-title">
-              <strong>{{ row.name }}</strong>
-              <small>{{ row.code }}</small>
-            </div>
+            <span>{{ row.company_name.charAt(0).toUpperCase() }}</span>
+            <div class="row-title"><strong>{{ row.company_name }}</strong><small>{{ row.agent_code }}</small></div>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="联络方式" min-width="230">
+      <el-table-column label="联络方式" min-width="240">
+        <template #default="{ row }"><div class="contact-lines"><span>{{ row.email }}</span><span>{{ row.phone }}</span></div></template>
+      </el-table-column>
+      <el-table-column label="状态" width="120">
+        <template #default="{ row }"><StatusBadge :label="row.status_name" :type="statusType(row.status)" /></template>
+      </el-table-column>
+      <el-table-column prop="created_at" label="创建时间" min-width="160" />
+      <el-table-column label="操作" width="280" fixed="right">
         <template #default="{ row }">
-          <div class="contact-lines">
-            <span>{{ row.email }}</span>
-            <span>{{ row.phone }}</span>
+          <div class="agent-actions">
+            <el-button plain type="primary" size="small" :icon="View" @click="emit('detail', row)">详情</el-button>
+            <el-button plain type="warning" size="small" :icon="Edit" @click="emit('edit', row)">修改</el-button>
+            <el-dropdown
+              v-if="statusOptions(row.status).length"
+              trigger="click"
+              @command="(status: AgentStatus) => emit('status', row, status)"
+            >
+              <el-button plain type="success" size="small" :icon="Setting">修改状态</el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item
+                    v-for="option in statusOptions(row.status)"
+                    :key="option.value"
+                    :command="option.value"
+                  >
+                    {{ option.label }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="USDT比例" min-width="130">
-        <template #default="{ row }">
-          <StatusBadge :label="row.usdt" type="mt" />
-        </template>
-      </el-table-column>
-      <el-table-column label="USDC比例" min-width="130">
-        <template #default="{ row }">
-          <StatusBadge :label="row.usdc" type="primary" />
-        </template>
-      </el-table-column>
-      <el-table-column label="USD可用" min-width="180">
-        <template #default="{ row }">
-          <div class="balance-cell">
-            <strong>{{ row.balance }}</strong>
-            <small class="muted">可用余额</small>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" min-width="120">
-        <template #default>
-          <StatusBadge label="正常使用" />
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="180" fixed="right">
-        <template #default="{ row }">
-          <el-button plain size="small" :icon="Edit" @click="emit('edit', row)">编辑</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -53,77 +47,43 @@
 </template>
 
 <script setup lang="ts">
-import { Edit, Setting } from '@element-plus/icons-vue';
-
+import { Edit, Setting, View } from '@element-plus/icons-vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
+import type { AgentAccount } from '@/api/modules/agent';
 
-export interface AgentRow {
-  avatar: string;
-  name: string;
-  code: string;
-  email: string;
-  phone: string;
-  usdt: string;
-  usdc: string;
-  balance: string;
+export type AgentStatus = 1 | 2 | 3;
+defineProps<{ data: AgentAccount[]; loading: boolean }>();
+const emit = defineEmits<{
+  (event: 'detail', row: AgentAccount): void;
+  (event: 'edit', row: AgentAccount): void;
+  (event: 'status', row: AgentAccount, status: AgentStatus): void;
+}>();
+
+function statusType(status: AgentAccount['status']): StatusBadgeType {
+  return ({ 0: 'warning', 1: 'success', 2: 'gray', 3: 'danger' } as const)[status];
 }
 
-defineProps<{ data: AgentRow[] }>();
-const emit = defineEmits<{
-  (e: 'edit', row: AgentRow): void;
-  (e: 'settings', row: AgentRow): void;
-}>();
+function statusOptions(status: AgentAccount['status']): Array<{ label: string; value: AgentStatus }> {
+  if (status === 0) return [{ label: '停用', value: 3 }];
+  if (status === 1) return [{ label: '暂停', value: 2 }, { label: '停用', value: 3 }];
+  if (status === 2) return [{ label: '恢复正常', value: 1 }, { label: '停用', value: 3 }];
+  return [];
+}
 </script>
 
 <style scoped lang="scss">
-/* PC 显示，≤768px（全局 mobile 断点）隐藏 */
-.agent-table-list {
-  display: block;
-
-  @include mobile {
-    display: none;
-  }
-}
-
-.agent-cell {
+.agent-table-list { display: block; @include mobile { display: none; } }
+.agent-cell { display: flex; align-items: center; gap: 14px; }
+.agent-cell > span { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #17c4ad, #1f73f2); font-weight: 600; }
+.contact-lines { display: grid; gap: 6px; color: #52637b; }
+.agent-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
-
-  > span {
-    display: inline-flex;
-    width: 56px;
-    height: 56px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    color: #ffffff;
-    background: linear-gradient(135deg, #17c4ad, #1f73f2);
-    font-size: 26px;
-    font-weight: 950;
-  }
-}
-
-.contact-lines {
-  display: grid;
   gap: 8px;
-  color: #52637b;
+  min-height: 32px;
+  white-space: nowrap;
 }
-
-.balance-cell {
-  display: grid;
-  gap: 4px;
-
-  strong {
-    color: #071833;
-    font-size: 17px;
-    font-weight: 900;
-  }
-
-  .muted {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 700;
-  }
-}
+.agent-actions :deep(.el-button + .el-button) { margin-left: 0; }
+.agent-actions :deep(.el-dropdown) { display: inline-flex; align-items: center; }
 </style>

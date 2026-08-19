@@ -1,51 +1,102 @@
-/**
- * deposit 模块接口骨架
- * -----------------------------------------------------------------------------
- * 入金审核：列表、详情、审核通过 / 拒绝。
- * DetailViewModel 引用 views/deposit/detail/types.ts（已存在）。
- */
+/** 管理端入金审核 API：列表、详情、审核。 */
 import request from '../request';
-import type { DepositDetail } from '@/views/deposit/detail/types';
-import type { Id, PageParams, PageResult } from '../types';
 
-/** 列表项 */
-export interface DepositListItem {
-  id: Id;
-  time: string;
-  agent: string;
-  asset: string;
-  network: string;
-  hash: string;
+export type DepositStatus = 0 | 1 | 2;
+export type ReviewDecision = 'approve' | 'reject';
+
+export interface BusinessUser {
+  id: number;
+  agent_code: string;
+  company_name: string;
+  email: string;
+}
+
+export interface CurrencyRef {
+  id: number;
+  code: string;
+  name: string;
+  decimal_places: number;
+}
+
+export interface NetworkRef {
+  id: number;
+  code: string;
+  name: string;
+}
+
+export interface ReviewInfo {
+  admin_id: number | null;
+  admin_name: string | null;
+  note: string | null;
+  reviewed_at: string | null;
+}
+
+export interface TimelineItem {
+  event: string;
+  name: string;
+  time: string | null;
+}
+
+export interface DepositOrder {
+  id: number;
+  order_no: string;
+  user: BusinessUser;
+  currency: CurrencyRef;
+  network: NetworkRef;
   amount: string;
-  status: string;
-  statusType: 'warning' | 'success' | 'danger' | 'primary' | 'gray';
-  statusEffect?: 'pending' | 'plain';
+  txid: string;
+  receiving_address_snapshot: string;
+  status: DepositStatus;
+  status_name: string;
+  submitted_at: string;
+  updated_at: string;
 }
 
-export type DepositListParams = PageParams & {
-  status?: string;
-  agent?: string;
-  asset?: string;
-};
-
-/** 列表 */
-export function fetchDepositList(params: DepositListParams) {
-  return request.get<unknown, PageResult<DepositListItem>>('/deposit/list', { params });
+export interface DepositOrderDetail extends DepositOrder {
+  review: ReviewInfo;
+  credited_at: string | null;
+  timeline: TimelineItem[];
 }
 
-/** 详情 */
-export function fetchDepositDetail(id: Id) {
-  return request.get<unknown, DepositDetail>(`/deposit/detail/${id}`);
+export interface DepositPageResult {
+  current_page: number;
+  data: DepositOrder[];
+  per_page: number;
+  total: number;
+  last_page: number;
 }
 
-/** 审核 payload */
+export interface DepositListParams {
+  user_id?: number;
+  currency_id?: number;
+  network_id?: number;
+  status?: DepositStatus;
+  keyword?: string;
+  order_no?: string;
+  txid?: string;
+  started_at?: string;
+  ended_at?: string;
+  page: number;
+  limit: number;
+}
+
 export interface ReviewDepositPayload {
-  id: Id;
-  mode: 'approve' | 'reject';
-  reason?: string;
+  id: number;
+  decision: ReviewDecision;
+  review_note?: string;
 }
 
-/** 通过 / 拒绝 */
-export function fetchReviewDeposit(payload: ReviewDepositPayload) {
-  return request.post<unknown, DepositDetail>('/deposit/review', payload);
+/** 获取入金分页列表。GET /admin/getDepositList */
+export function fetchDepositList(params: DepositListParams) {
+  return request.get<unknown, DepositPageResult>('/admin/getDepositList', { params });
+}
+
+/** 获取入金详情。GET /admin/getDepositInfo?id=... */
+export function fetchDepositDetail(id: number) {
+  return request.get<unknown, DepositOrderDetail>('/admin/getDepositInfo', { params: { id } });
+}
+
+/** 审核入金；仅待审核订单允许操作。POST /admin/reviewDeposit */
+export function reviewDeposit(payload: ReviewDepositPayload) {
+  return request.post<unknown, DepositOrderDetail>('/admin/reviewDeposit', payload);
 }

@@ -1,60 +1,40 @@
-/**
- * whitelist 列表 composable 骨架
- */
-import { reactive, ref } from 'vue';
+/** 管理端白名单列表：真实后端分页，不做本地假分页或虚构筛选。 */
+import { ref } from 'vue';
 
-import * as WhitelistApi from '@/api/modules/whitelist';
-import type { WhitelistListParams } from '@/api/modules/whitelist';
+import { fetchWhitelistList } from '@/api/modules/whitelist';
+import type { WhitelistRow } from './mapper';
+import { toWhitelistRow } from './mapper';
 
-export interface UseWhitelistListOptions {
-  pageSize?: number;
-  defaultQuery?: Partial<WhitelistListParams>;
-}
-
-export function useWhitelistList(options: UseWhitelistListOptions = {}) {
+export function useWhitelistList() {
   const loading = ref(false);
-  const list = ref<WhitelistApi.WhitelistListItem[]>([]);
+  const list = ref<WhitelistRow[]>([]);
   const total = ref(0);
   const page = ref(1);
-  const pageSize = ref(options.pageSize ?? 10);
-  const query = reactive<Partial<WhitelistListParams>>({ ...(options.defaultQuery ?? {}) });
+  const limit = ref(15);
 
-  async function fetchList() {
+  async function loadList() {
     loading.value = true;
     try {
-      const result = await WhitelistApi.fetchWhitelistList({
-        page: page.value,
-        pageSize: pageSize.value,
-        ...query,
-      });
-      list.value = result.list;
+      const result = await fetchWhitelistList({ page: page.value, limit: limit.value });
+      list.value = result.data.map(toWhitelistRow);
       total.value = result.total;
+      page.value = result.current_page;
+      limit.value = result.per_page;
     } finally {
       loading.value = false;
     }
   }
 
-  async function refresh() {
-    page.value = 1;
-    await fetchList();
+  function setPage(value: number) {
+    page.value = value;
+    void loadList();
   }
 
-  function resetQuery() {
-    for (const k of Object.keys(query)) {
-      delete query[k as keyof WhitelistListParams];
-    }
+  function setLimit(value: number) {
+    limit.value = value;
     page.value = 1;
+    void loadList();
   }
 
-  return {
-    loading,
-    list,
-    total,
-    page,
-    pageSize,
-    query,
-    fetchList,
-    refresh,
-    resetQuery,
-  };
+  return { loading, list, total, page, limit, loadList, setPage, setLimit };
 }

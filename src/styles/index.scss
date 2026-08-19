@@ -3,6 +3,7 @@
 @use './reset.scss';
 @use './element.scss';
 @use './element-overrides.scss';
+@use './filter-bar.scss';
 
 .page {
   min-width: 0;
@@ -19,7 +20,7 @@
 .page-title {
   margin: 0 0 8px;
   font-size: 20px;
-  font-weight: 650;
+  font-weight: 500;
 }
 
 .page-description {
@@ -55,7 +56,7 @@
   padding: 0 14px;
   border-radius: 999px;
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -66,7 +67,7 @@
 
 .text-link {
   color: #126df0;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .type-chip {
@@ -78,7 +79,7 @@
   color: #126df0;
   background: #eaf2ff;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .amount-success {
@@ -94,13 +95,14 @@
   gap: 5px;
 
   strong {
-    color: #071833;
+    color: var(--app-text-body);
+    font-weight: 600;
   }
 
   span {
-    color: #64748b;
+    color: var(--app-text-label);
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 400;
   }
 }
 
@@ -120,14 +122,10 @@
 
   .el-table__header th {
     height: 56px;
-    font-size: 14px;
-    font-weight: 850;
   }
 
   .el-table__row td {
     height: 76px;
-    color: #0b1b35;
-    font-weight: 700;
   }
 }
 

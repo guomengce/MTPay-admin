@@ -1,0 +1,98 @@
+/* ==========================================================================
+   筛选条统一样式（.filter-bar）
+   - 只作用于筛选容器内的 el-input / el-select / el-date-picker / el-button
+   - 不影响业务表单、弹窗等其他控件
+   - 桌面列数由各页面组件自定义；窄屏统一 2 列，移动端统一 1 列
+   ========================================================================== */
+
+@use './breakpoints.scss' as *;
+
+.filter-bar {
+  --filter-control-height: 40px;
+
+  display: grid;
+  align-items: center;
+  gap: 12px 14px;
+  margin: 18px 20px;
+  padding: 16px 18px;
+  border: 1px solid #e4eaf2;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f9fbfd, #f4f9fb);
+
+  .el-input,
+  .el-select,
+  .el-date-editor {
+    width: 100%;
+  }
+
+  .el-input__wrapper,
+  .el-select__wrapper,
+  .el-date-editor .el-input__wrapper {
+    min-height: var(--filter-control-height);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 0 0 1px var(--mt-form-border) inset;
+    transition:
+      background 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 0 0 1px var(--mt-form-border-hover) inset;
+    }
+
+    &.is-focus,
+    &.is-focused {
+      background: #ffffff;
+      box-shadow:
+        0 0 0 1px var(--mt-form-focus) inset,
+        0 0 0 4px rgb(16 166 158 / 10%);
+    }
+  }
+
+  .el-input__inner,
+  .el-select__selected-item {
+    color: #13243c;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .el-button {
+    --el-button-size: var(--filter-control-height);
+    min-width: 88px;
+    border-radius: 10px;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+}
+
+@include narrow {
+  .filter-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    &__actions {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+@include mobile {
+  .filter-bar {
+    grid-template-columns: minmax(0, 1fr);
+    margin: 14px;
+    padding: 14px;
+
+    &__actions {
+      grid-column: auto;
+
+      .el-button {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  }
+}

@@ -60,7 +60,7 @@ const end = computed(() => {
 
   &__total {
     color: #738197;
-    font-weight: 800;
+    font-weight: 600;
   }
 }
 

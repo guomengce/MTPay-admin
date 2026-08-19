@@ -1,47 +1,49 @@
-/**
- * whitelist 详情 composable 骨架
- */
+/** 管理端白名单详情与审核操作。 */
 import { ref } from 'vue';
 
-import * as WhitelistApi from '@/api/modules/whitelist';
-import type { AsyncResult, Id } from '@/api/types';
-import type { WhitelistDetail } from '@/views/whitelist/detail/types';
+import {
+  fetchWhitelistDetail,
+  requestWhitelistSupplement,
+  reviewWhitelist,
+  type RequestWhitelistSupplementPayload,
+  type ReviewWhitelistPayload,
+  type WhitelistDetail,
+} from '@/api/modules/whitelist';
 
 export function useWhitelistDetail() {
   const loading = ref(false);
+  const submitting = ref(false);
   const detail = ref<WhitelistDetail | null>(null);
-  const error = ref<string | null>(null);
 
-  async function fetchDetail(id: Id): Promise<AsyncResult<WhitelistDetail>> {
+  async function loadDetail(id: number) {
     loading.value = true;
-    error.value = null;
     try {
-      const data = await WhitelistApi.fetchWhitelistDetail(id);
-      detail.value = data;
-      return { ok: true, data };
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : '详情加载失败';
-      return { ok: false, error: e instanceof Error ? e : new Error('failed') };
+      detail.value = await fetchWhitelistDetail(id);
+      return detail.value;
     } finally {
       loading.value = false;
     }
   }
 
-  async function submitReview(payload: WhitelistApi.ReviewWhitelistPayload) {
-    return WhitelistApi.fetchReviewWhitelist(payload);
+  async function submitReview(payload: ReviewWhitelistPayload) {
+    submitting.value = true;
+    try {
+      detail.value = await reviewWhitelist(payload);
+      return detail.value;
+    } finally {
+      submitting.value = false;
+    }
   }
 
-  function reset() {
-    detail.value = null;
-    error.value = null;
+  async function requestSupplement(payload: RequestWhitelistSupplementPayload) {
+    submitting.value = true;
+    try {
+      detail.value = await requestWhitelistSupplement(payload);
+      return detail.value;
+    } finally {
+      submitting.value = false;
+    }
   }
 
-  return {
-    loading,
-    detail,
-    error,
-    fetchDetail,
-    submitReview,
-    reset,
-  };
+  return { loading, submitting, detail, loadDetail, submitReview, requestSupplement };
 }

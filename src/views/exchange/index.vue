@@ -1,28 +1,29 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="兑换审核" description="查看资金冻结和处理时间线后完成一次审核" :icon="Switch">
-    </AdminHero>
+    <AdminHero title="兑换审核" description="核对冻结资金和汇率快照后完成审核" :icon="Switch" />
 
     <AdminPanel>
       <ExchangeTableList
-        :data="pagedRows"
+        :data="list"
+        :loading="loading"
         @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
       />
       <ExchangeCardList
-        :data="pagedRows"
+        :data="list"
         @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
       />
-      <TablePager v-model="page" v-model:page-size="size" :total="total" />
+      <TablePager v-model="page" v-model:page-size="limit" :total="total" />
     </AdminPanel>
 
     <ExchangeAddDialog
       v-model="dialogVisible"
       :row="activeRow"
       :mode="dialogMode"
+      :submitting="reviewing"
       @submit="handleSubmit"
     />
   </section>
@@ -32,66 +33,55 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Switch } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 
+import { reviewExchange } from '@/api/modules/exchange';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import TablePager from '@/components/common/TablePager.vue';
-import { useTablePager } from '@/hooks/useTablePager';
 
 import ExchangeAddDialog from './components/ExchangeAddDialog.vue';
 import ExchangeCardList from './components/ExchangeCardList.vue';
-import type { ExchangeRow } from './components/ExchangeTableList.vue';
 import ExchangeTableList from './components/ExchangeTableList.vue';
+import type { ExchangeRow } from './composables/mapper';
+import { useExchangeList } from './composables/useExchangeList';
 
-const rows: ExchangeRow[] = [
-  {
-    id: 'EX-26073002',
-    time: '08/03 16:08',
-    agent: '代理B · Bluewave Capital',
-    code: 'AG-B',
-    amount: '5,000.00 USDC',
-    asset: 'USDC',
-    rate: '0.9000',
-    usd: '4,500.00 USD',
-    status: '待审核',
-    statusType: 'warning',
-    statusEffect: 'pending',
-  },
-  {
-    id: 'EX-26073001',
-    time: '08/01 17:08',
-    agent: '代理A · Apex Trading',
-    code: 'AG-A',
-    amount: '10,000.00 USDT',
-    asset: 'USDT',
-    rate: '0.9900',
-    usd: '9,900.00 USD',
-    status: '已完成',
-    statusType: 'success',
-  },
-];
-
-const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 const router = useRouter();
-
+const { list, loading, total, page, limit, loadList } = useExchangeList();
 const dialogVisible = ref(false);
-const dialogMode = ref<'view' | 'approve' | 'reject'>('view');
+const dialogMode = ref<'approve' | 'reject'>('approve');
 const activeRow = ref<ExchangeRow | null>(null);
+const reviewing = ref(false);
 
 function openDetail(row: ExchangeRow) {
-  router.push(`/exchange/detail/${row.id}`);
+  void router.push({ name: 'ExchangeDetail', params: { id: row.businessId } });
 }
 
-function openDialog(mode: 'view' | 'approve' | 'reject', row: ExchangeRow) {
+function openDialog(mode: 'approve' | 'reject', row: ExchangeRow) {
   dialogMode.value = mode;
   activeRow.value = row;
   dialogVisible.value = true;
 }
 
-function handleSubmit(payload: { row: ExchangeRow; mode: 'approve' | 'reject'; reason?: string }) {
-  // 接入 API：await api.exchanges.review(payload)
-  console.log('exchange review', payload);
-  dialogVisible.value = false;
+async function handleSubmit(payload: {
+  row: ExchangeRow;
+  mode: 'approve' | 'reject';
+  reason?: string;
+}) {
+  reviewing.value = true;
+  try {
+    await reviewExchange({
+      id: payload.row.businessId,
+      decision: payload.mode,
+      review_note: payload.mode === 'reject' ? payload.reason?.trim() : undefined,
+    });
+    ElMessage.success(payload.mode === 'approve' ? '兑换审核已通过' : '兑换申请已驳回');
+    dialogVisible.value = false;
+    activeRow.value = null;
+    await loadList();
+  } finally {
+    reviewing.value = false;
+  }
 }
 </script>
 

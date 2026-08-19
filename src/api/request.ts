@@ -18,8 +18,6 @@ import { useAuthStore } from '@/stores/modules/auth';
 import type { ApiResponse } from './types';
 
 /** 约定的业务成功状态码（白名单） */
-const SUCCESS_CODES = new Set<number>([0, 200]);
-
 /** 创建 axios 实例 */
 export const request = axios.create({
   baseURL: appConfig.apiBaseURL,
@@ -38,6 +36,11 @@ request.interceptors.request.use(
     if (authStore.token) {
       config.headers.set('Authorization', `Bearer ${authStore.token}`);
     }
+    // FormData 上传：移除默认 JSON 头，交由浏览器生成 multipart（含 boundary）。
+    // 否则 axios 会把 FormData 序列化成 {"file":{"uid":...}} 发送。
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      config.headers.delete('Content-Type');
+    }
     return config;
   },
   (error: AxiosError) => Promise.reject(error),
@@ -47,16 +50,20 @@ request.interceptors.request.use(
  * 响应拦截：解包业务信封；统一错误；401 跳登录
  * ========================================================================== */
 request.interceptors.response.use(
-  (response: AxiosResponse<unknown>) => {
+  (response: AxiosResponse<any>) => {
+    const refreshedToken = response.headers.authorization;
+    if (refreshedToken) {
+      useAuthStore().setToken(refreshedToken.replace(/^Bearer\s+/i, ''));
+    }
     const body = response.data;
 
     // 约定返回 { code, message, data }：解包
     if (isApiEnvelope(body)) {
-      if (SUCCESS_CODES.has(body.code)) {
+      if (Number(body.status) === 200) {
         return body.data;
       }
       ElMessage.error(body.message || '请求失败，请稍后重试');
-      return Promise.reject(new ApiError(body.message, body.code, body.data));
+      return Promise.reject(new ApiError(body.message, Number(body.status), body.data));
     }
 
     // 兼容非信封格式：直接返回原始 body
@@ -89,7 +96,7 @@ function isApiEnvelope(value: unknown): value is ApiResponse<unknown> {
   return (
     typeof value === 'object' &&
     value !== null &&
-    'code' in value &&
+    'status' in value &&
     'data' in value
   );
 }

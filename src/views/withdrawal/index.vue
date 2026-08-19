@@ -1,98 +1,153 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="USD 出金管理" description="一次审核后进入付款执行" :icon="Wallet" />
+    <AdminHero
+      title="USD 出金管理"
+      description="审核代理出金申请，并跟踪付款执行、失败释放和付款凭证"
+      :icon="Wallet"
+    />
 
     <AdminPanel>
+      <WithdrawalFilters
+        :query="query"
+        :loading="loading"
+        @update="Object.assign(query, $event)"
+        @search="search"
+        @reset="reset"
+      />
       <WithdrawalTableList
-        :data="pagedRows"
+        :data="list"
+        :loading="loading"
         @view="openDetail"
-        @complete="openDialog('complete', $event)"
+        @approve="openDialog('approve', $event)"
+        @reject="openDialog('reject', $event)"
+        @supplement="openDialog('supplement', $event)"
+        @payment="openPayment"
+        @append="openDialog('append', $event)"
       />
       <WithdrawalCardList
-        :data="pagedRows"
+        :data="list"
         @view="openDetail"
-        @complete="openDialog('complete', $event)"
+        @approve="openDialog('approve', $event)"
+        @reject="openDialog('reject', $event)"
+        @supplement="openDialog('supplement', $event)"
+        @payment="openPayment"
+        @append="openDialog('append', $event)"
       />
-      <TablePager v-model="page" v-model:page-size="size" :total="total" />
+      <el-empty v-if="!loading && list.length === 0" description="暂无出金订单" />
+      <TablePager
+        :model-value="page"
+        :page-size="limit"
+        :total="total"
+        @update:model-value="setPage"
+        @update:page-size="setLimit"
+      />
     </AdminPanel>
 
-    <WithdrawalAddDialog
+    <WithdrawalActionDialog
       v-model="dialogVisible"
-      :row="activeRow"
-      :mode="dialogMode"
+      :row="actionRow"
+      :mode="actionMode"
+      :submitting="submitting"
+      :uploading="uploading"
+      :initial-result="initialResult"
       @submit="handleSubmit"
     />
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+/** 管理端出金列表：真实筛选、后端分页，并按状态在行内完成审核、付款与补件处理。 */
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import { Wallet } from '@element-plus/icons-vue';
 
+import type { WithdrawalPaymentResult } from '@/api/modules/withdrawal';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import TablePager from '@/components/common/TablePager.vue';
-import { useTablePager } from '@/hooks/useTablePager';
 
-import WithdrawalAddDialog from './components/WithdrawalAddDialog.vue';
 import WithdrawalCardList from './components/WithdrawalCardList.vue';
-import type { WithdrawalRow } from './components/WithdrawalTableList.vue';
+import WithdrawalActionDialog from './components/WithdrawalActionDialog.vue';
+import type { WithdrawalActionMode } from './components/WithdrawalActionDialog.vue';
+import WithdrawalFilters from './components/WithdrawalFilters.vue';
 import WithdrawalTableList from './components/WithdrawalTableList.vue';
+import type { WithdrawalRow } from './composables/mapper';
+import { useWithdrawalDetail } from './composables/useWithdrawalDetail';
+import { useWithdrawalList } from './composables/useWithdrawalList';
 
-const rows: WithdrawalRow[] = [
-  {
-    id: 'WD-26073001',
-    time: '08/03 14:08',
-    agent: '代理A · Apex Trading',
-    relation: 'B→B',
-    parties: 'Harbor Trade Pte. Ltd. → Northstar Supplies LLC',
-    amount: '5,000.00 USD',
-    fee: '50.00 / 5,050.00 USD',
-    status: '付款处理中',
-    statusType: 'primary',
-    statusEffect: 'pending',
-  },
-  {
-    id: 'WD-26072908',
-    time: '07/31 17:08',
-    agent: '代理A · Apex Trading',
-    relation: 'C→C',
-    parties: 'Michael Chen → Olivia Brown',
-    amount: '12,500.00 USD',
-    fee: '50.00 / 12,550.00 USD',
-    status: '已完成',
-    statusType: 'success',
-  },
-];
-
-const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 const router = useRouter();
-
-const dialogVisible = ref(false);
-const dialogMode = ref<'view' | 'complete'>('view');
-const activeRow = ref<WithdrawalRow | null>(null);
+const { loading, list, total, page, limit, query, loadList, search, reset, setPage, setLimit } =
+  useWithdrawalList();
 
 function openDetail(row: WithdrawalRow) {
-  router.push(`/withdrawal/detail/${row.id}`);
+  void router.push({ name: 'WithdrawalDetail', params: { id: row.businessId } });
 }
 
-function openDialog(mode: 'view' | 'complete', row: WithdrawalRow) {
-  dialogMode.value = mode;
-  activeRow.value = row;
+const dialogVisible = ref(false);
+const actionMode = ref<WithdrawalActionMode>('approve');
+const actionRow = ref<WithdrawalRow | null>(null);
+const initialResult = ref<WithdrawalPaymentResult | undefined>(undefined);
+const { submitting, uploading, requestSupplement, submitReview, submitPayment, appendPaymentFiles, uploadFiles } =
+  useWithdrawalDetail();
+
+function openDialog(mode: WithdrawalActionMode, row: WithdrawalRow) {
+  actionMode.value = mode;
+  actionRow.value = row;
+  initialResult.value = undefined;
   dialogVisible.value = true;
 }
 
-function handleSubmit(payload: {
-  row: WithdrawalRow;
-  mode: 'complete';
-  reference?: string;
-  note?: string;
-}) {
-  // 接入 API：await api.withdrawals.complete(payload)
-  console.log('withdrawal complete', payload);
-  dialogVisible.value = false;
+function openPayment(payload: { row: WithdrawalRow; result: WithdrawalPaymentResult }) {
+  actionMode.value = 'payment';
+  actionRow.value = payload.row;
+  initialResult.value = payload.result;
+  dialogVisible.value = true;
 }
+
+async function handleSubmit(payload: {
+  mode: WithdrawalActionMode;
+  message?: string;
+  result?: WithdrawalPaymentResult;
+  failureReason?: string;
+  files: File[];
+}) {
+  const row = actionRow.value;
+  if (!row) return;
+  const id = row.businessId;
+  try {
+    if (payload.mode === 'supplement') {
+      await requestSupplement({ id, message: payload.message! });
+      ElMessage.success('补件要求已发送');
+    } else if (payload.mode === 'approve' || payload.mode === 'reject') {
+      await submitReview({
+        id,
+        decision: payload.mode,
+        review_note: payload.mode === 'reject' ? payload.message : undefined,
+      });
+      ElMessage.success(payload.mode === 'approve' ? '出金审核已通过，进入付款处理' : '出金已驳回，冻结资金已释放');
+    } else if (payload.mode === 'payment') {
+      const fileIds = payload.result === 'complete' ? await uploadFiles(payload.files) : [];
+      await submitPayment({
+        id,
+        result: payload.result!,
+        file_ids: fileIds.length ? fileIds : undefined,
+        failure_reason: payload.result === 'fail' ? payload.failureReason : undefined,
+      });
+      ElMessage.success(payload.result === 'complete' ? '付款完成已登记' : '付款失败已登记，冻结资金已释放');
+    } else {
+      const fileIds = await uploadFiles(payload.files);
+      await appendPaymentFiles({ id, file_ids: fileIds, message: payload.message });
+      ElMessage.success('付款凭证已追加');
+    }
+    dialogVisible.value = false;
+    await loadList();
+  } catch {
+    /* 统一请求层已显示后端错误 */
+  }
+}
+
+onMounted(loadList);
 </script>
 
 <style scoped lang="scss"></style>

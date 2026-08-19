@@ -28,6 +28,33 @@ export const featureRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/agent/detail/:id',
+    name: 'AgentDetail',
+    component: () => import('@/views/agent/detail/index.vue'),
+    meta: {
+      title: '代理详情',
+      description: '查看代理账户、资产余额、业务配置与最近交易',
+      icon: 'User',
+      requiresAuth: true,
+      hidden: true,
+      keepAlive: false,
+      activeMenu: '/agent',
+    },
+  },
+  {
+    path: '/currency',
+    name: 'Currency',
+    component: () => import('@/views/currency/index.vue'),
+    meta: {
+      title: '币种管理',
+      description: '维护币种网络关系、启停状态及平台收款地址',
+      icon: 'Coin',
+      requiresAuth: true,
+      hidden: false,
+      keepAlive: false,
+    },
+  },
+  {
     path: '/deposit',
     name: 'Deposit',
     component: () => import('@/views/deposit/index.vue'),
@@ -124,7 +151,7 @@ export const featureRoutes: RouteRecordRaw[] = [
   {
     path: '/withdrawal/detail/:id',
     name: 'WithdrawalDetail',
-    component: () => import('@/views/withdrawal/detail/index.vue'),
+    component: () => import('@/views/withdrawal/detail/WithdrawalDetailPage.vue'),
     meta: {
       title: '出金详情',
       description: '核对付款组合、收款主体、佐证文件与资金冻结影响',

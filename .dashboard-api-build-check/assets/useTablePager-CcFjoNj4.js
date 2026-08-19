@@ -1,0 +1,1 @@
+import{s as n,x as o}from"./index-BJW5hArx.js";function g(t,r={}){const a=n(1),e=n(r.defaultPageSize??10),u=o(()=>t.length),l=o(()=>{const s=(a.value-1)*e.value;return t.slice(s,s+e.value)});return{page:a,size:e,total:u,pagedData:l}}export{g as u};

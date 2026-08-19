@@ -1,7 +1,5 @@
 /**
- * dashboard composable 骨架
- * 营运总览页面：指标卡、待办、流向、比例快照。
- * 接入页面：在 setup() 内 await fetchOverview()。
+ * 管理端运营总览：统一处理首页聚合接口、加载状态与错误状态。
  */
 import { ref } from 'vue';
 
@@ -10,16 +8,14 @@ import type { AsyncResult } from '@/api/types';
 
 export function useDashboard() {
   const loading = ref(false);
-  const overview = ref<DashboardApi.DashboardOverview | null>(null);
+  const overview = ref<DashboardApi.OperationOverview | null>(null);
   const error = ref<string | null>(null);
 
-  async function fetchOverview(params?: {
-    range?: '7d' | '30d' | '90d';
-  }): Promise<AsyncResult<DashboardApi.DashboardOverview>> {
+  async function fetchOverview(): Promise<AsyncResult<DashboardApi.OperationOverview>> {
     loading.value = true;
     error.value = null;
     try {
-      const data = await DashboardApi.fetchDashboardOverview(params ?? {});
+      const data = await DashboardApi.fetchOperationOverview();
       overview.value = data;
       return { ok: true, data };
     } catch (e) {

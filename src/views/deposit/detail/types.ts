@@ -1,30 +1,5 @@
-import type { StatusBadgeEffect, StatusBadgeType } from '@/components/admin/StatusBadge.vue';
-
-export interface DepositTimelineItem {
-  key: string;
-  title: string;
-  time?: string;
-  description?: string;
-  state: 'done' | 'active' | 'pending';
-}
-
-export interface DepositDetail {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  statusType: StatusBadgeType;
-  statusEffect?: StatusBadgeEffect;
-  amount: string;
-  currency: string;
-  asset: string;
-  network: string;
-  agent: string;
-  agentCode: string;
-  hash: string;
-  address: string;
-  submittedAt: string;
-  remark: string;
-  balanceChange: string;
-  timeline: DepositTimelineItem[];
-}
+/**
+ * 入金详情页直接使用 API 层的 DepositOrderDetail。
+ * 不再维护重复的页面展示模型，避免真实审核字段被遗漏或被假数据替代。
+ */
+export {};

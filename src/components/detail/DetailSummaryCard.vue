@@ -1,10 +1,6 @@
 <template>
   <section class="detail-summary-card">
-    <div
-      v-for="item in items"
-      :key="item.label"
-      class="detail-summary-card__item"
-    >
+    <div v-for="item in items" :key="item.label" class="detail-summary-card__item">
       <span class="detail-summary-card__icon" :class="`is-${item.tone}`">
         <component :is="item.icon" />
       </span>
@@ -86,23 +82,23 @@ defineProps<{ items: SummaryItem[] }>();
     min-width: 0;
 
     span {
-      color: #66758b;
+      color: var(--app-text-label);
       font-size: 14px;
-      font-weight: 750;
+      font-weight: 400;
     }
 
     strong {
-      color: #061936;
+      color: var(--app-text-heading);
       font-size: 17px;
-      font-weight: 900;
+      font-weight: 600;
       line-height: 1.25;
     }
 
     small {
       margin-left: 6px;
-      color: #66758b;
+      color: var(--app-text-label);
       font-size: 14px;
-      font-weight: 750;
+      font-weight: 400;
     }
   }
 

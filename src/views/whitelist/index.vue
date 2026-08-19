@@ -1,121 +1,108 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="白名单审核" description="四种类型均只需一次审核" :icon="Checked" />
+    <AdminHero
+      title="白名单审核"
+      description="核对代理提交的主体资料，处理审核、驳回与补件要求"
+      :icon="Checked"
+    />
 
     <AdminPanel>
       <WhitelistTableList
-        :data="pagedRows"
+        :data="list"
+        :loading="loading"
         @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
+        @supplement="openDialog('supplement', $event)"
       />
       <WhitelistCardList
-        :data="pagedRows"
+        :data="list"
         @view="openDetail"
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
+        @supplement="openDialog('supplement', $event)"
       />
-      <TablePager v-model="page" v-model:page-size="size" :total="total" />
+      <TablePager
+        :model-value="page"
+        :page-size="limit"
+        :total="total"
+        @update:model-value="setPage"
+        @update:page-size="setLimit"
+      />
     </AdminPanel>
 
     <WhitelistAddDialog
       v-model="dialogVisible"
       :row="activeRow"
       :mode="dialogMode"
+      :submitting="submitting"
       @submit="handleSubmit"
     />
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+/** 管理端白名单列表：真实分页、状态操作与详情路由入口。 */
+import { onMounted, ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import { Checked } from '@element-plus/icons-vue';
+import { useRouter } from 'vue-router';
 
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import TablePager from '@/components/common/TablePager.vue';
-import { useTablePager } from '@/hooks/useTablePager';
 
 import WhitelistAddDialog from './components/WhitelistAddDialog.vue';
+import type { WhitelistActionMode } from './components/WhitelistAddDialog.vue';
 import WhitelistCardList from './components/WhitelistCardList.vue';
-import type { WhitelistRow } from './components/WhitelistTableList.vue';
 import WhitelistTableList from './components/WhitelistTableList.vue';
+import type { WhitelistRow } from './composables/mapper';
+import { useWhitelistDetail } from './composables/useWhitelistDetail';
+import { useWhitelistList } from './composables/useWhitelistList';
 
-const rows: WhitelistRow[] = [
-  {
-    id: 'WL-1005',
-    time: '08/03 15:38',
-    agent: '代理A · Apex Trading',
-    type: '收款人 · B',
-    subject: 'Atlas Commerce GmbH',
-    country: 'Germany',
-    bank: 'Deutsche Bank',
-    account: 'DE8937040044053206194',
-    status: '待审核',
-    statusType: 'warning',
-    statusEffect: 'pending',
-  },
-  {
-    id: 'WL-2002',
-    time: '08/01 17:08',
-    agent: '代理B · Bluewave Capital',
-    type: '收款人 · C',
-    subject: 'Amelia Davis',
-    country: 'Australia',
-    bank: 'ANZ',
-    account: '•• 2711',
-    status: '已核准',
-    statusType: 'success',
-  },
-  {
-    id: 'WL-2001',
-    time: '07/31 17:08',
-    agent: '代理B · Bluewave Capital',
-    type: '付款人 · B',
-    subject: 'Bluewave Settlement Ltd.',
-    country: 'Hong Kong',
-    bank: 'Financial Institute',
-    account: '72839104',
-    status: '已核准',
-    statusType: 'success',
-  },
-  {
-    id: 'WL-1004',
-    time: '07/30 17:08',
-    agent: '代理A · Apex Trading',
-    type: '收款人 · C',
-    subject: 'Olivia Brown',
-    country: 'United Kingdom',
-    bank: 'Barclays',
-    account: 'GB29NWBK601613319501',
-    status: '已核准',
-    statusType: 'success',
-  },
-];
-
-const { page, size, total, pagedData: pagedRows } = useTablePager(rows);
 const router = useRouter();
+const { loading, list, total, page, limit, loadList, setPage, setLimit } = useWhitelistList();
+const { submitting, submitReview, requestSupplement } = useWhitelistDetail();
 
 const dialogVisible = ref(false);
-const dialogMode = ref<'view' | 'approve' | 'reject'>('view');
+const dialogMode = ref<WhitelistActionMode>('approve');
 const activeRow = ref<WhitelistRow | null>(null);
 
 function openDetail(row: WhitelistRow) {
-  router.push(`/whitelist/detail/${row.id}`);
+  void router.push({ name: 'WhitelistDetail', params: { id: row.businessId } });
 }
 
-function openDialog(mode: 'view' | 'approve' | 'reject', row: WhitelistRow) {
+function openDialog(mode: WhitelistActionMode, row: WhitelistRow) {
   dialogMode.value = mode;
   activeRow.value = row;
   dialogVisible.value = true;
 }
 
-function handleSubmit(payload: { row: WhitelistRow; mode: 'approve' | 'reject'; reason?: string }) {
-  // 接入 API：await api.whitelist.review(payload)
-  console.log('whitelist review', payload);
-  dialogVisible.value = false;
+async function handleSubmit(payload: {
+  row: WhitelistRow;
+  mode: WhitelistActionMode;
+  message?: string;
+}) {
+  try {
+    if (payload.mode === 'supplement') {
+      await requestSupplement({ id: payload.row.businessId, message: payload.message! });
+      ElMessage.success('补件要求已发送');
+    } else {
+      await submitReview({
+        id: payload.row.businessId,
+        decision: payload.mode,
+        review_note: payload.mode === 'reject' ? payload.message : undefined,
+      });
+      ElMessage.success(payload.mode === 'approve' ? '白名单审核已通过' : '白名单已驳回');
+    }
+    dialogVisible.value = false;
+    await loadList();
+  } catch {
+    /* 统一请求层已显示后端错误 */
+  }
 }
+
+onMounted(loadList);
 </script>
 
 <style scoped lang="scss"></style>

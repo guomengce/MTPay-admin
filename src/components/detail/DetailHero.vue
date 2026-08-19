@@ -1,6 +1,41 @@
 <template>
-  <section class="detail-hero">
-    <div class="detail-hero__header">
+  <section class="detail-hero" :class="{ 'is-compact': compact }">
+    <div v-if="compact" class="detail-hero__compact-header">
+      <div class="detail-hero__compact-main">
+        <el-button
+          class="detail-hero__compact-back"
+          plain
+          :icon="ArrowLeft"
+          @click="emit('back')"
+        />
+        <div class="detail-hero__compact-content">
+          <h1>{{ title }}</h1>
+          <div class="detail-hero__compact-meta">
+            <span v-if="orderId" class="detail-hero__compact-order-label">{{ order }}</span>
+            <strong v-if="orderId">{{ orderId }}</strong>
+            <StatusBadge
+              v-if="status"
+              :label="status.label"
+              :type="status.type"
+              :effect="status.effect"
+            />
+          </div>
+        </div>
+      </div>
+      <div v-if="actions.length" class="detail-hero__compact-actions">
+        <el-button
+          v-for="action in actions"
+          :key="action.emitName"
+          :type="action.type"
+          :icon="action.icon"
+          @click="emit(action.emitName)"
+        >
+          {{ action.label }}
+        </el-button>
+      </div>
+    </div>
+
+    <div v-else class="detail-hero__header">
       <div class="detail-hero__identity">
         <el-button class="detail-hero__back" plain :icon="ArrowLeft" @click="emit('back')" />
 
@@ -45,18 +80,19 @@
 import { ArrowLeft, Tickets } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import type { StatusBadgeEffect, StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 
 export interface HeroAction {
   label: string;
   icon?: unknown;
-  type?: 'primary' | 'danger' | 'plain';
-  emitName: string;
+  type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'plain';
+  emitName: 'approve' | 'reject' | 'supplement' | 'complete' | 'return' | 'payment' | 'append';
 }
 
 export interface HeroStatus {
   label: string;
-  type: string;
-  effect?: string;
+  type: StatusBadgeType;
+  effect?: StatusBadgeEffect;
 }
 
 withDefaults(
@@ -65,15 +101,16 @@ withDefaults(
     description: string;
     order: string;
     orderId: string;
+    compact?: boolean;
     status?: HeroStatus;
     actions?: HeroAction[];
   }>(),
-  { status: undefined, actions: () => [] },
+  { compact: false, status: undefined, actions: () => [] },
 );
 
-// 动态 emit 名（action.emitName）+ 固定 back，使用宽松 emits 类型。
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const emit = defineEmits<{ (e: string): void }>();
+const emit = defineEmits<{
+  (e: 'back' | HeroAction['emitName']): void;
+}>();
 </script>
 
 <style scoped lang="scss">
@@ -110,6 +147,89 @@ const emit = defineEmits<{ (e: string): void }>();
     z-index: 1;
   }
 
+  /* 审核详情紧凑头部：只调整排版，状态徽标与业务按钮继续使用公共组件样式。 */
+  &.is-compact {
+    padding: 22px 28px;
+    border-radius: 14px;
+    background: linear-gradient(105deg, #ffffff 0%, #f8fbff 66%, #f2f7fc 100%);
+
+    &::after {
+      display: none;
+    }
+  }
+
+  &__compact-header,
+  &__compact-main,
+  &__compact-meta,
+  &__compact-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  &__compact-header {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    justify-content: space-between;
+    gap: 28px;
+  }
+
+  &__compact-main {
+    min-width: 0;
+    gap: 20px;
+  }
+
+  &__compact-back {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    flex: none;
+    padding: 0;
+    border-radius: 8px;
+  }
+
+  &__compact-content {
+    min-width: 0;
+
+    h1 {
+      margin: 0;
+      color: var(--app-text-heading);
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+  }
+
+  &__compact-meta {
+    min-width: 0;
+    gap: 12px;
+    margin-top: 10px;
+    color: var(--app-text-label);
+    font-size: 13px;
+
+    strong {
+      overflow: hidden;
+      color: var(--app-text-body);
+      font-size: 13px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__compact-order-label {
+    flex: none;
+  }
+
+  &__compact-actions {
+    flex: none;
+    gap: 10px;
+
+    :deep(.el-button + .el-button) {
+      margin-left: 0;
+    }
+  }
+
   &__header {
     display: flex;
     align-items: flex-start;
@@ -143,17 +263,17 @@ const emit = defineEmits<{ (e: string): void }>();
       min-width: 0;
       margin: 0 0 6px;
       overflow-wrap: anywhere;
-      color: #061936;
+      color: var(--app-text-heading);
       font-size: 28px;
-      font-weight: 950;
+      font-weight: 700;
       line-height: 1.2;
     }
 
     p {
       margin: 0;
-      color: #66758b;
+      color: var(--app-text-label);
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 400;
       line-height: 1.5;
     }
   }
@@ -174,9 +294,9 @@ const emit = defineEmits<{ (e: string): void }>();
     border: 1px solid #dce7f5;
     border-radius: 999px;
     background: rgb(255 255 255 / 72%);
-    color: #66758b;
+    color: var(--app-text-label);
     font-size: 13px;
-    font-weight: 800;
+    font-weight: 400;
     line-height: 1;
   }
 
@@ -198,9 +318,9 @@ const emit = defineEmits<{ (e: string): void }>();
   }
 
   &__order-id {
-    color: #061936;
+    color: var(--app-text-heading);
     font-size: 14px;
-    font-weight: 950;
+    font-weight: 600;
     letter-spacing: 0.02em;
   }
 
@@ -258,6 +378,10 @@ const emit = defineEmits<{ (e: string): void }>();
       padding: 5px 12px;
       font-size: 12px;
     }
+
+    &.is-compact {
+      padding: 20px 24px;
+    }
   }
 
   @include mobile {
@@ -311,6 +435,54 @@ const emit = defineEmits<{ (e: string): void }>();
 
     &__actions > * {
       flex: 1;
+    }
+
+    &.is-compact {
+      padding: 18px;
+    }
+
+    &__compact-header {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    &__compact-main {
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    &__compact-content h1 {
+      font-size: 20px;
+    }
+
+    &__compact-meta {
+      flex-wrap: wrap;
+      gap: 8px 10px;
+    }
+
+    &__compact-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      > :deep(.el-button) {
+        width: 100%;
+        min-width: 0;
+      }
+
+      > :last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-hero__compact-actions {
+    grid-template-columns: 1fr;
+
+    > :last-child:nth-child(odd) {
+      grid-column: auto;
     }
   }
 }

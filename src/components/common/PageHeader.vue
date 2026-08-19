@@ -31,18 +31,18 @@ defineProps<{
 
   h1 {
     margin: 0 0 10px;
-    color: #071833;
+    color: var(--app-text-heading);
     font-size: 34px;
-    font-weight: 850;
+    font-weight: 600;
     line-height: 1.2;
     letter-spacing: 0;
   }
 
   p {
     margin: 0;
-    color: #66758b;
+    color: var(--app-text-label);
     font-size: 16px;
-    font-weight: 650;
+    font-weight: 500;
     line-height: 1.6;
   }
 

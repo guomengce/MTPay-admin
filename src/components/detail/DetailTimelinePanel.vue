@@ -7,16 +7,11 @@
 <script setup lang="ts">
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import AdminTimeline from '@/components/admin/AdminTimeline.vue';
+import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
 
 defineProps<{
   title?: string;
-  items: Array<{
-    key?: string;
-    title?: string;
-    time?: string;
-    description?: string;
-    state?: 'done' | 'active' | 'pending' | string;
-  }>;
+  items: AdminTimelineItem[];
 }>();
 </script>
 

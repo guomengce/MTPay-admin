@@ -5,19 +5,14 @@
     subtitle="设定每笔 USD 出金的固定手续费"
     :icon="Money"
   >
-    <el-form class="settings-form" :model="feeForm" label-position="top">
-      <el-form-item class="fee-input-item" label="USD / 笔" prop="fee">
+    <el-form class="settings-form" label-position="top">
+      <el-form-item class="fee-input-item" label="USD / 笔">
         <div class="fee-input-shell">
           <span class="fee-input-shell__prefix">$</span>
-          <el-input-number
-            v-model="feeForm.fee"
-            :step="1"
-            :precision="2"
-            :min="0"
-            controls-position="right"
-          />
+          <el-input v-model="feeAmount" placeholder="如 10.00" />
         </div>
       </el-form-item>
+      <p v-if="error" class="fee-form__error">{{ error }}</p>
     </el-form>
 
     <div class="fee-hint">
@@ -25,21 +20,47 @@
       手续费将从代理利润中扣除，请合理设定以确保利润空间。
     </div>
 
-    <el-button class="save-button" size="large" type="primary" :icon="DocumentChecked">
+    <el-button
+      class="save-button"
+      size="large"
+      type="primary"
+      :icon="DocumentChecked"
+      :loading="saving"
+      @click="submit"
+    >
       储存手续费
     </el-button>
   </AdminPanel>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { ref, watch } from 'vue';
 import { DocumentChecked, Money, WarningFilled } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 
-const feeForm = reactive({
-  fee: 50,
-});
+const props = defineProps<{ feeAmount?: string; saving?: boolean }>();
+const emit = defineEmits<{ (e: 'save', payload: { fee_amount: string }): void }>();
+
+const feeAmount = ref(props.feeAmount ?? '');
+const error = ref('');
+
+watch(
+  () => props.feeAmount,
+  (value) => {
+    if (value !== undefined) feeAmount.value = value;
+  },
+);
+
+function submit() {
+  const fee = feeAmount.value.trim();
+  if (!/^\d{1,20}(\.\d{1,8})?$/.test(fee)) {
+    error.value = '请输入合法手续费（整数最多 20 位、小数最多 8 位）';
+    return;
+  }
+  error.value = '';
+  emit('save', { fee_amount: fee });
+}
 </script>
 
 <style scoped lang="scss">
@@ -81,7 +102,7 @@ const feeForm = reactive({
   :deep(.el-form-item__label) {
     color: #263854;
     font-size: 14px;
-    font-weight: 950;
+    font-weight: 600;
   }
 }
 
@@ -100,7 +121,7 @@ const feeForm = reactive({
     left: 24px;
     color: #1f73f2;
     font-size: 22px;
-    font-weight: 950;
+    font-weight: 600;
     transform: translateY(-50%);
   }
 
@@ -122,7 +143,7 @@ const feeForm = reactive({
     padding-left: 46px;
     color: #1f73f2;
     font-size: 28px;
-    font-weight: 950;
+    font-weight: 600;
     text-align: left;
   }
 }
@@ -138,13 +159,20 @@ const feeForm = reactive({
   color: #b36b00;
   background: #fff7e8;
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 600;
 
   .el-icon {
     flex: 0 0 auto;
     color: #f59e0b;
     font-size: 16px;
   }
+}
+
+.fee-form__error {
+  margin: 10px 0 0;
+  color: #e23a43;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .save-button {

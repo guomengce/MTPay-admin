@@ -5,45 +5,85 @@
     subtitle="设定预设的精准兑换比例"
     :icon="TrendCharts"
   >
-    <el-form class="settings-form" :model="rateForm" label-position="top">
+    <el-form class="settings-form" label-position="top">
       <div class="rate-grid">
-        <el-form-item class="rate-item rate-item--usdt" prop="defaultUsdt">
+        <el-form-item class="rate-item rate-item--usdt">
           <template #label>
             <span class="rate-item__label">
               <span class="rate-item__coin">T</span>
               USDT → USD
             </span>
           </template>
-          <el-input-number v-model="rateForm.defaultUsdt" :step="0.01" :precision="4" :min="0" />
+          <el-input v-model="usdtRate" placeholder="如 1.000000000000" />
           <p>每 1 USDT 可兑换的 USD 金额</p>
         </el-form-item>
 
-        <el-form-item class="rate-item rate-item--usdc" prop="defaultUsdc">
+        <el-form-item class="rate-item rate-item--usdc">
           <template #label>
             <span class="rate-item__label">
               <span class="rate-item__coin">$</span>
               USDC → USD
             </span>
           </template>
-          <el-input-number v-model="rateForm.defaultUsdc" :step="0.01" :precision="4" :min="0" />
+          <el-input v-model="usdcRate" placeholder="如 1.000000000000" />
           <p>每 1 USDC 可兑换的 USD 金额</p>
         </el-form-item>
       </div>
+      <p v-if="error" class="rate-form__error">{{ error }}</p>
     </el-form>
-    <el-button class="save-button" size="large" type="primary" :icon="Checked">储存预设比例</el-button>
+    <el-button
+      class="save-button"
+      size="large"
+      type="primary"
+      :icon="Checked"
+      :loading="saving"
+      @click="submit"
+      >储存预设比例</el-button
+    >
   </AdminPanel>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { ref, watch } from 'vue';
 import { Checked, TrendCharts } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 
-const rateForm = reactive({
-  defaultUsdt: 0.99,
-  defaultUsdc: 0.99,
-});
+const props = defineProps<{ usdtRate?: string; usdcRate?: string; saving?: boolean }>();
+const emit = defineEmits<{ (e: 'save', payload: { usdt_rate: string; usdc_rate: string }): void }>();
+
+const usdtRate = ref(props.usdtRate ?? '');
+const usdcRate = ref(props.usdcRate ?? '');
+const error = ref('');
+
+watch(
+  () => props.usdtRate,
+  (value) => {
+    if (value !== undefined) usdtRate.value = value;
+  },
+);
+watch(
+  () => props.usdcRate,
+  (value) => {
+    if (value !== undefined) usdcRate.value = value;
+  },
+);
+
+function isValidRate(value: string) {
+  if (!/^\d{1,16}(\.\d{1,12})?$/.test(value)) return false;
+  return !/^0+(?:\.0+)?$/.test(value);
+}
+
+function submit() {
+  const usdt = usdtRate.value.trim();
+  const usdc = usdcRate.value.trim();
+  if (!isValidRate(usdt) || !isValidRate(usdc)) {
+    error.value = '请输入大于 0 的比例（整数最多 16 位、小数最多 12 位）';
+    return;
+  }
+  error.value = '';
+  emit('save', { usdt_rate: usdt, usdc_rate: usdc });
+}
 </script>
 
 <style scoped lang="scss">
@@ -100,8 +140,15 @@ const rateForm = reactive({
 .settings-form {
   :deep(.el-form-item__label) {
     color: #263854;
-    font-weight: 900;
+    font-weight: 600;
   }
+}
+
+.rate-form__error {
+  margin: -8px 28px 0;
+  color: #e23a43;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .rate-item {
@@ -113,7 +160,7 @@ const rateForm = reactive({
     gap: 8px;
     color: #14233a;
     font-size: 14px;
-    font-weight: 950;
+    font-weight: 600;
   }
 
   &__coin {
@@ -126,7 +173,7 @@ const rateForm = reactive({
     color: #ffffff;
     background: linear-gradient(135deg, #20c7b4, #0c9b92);
     font-size: 13px;
-    font-weight: 950;
+    font-weight: 600;
   }
 
   &--usdc {
@@ -137,17 +184,17 @@ const rateForm = reactive({
 
   p {
     margin: 10px 0 0;
-    color: #7a8aa1;
+    color: var(--app-text-subtle);
     font-size: 12px;
-    font-weight: 750;
+    font-weight: 500;
     text-align: center;
   }
 
-  :deep(.el-input-number) {
+  :deep(.el-input) {
     width: 100%;
   }
 
-  :deep(.el-input-number .el-input__wrapper) {
+  :deep(.el-input .el-input__wrapper) {
     height: 58px;
     border: 1px solid #ccd8e6;
     border-radius: 10px;
@@ -155,25 +202,16 @@ const rateForm = reactive({
     box-shadow: 0 8px 18px rgb(16 42 80 / 8%);
   }
 
-  :deep(.el-input-number .el-input__inner) {
+  :deep(.el-input .el-input__inner) {
     color: #0a9a94;
     font-size: 28px;
-    font-weight: 950;
+    font-weight: 600;
   }
 
   &--usdc {
-    :deep(.el-input-number .el-input__inner) {
+    :deep(.el-input .el-input__inner) {
       color: #1f73f2;
     }
-  }
-
-  :deep(.el-input-number__decrease),
-  :deep(.el-input-number__increase) {
-    width: 42px;
-    border: 0;
-    color: #334155;
-    background: transparent;
-    font-size: 20px;
   }
 }
 

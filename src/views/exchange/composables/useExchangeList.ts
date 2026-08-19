@@ -1,60 +1,33 @@
-/**
- * exchange 列表 composable 骨架
- */
-import { reactive, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { fetchExchangeList } from '@/api/modules/exchange';
+import type { ExchangeRow } from './mapper';
+import { toExchangeRow } from './mapper';
 
-import * as ExchangeApi from '@/api/modules/exchange';
-import type { ExchangeListParams } from '@/api/modules/exchange';
-
-export interface UseExchangeListOptions {
-  pageSize?: number;
-  defaultQuery?: Partial<ExchangeListParams>;
-}
-
-export function useExchangeList(options: UseExchangeListOptions = {}) {
+/** 兑换审核列表：真实后端分页，不做前端假分页。 */
+export function useExchangeList() {
   const loading = ref(false);
-  const list = ref<ExchangeApi.ExchangeListItem[]>([]);
+  const list = ref<ExchangeRow[]>([]);
   const total = ref(0);
   const page = ref(1);
-  const pageSize = ref(options.pageSize ?? 10);
-  const query = reactive<Partial<ExchangeListParams>>({ ...(options.defaultQuery ?? {}) });
+  const limit = ref(15);
 
-  async function fetchList() {
+  async function loadList() {
     loading.value = true;
     try {
-      const result = await ExchangeApi.fetchExchangeList({
-        page: page.value,
-        pageSize: pageSize.value,
-        ...query,
-      });
-      list.value = result.list;
+      const result = await fetchExchangeList({ page: page.value, limit: limit.value });
+      list.value = result.data.map(toExchangeRow);
       total.value = result.total;
     } finally {
       loading.value = false;
     }
   }
 
-  async function refresh() {
-    page.value = 1;
-    await fetchList();
-  }
+  watch(page, () => void loadList());
+  watch(limit, () => {
+    if (page.value !== 1) page.value = 1;
+    else void loadList();
+  });
+  onMounted(loadList);
 
-  function resetQuery() {
-    for (const k of Object.keys(query)) {
-      delete query[k as keyof ExchangeListParams];
-    }
-    page.value = 1;
-  }
-
-  return {
-    loading,
-    list,
-    total,
-    page,
-    pageSize,
-    query,
-    fetchList,
-    refresh,
-    resetQuery,
-  };
+  return { loading, list, total, page, limit, loadList };
 }

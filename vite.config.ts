@@ -19,6 +19,8 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 9527,
+    // 管理端固定使用 6688；端口被占用时直接报错，不自动跳到其他端口。
+    port: 6688,
+    strictPort: true,
   },
 });

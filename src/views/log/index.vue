@@ -98,7 +98,7 @@ const { page, size, total, pagedData: pagedLogs } = useTablePager(logs);
     margin: 0;
     color: #334155;
     font-size: 14px;
-    font-weight: 900;
+    font-weight: 600;
   }
 
   &__row {
@@ -152,7 +152,7 @@ const { page, size, total, pagedData: pagedLogs } = useTablePager(logs);
 
   h3 {
     margin: 0 0 8px;
-    color: #071833;
+    color: var(--app-text-heading);
     font-size: 15px;
     font-weight: 600;
 
@@ -176,8 +176,8 @@ const { page, size, total, pagedData: pagedLogs } = useTablePager(logs);
 
   small,
   time {
-    color: #64748b;
-    font-weight: 750;
+    color: var(--app-text-label);
+    font-weight: 500;
   }
 }
 

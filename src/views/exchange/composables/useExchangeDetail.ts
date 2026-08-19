@@ -1,47 +1,35 @@
-/**
- * exchange 详情 composable 骨架
- */
 import { ref } from 'vue';
-
-import * as ExchangeApi from '@/api/modules/exchange';
-import type { AsyncResult, Id } from '@/api/types';
-import type { ExchangeDetail } from '@/views/exchange/detail/types';
+import {
+  fetchExchangeDetail,
+  reviewExchange,
+  type ExchangeOrderDetail,
+  type ReviewExchangePayload,
+} from '@/api/modules/exchange';
 
 export function useExchangeDetail() {
   const loading = ref(false);
-  const detail = ref<ExchangeDetail | null>(null);
-  const error = ref<string | null>(null);
+  const reviewing = ref(false);
+  const detail = ref<ExchangeOrderDetail | null>(null);
 
-  async function fetchDetail(id: Id): Promise<AsyncResult<ExchangeDetail>> {
+  async function loadDetail(id: number) {
     loading.value = true;
-    error.value = null;
     try {
-      const data = await ExchangeApi.fetchExchangeDetail(id);
-      detail.value = data;
-      return { ok: true, data };
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : '详情加载失败';
-      return { ok: false, error: e instanceof Error ? e : new Error('failed') };
+      detail.value = await fetchExchangeDetail(id);
+      return detail.value;
     } finally {
       loading.value = false;
     }
   }
 
-  async function submitReview(payload: ExchangeApi.ReviewExchangePayload) {
-    return ExchangeApi.fetchReviewExchange(payload);
+  async function submitReview(payload: ReviewExchangePayload) {
+    reviewing.value = true;
+    try {
+      detail.value = await reviewExchange(payload);
+      return detail.value;
+    } finally {
+      reviewing.value = false;
+    }
   }
 
-  function reset() {
-    detail.value = null;
-    error.value = null;
-  }
-
-  return {
-    loading,
-    detail,
-    error,
-    fetchDetail,
-    submitReview,
-    reset,
-  };
+  return { loading, reviewing, detail, loadDetail, submitReview };
 }

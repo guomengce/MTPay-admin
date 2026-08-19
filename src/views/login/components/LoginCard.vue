@@ -28,28 +28,48 @@
         :prefix-icon="Lock"
       />
 
-      <el-button native-type="submit" type="primary" size="large">登入</el-button>
+      <el-button native-type="submit" type="primary" size="large" :loading="submitting">
+        登入
+      </el-button>
     </form>
   </section>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { Lock, User } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 import { useRoute, useRouter } from 'vue-router';
+import { fetchLogin } from '@/api/modules/auth';
 import { useAuthStore } from '@/stores/modules/auth';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
-const form = reactive({ email: 'admin@mtpay.test', password: 'password' });
+const form = reactive({ email: '', password: '' });
+const submitting = ref(false);
 
 async function handleSubmit() {
-  authStore.login({
-    token: 'mtpay-admin-demo-token',
-    userInfo: { id: 'admin', name: 'MTPay 管理员', role: 'admin' },
-  });
-  await router.replace(String(route.query.redirect || '/dashboard'));
+  if (!form.email.trim() || !form.password) {
+    ElMessage.warning('请输入管理员 Email 和密码');
+    return;
+  }
+  submitting.value = true;
+  try {
+    const result = await fetchLogin({ email: form.email.trim(), password: form.password });
+    authStore.login({
+      token: result.token,
+      userInfo: {
+        id: String(result.id),
+        name: String(result.name || result.username || result.email || 'MTPay 管理员'),
+        email: String(result.email || form.email.trim()),
+        role: 'admin',
+      },
+    });
+    await router.replace(String(route.query.redirect || '/dashboard'));
+  } finally {
+    submitting.value = false;
+  }
 }
 </script>
 
@@ -91,13 +111,13 @@ async function handleSubmit() {
     margin: 0;
     color: #061b3c;
     font-size: 38px;
-    font-weight: 950;
+    font-weight: 700;
   }
 
   label {
     color: #061b3c;
     font-size: 17px;
-    font-weight: 850;
+    font-weight: 600;
   }
 
   :deep(.el-input__wrapper) {
@@ -118,7 +138,7 @@ async function handleSubmit() {
     background: linear-gradient(135deg, #12b9aa, #079a90);
     box-shadow: 0 14px 26px rgb(10 158 147 / 24%);
     font-size: 21px;
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: 3px;
   }
 

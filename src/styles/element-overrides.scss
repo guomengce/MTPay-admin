@@ -57,7 +57,7 @@
 
   min-width: 84px;
   border-radius: var(--mt-btn-radius);
-  font-weight: 850;
+  font-weight: 600;
   letter-spacing: 0.02em;
   box-shadow: 0 6px 14px rgb(15 23 42 / 6%);
   transition:
@@ -212,4 +212,114 @@
     transform: none;
     box-shadow: none;
   }
+}
+
+/* ==========================================================================
+   Element Plus 表单视觉基线
+   - 业务表单统一使用 size="large"
+   - 这里负责控件尺寸、圆角、边框、聚焦和标签，不负责具体页面布局
+   ========================================================================== */
+:root {
+  --mt-form-control-height: 50px;
+  --mt-form-radius: 12px;
+  --mt-form-border: #dce5ef;
+  --mt-form-border-hover: #aebfd1;
+  --mt-form-focus: #10a69e;
+  --mt-form-bg: #f8fafc;
+  --mt-form-label: #172a45;
+  --mt-form-placeholder: #9aa8b9;
+}
+
+.el-form--label-top .el-form-item {
+  margin-bottom: 22px;
+}
+
+.el-form--label-top .el-form-item__label {
+  height: auto;
+  margin-bottom: 8px;
+  padding: 0;
+  color: var(--mt-form-label);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.el-input--large,
+.el-select--large,
+.el-date-editor--large {
+  --el-component-size-large: var(--mt-form-control-height);
+}
+
+.el-input--large .el-input__wrapper,
+.el-select--large .el-select__wrapper,
+.el-date-editor--large.el-input__wrapper,
+.el-textarea .el-textarea__inner {
+  border-radius: var(--mt-form-radius);
+  background: var(--mt-form-bg);
+  box-shadow: 0 0 0 1px var(--mt-form-border) inset;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.el-input--large .el-input__wrapper,
+.el-select--large .el-select__wrapper,
+.el-date-editor--large.el-input__wrapper {
+  min-height: var(--mt-form-control-height);
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.el-input--large .el-input__wrapper:hover,
+.el-select--large .el-select__wrapper:hover,
+.el-date-editor--large.el-input__wrapper:hover,
+.el-textarea .el-textarea__inner:hover {
+  box-shadow: 0 0 0 1px var(--mt-form-border-hover) inset;
+}
+
+.el-input--large .el-input__wrapper.is-focus,
+.el-select--large .el-select__wrapper.is-focused,
+.el-date-editor--large.el-input__wrapper.is-focus,
+.el-textarea .el-textarea__inner:focus {
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px var(--mt-form-focus) inset,
+    0 0 0 4px rgb(16 166 158 / 10%);
+}
+
+.el-input--large .el-input__inner,
+.el-select--large .el-select__selected-item {
+  color: #13243c;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.el-input__inner::placeholder,
+.el-textarea__inner::placeholder,
+.el-select__placeholder {
+  color: var(--mt-form-placeholder);
+  font-weight: 500;
+}
+
+.el-input__prefix,
+.el-input__suffix {
+  color: #8495aa;
+  font-size: 18px;
+}
+
+.el-form-item.is-error .el-input__wrapper,
+.el-form-item.is-error .el-select__wrapper {
+  box-shadow: 0 0 0 1px #ef6b73 inset;
+}
+
+.el-form-item__error {
+  padding-top: 5px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.el-dialog {
+  overflow: hidden;
+  border-radius: 18px;
+  box-shadow: 0 30px 90px rgb(15 40 69 / 22%);
 }

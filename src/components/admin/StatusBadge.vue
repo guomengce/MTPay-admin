@@ -33,7 +33,7 @@ withDefaults(
   padding: 0 12px;
   border-radius: 999px;
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 600;
   white-space: nowrap;
 
   &__indicator {
@@ -66,7 +66,7 @@ withDefaults(
   }
 
   &--gray {
-    color: #66758b;
+    color: var(--app-text-label);
     background: #eef2f7;
   }
 

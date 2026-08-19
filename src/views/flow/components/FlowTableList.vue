@@ -66,7 +66,7 @@ function getAmountClass(row: FlowRow) {
 td small {
   display: block;
   margin-top: 5px;
-  color: #64748b;
-  font-weight: 700;
+  color: var(--app-text-label);
+  font-weight: 500;
 }
 </style>

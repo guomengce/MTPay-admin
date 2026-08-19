@@ -54,17 +54,17 @@ defineProps<{
 
   h1 {
     margin: 0 0 8px;
-    color: #071833;
+    color: var(--app-text-heading);
     font-size: 30px;
-    font-weight: 950;
+    font-weight: 700;
     line-height: 1.15;
   }
 
   p {
     margin: 0;
-    color: #64748b;
+    color: var(--app-text-label);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 400;
   }
 
   @include mobile {

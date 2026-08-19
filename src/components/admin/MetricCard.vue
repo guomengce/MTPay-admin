@@ -52,7 +52,7 @@ withDefaults(
     margin: 0 0 14px;
     padding-right: 76px; /* 给绝对定位的 icon 留出空间，避免文字与图标重叠 */
     color: #243554;
-    font-weight: 850;
+    font-weight: 600;
 
     span {
       display: inline-flex;
@@ -68,7 +68,7 @@ withDefaults(
 
   strong {
     display: block;
-    color: #071833;
+    color: var(--app-text-heading);
     font-size: 32px;
     line-height: 1.05;
   }
@@ -78,7 +78,7 @@ withDefaults(
     margin-top: 10px;
     color: #61708a;
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 500;
   }
 
   &__icon {

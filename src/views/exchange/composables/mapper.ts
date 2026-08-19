@@ -1,35 +1,44 @@
-/**
- * exchange mapper
- */
+import type { ExchangeOrder } from '@/api/modules/exchange';
 import type { StatusBadgeEffect, StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 
-import type { ExchangeListItem } from '@/api/modules/exchange';
-
-export interface StatusBadgeMeta {
-  type: StatusBadgeType;
-  effect?: StatusBadgeEffect;
+export interface ExchangeRow {
+  businessId: number;
+  id: string;
+  time: string;
+  agent: string;
+  code: string;
+  amount: string;
+  asset: string;
+  rate: string;
+  rateSource: string;
+  usd: string;
+  status: string;
+  statusCode: 0 | 1 | 2;
+  statusType: StatusBadgeType;
+  statusEffect?: StatusBadgeEffect;
 }
 
-const EXCHANGE_STATUS_BADGE_MAP: Record<string, StatusBadgeMeta> = {
-  pending: { type: 'warning', effect: 'pending' },
-  approved: { type: 'success' },
-  rejected: { type: 'danger' },
-  processing: { type: 'primary' },
-  finished: { type: 'success' },
+const statusMeta = {
+  0: { type: 'warning' as const, effect: 'pending' as const },
+  1: { type: 'success' as const },
+  2: { type: 'danger' as const },
 };
 
-export function toExchangeStatusBadge(status: string): StatusBadgeMeta {
-  return EXCHANGE_STATUS_BADGE_MAP[status] ?? { type: 'gray' };
-}
-
-export interface ExchangeListView extends ExchangeListItem {
-  statusMeta: StatusBadgeMeta;
-}
-
-export function toExchangeListView(row: ExchangeListItem): ExchangeListView {
-  return { ...row, statusMeta: toExchangeStatusBadge(row.status) };
-}
-
-export function toExchangeListViewBatch(rows: ExchangeListItem[]): ExchangeListView[] {
-  return rows.map(toExchangeListView);
+export function toExchangeRow(order: ExchangeOrder): ExchangeRow {
+  return {
+    businessId: order.id,
+    id: order.order_no,
+    time: order.submitted_at ?? '—',
+    agent: order.user.company_name,
+    code: order.user.agent_code,
+    amount: order.source_amount,
+    asset: order.source_currency.code,
+    rate: order.exchange_rate,
+    rateSource: order.rate_source_name,
+    usd: `${order.target_amount} ${order.target_currency.code}`,
+    status: order.status_name,
+    statusCode: order.status,
+    statusType: statusMeta[order.status].type,
+    statusEffect: order.status === 0 ? statusMeta[0].effect : undefined,
+  };
 }

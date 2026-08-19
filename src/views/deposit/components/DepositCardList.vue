@@ -10,7 +10,7 @@ import { CircleCheck, CircleClose, View } from '@element-plus/icons-vue';
 
 import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
-import type { DepositRow } from './DepositTableList.vue';
+import type { DepositRow } from '../composables/mapper';
 
 const props = defineProps<{ data: DepositRow[] }>();
 const emit = defineEmits<{

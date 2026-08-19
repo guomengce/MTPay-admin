@@ -16,14 +16,6 @@
     </div>
 
     <div class="app-header__right">
-      <el-tag class="app-header__status" effect="plain" round>
-        <span class="app-header__dot"></span>
-        系统正常
-      </el-tag>
-      <el-button class="app-header__admin" plain @click="goAdmin">
-        代理平台
-        <el-icon><TopRight /></el-icon>
-      </el-button>
       <el-button class="app-header__bell" :icon="Bell" circle text />
     </div>
   </header>
@@ -76,10 +68,10 @@ async function goAdmin() {
   &__crumb {
     color: #7d8aa0;
     font-size: 14px;
-    font-weight: 750;
+    font-weight: 500;
 
     strong {
-      color: #0b1b35;
+      color: var(--app-text-body);
     }
   }
 
@@ -89,7 +81,7 @@ async function goAdmin() {
     color: #008f83;
     background: #f0fbf8;
     border-color: #cfe9e4;
-    font-weight: 800;
+    font-weight: 600;
   }
 
   &__dot {
@@ -112,7 +104,7 @@ async function goAdmin() {
     border-color: #d8e1ec;
     border-radius: 8px;
     color: #14223a;
-    font-weight: 800;
+    font-weight: 600;
   }
 
   @include narrow {

@@ -10,7 +10,7 @@ import { CircleCheck, CircleClose, View } from '@element-plus/icons-vue';
 
 import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
-import type { ExchangeRow } from './ExchangeTableList.vue';
+import type { ExchangeRow } from '../composables/mapper';
 
 const props = defineProps<{ data: ExchangeRow[] }>();
 const emit = defineEmits<{

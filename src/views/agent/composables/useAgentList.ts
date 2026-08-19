@@ -1,60 +1,50 @@
-/**
- * agent 列表 composable 骨架
- */
-import { reactive, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { fetchAgentList, type AgentAccount } from '@/api/modules/agent';
 
-import * as AgentApi from '@/api/modules/agent';
-import type { AgentListParams } from '@/api/modules/agent';
-
-export interface UseAgentListOptions {
-  pageSize?: number;
-  defaultQuery?: Partial<AgentListParams>;
-}
-
-export function useAgentList(options: UseAgentListOptions = {}) {
+/** 代理列表：负责后端分页、关键字搜索、状态筛选及页面初始化加载。 */
+export function useAgentList() {
+  const agents = ref<AgentAccount[]>([]);
   const loading = ref(false);
-  const list = ref<AgentApi.AgentListItem[]>([]);
-  const total = ref(0);
   const page = ref(1);
-  const pageSize = ref(options.pageSize ?? 10);
-  const query = reactive<Partial<AgentListParams>>({ ...(options.defaultQuery ?? {}) });
+  const limit = ref(15);
+  const total = ref(0);
+  const keyword = ref('');
+  const status = ref<number>();
 
-  async function fetchList() {
+  /** 请求真实代理分页列表，不进行前端假分页或假数据回退。 */
+  async function loadAgents() {
     loading.value = true;
     try {
-      const result = await AgentApi.fetchAgentList({
+      const result = await fetchAgentList({
         page: page.value,
-        pageSize: pageSize.value,
-        ...query,
+        limit: limit.value,
+        keyword: keyword.value.trim() || undefined,
+        status: status.value,
       });
-      list.value = result.list;
+      agents.value = result.data;
       total.value = result.total;
     } finally {
       loading.value = false;
     }
   }
 
-  async function refresh() {
-    page.value = 1;
-    await fetchList();
+  function search() {
+    if (page.value !== 1) page.value = 1;
+    else void loadAgents();
   }
 
-  function resetQuery() {
-    for (const k of Object.keys(query)) {
-      delete query[k as keyof AgentListParams];
-    }
-    page.value = 1;
+  function resetFilters() {
+    keyword.value = '';
+    status.value = undefined;
+    search();
   }
 
-  return {
-    loading,
-    list,
-    total,
-    page,
-    pageSize,
-    query,
-    fetchList,
-    refresh,
-    resetQuery,
-  };
+  watch(page, () => void loadAgents());
+  watch(limit, () => {
+    if (page.value !== 1) page.value = 1;
+    else void loadAgents();
+  });
+  onMounted(loadAgents);
+
+  return { agents, loading, page, limit, total, keyword, status, loadAgents, search, resetFilters };
 }

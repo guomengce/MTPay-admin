@@ -1,6 +1,6 @@
 <template>
   <div class="exchange-table-list">
-    <el-table class="admin-data-table" :data="data" stripe>
+    <el-table v-loading="loading" class="admin-data-table" :data="data" stripe>
       <el-table-column label="编号" min-width="170">
         <template #default="{ row }">
           <div class="row-title">
@@ -38,7 +38,7 @@
       </el-table-column>
       <el-table-column label="操作" width="110" fixed="right">
         <template #default="{ row }">
-          <el-dropdown trigger="click" @command="(command) => handleCommand(command, row)">
+          <el-dropdown trigger="click" @command="handleCommand($event, row)">
             <el-button plain size="small" :icon="MoreFilled">操作</el-button>
             <template #dropdown>
               <el-dropdown-menu>
@@ -65,21 +65,10 @@ import { CircleCheck, CircleClose, MoreFilled, View } from '@element-plus/icons-
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 
-export interface ExchangeRow {
-  id: string;
-  time: string;
-  agent: string;
-  code: string;
-  amount: string;
-  asset: string;
-  rate: string;
-  usd: string;
-  status: string;
-  statusType: 'warning' | 'success' | 'danger';
-  statusEffect?: 'pending';
-}
+import type { ExchangeRow } from '../composables/mapper';
+export type { ExchangeRow } from '../composables/mapper';
 
-defineProps<{ data: ExchangeRow[] }>();
+defineProps<{ data: ExchangeRow[]; loading?: boolean }>();
 const emit = defineEmits<{
   (e: 'view', row: ExchangeRow): void;
   (e: 'approve', row: ExchangeRow): void;
@@ -107,17 +96,17 @@ function handleCommand(command: string | number | object, row: ExchangeRow) {
   gap: 5px;
 
   span {
-    font-weight: 950;
+    font-weight: 600;
   }
 
   small {
-    color: #66758b;
-    font-weight: 750;
+    color: var(--app-text-label);
+    font-weight: 500;
   }
 }
 
 .review-command {
-  font-weight: 850;
+  font-weight: 600;
 
   &--success {
     color: #16a34a;

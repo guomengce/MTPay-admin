@@ -63,6 +63,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-nocheck -- 旧版详情已停用；路由已切换至 WithdrawalDetailPage.vue，待文件锁释放后删除。
 import { computed, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
@@ -288,9 +289,9 @@ function handleSubmit(payload: {
 
     h2 {
       margin: 0 0 16px;
-      color: #061936;
+      color: var(--app-text-heading);
       font-size: 22px;
-      font-weight: 950;
+      font-weight: 600;
     }
   }
 
@@ -332,17 +333,17 @@ function handleSubmit(payload: {
 
     span,
     small {
-      color: #66758b;
+      color: var(--app-text-label);
       font-size: 13px;
-      font-weight: 750;
+      font-weight: 500;
     }
 
     strong {
       min-width: 0;
       overflow: hidden;
-      color: #061936;
+      color: var(--app-text-body);
       font-size: 15px;
-      font-weight: 900;
+      font-weight: 600;
       text-overflow: ellipsis;
       white-space: nowrap;
     }

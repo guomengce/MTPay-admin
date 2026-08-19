@@ -1,211 +1,293 @@
 <template>
-  <AdminPanel class="task-panel" title="待处理业务" :icon="DocumentChecked">
+  <AdminPanel class="task-panel" title="待处理业务" subtitle="需要管理员审核、补件或付款处理">
+    <template #extra>
+      <span class="task-panel__count"><i />{{ total }} 项</span>
+    </template>
+
     <div class="task-grid">
-      <RouterLink v-for="task in tasks" :key="task.title" :to="task.to" class="task-link">
-        <el-card class="task-card" :class="`task-card--${task.tone}`" shadow="never">
-          <span class="task-card__icon">
-            <el-icon><component :is="task.icon" /></el-icon>
-          </span>
-          <h3>{{ task.title }}</h3>
+      <RouterLink v-for="task in tasks" :key="task.title" :to="task.to" class="task-card">
+        <span class="task-card__icon" :class="`task-card__icon--${task.tone}`">
+          <el-icon><component :is="task.icon" /></el-icon>
+        </span>
+        <div class="task-card__amount">
           <strong>{{ task.count }}</strong>
-          <small>
-            <i></i>
-            {{ task.note }}
-          </small>
-        </el-card>
+          <small>笔</small>
+        </div>
+        <div class="task-card__body">
+          <strong>{{ task.title }}审核</strong>
+          <span>{{ task.note }}</span>
+        </div>
+        <span class="task-card__arrow"
+          ><el-icon><ArrowRight /></el-icon
+        ></span>
       </RouterLink>
     </div>
   </AdminPanel>
 </template>
 
 <script setup lang="ts">
-import { DocumentChecked, Download, Switch, Tickets, Wallet } from '@element-plus/icons-vue';
+import { ArrowRight, Download, Switch, Tickets, Wallet } from '@element-plus/icons-vue';
+import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 
+import type { OperationPendingBusinesses } from '@/api/modules/dashboard';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 
-const tasks = [
-  { title: '入金审核', note: '待确认收款', count: 1, to: '/deposit', icon: Download, tone: 'teal' },
-  { title: '兑换审核', note: '待审核', count: 1, to: '/exchange', icon: Switch, tone: 'teal' },
-  { title: '白名单审核', note: '待审核', count: 1, to: '/whitelist', icon: Tickets, tone: 'blue' },
+const props = defineProps<{ pending: OperationPendingBusinesses | null }>();
+
+const tasks = computed(() => [
   {
-    title: '出金申请',
-    note: '暂无待处理',
-    count: 0,
+    title: '入金',
+    note: '等待确认收款',
+    count: props.pending?.deposit ?? 0,
+    to: '/deposit',
+    icon: Download,
+    tone: 'blue',
+  },
+  {
+    title: '兑换',
+    note: '等待管理员审核',
+    count: props.pending?.exchange ?? 0,
+    to: '/exchange',
+    icon: Switch,
+    tone: 'purple',
+  },
+  {
+    title: '白名单',
+    note: '待审核或补件处理',
+    count: props.pending?.whitelist ?? 0,
+    to: '/whitelist',
+    icon: Tickets,
+    tone: 'amber',
+  },
+  {
+    title: '出金',
+    note: '待审核、补件或付款',
+    count: props.pending?.withdrawal ?? 0,
     to: '/withdrawal',
     icon: Wallet,
-    tone: 'muted',
+    tone: 'teal',
   },
-];
+]);
+
+const total = computed(() => props.pending?.total ?? 0);
 </script>
 
 <style scoped lang="scss">
-.task-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  padding: 22px 18px 24px;
+.task-panel {
+  position: relative;
+  min-height: 344px;
+  border-color: #d5e3ed;
+  background:
+    radial-gradient(circle at 0% 100%, rgb(30 190 179 / 7%), transparent 30%),
+    rgb(255 255 255 / 96%);
+  box-shadow: 0 18px 42px rgb(13 49 80 / 8%);
+
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 20px;
+    width: 96px;
+    height: 2px;
+    background: linear-gradient(90deg, #21c5b4, transparent);
+  }
+
+  :deep(.admin-panel__header) {
+    padding: 18px 20px;
+  }
+
+  :deep(.admin-panel__title) {
+    gap: 0;
+  }
+
+  &__count {
+    display: inline-flex;
+    height: 29px;
+    align-items: center;
+    gap: 7px;
+    padding: 0 11px;
+    border-radius: 999px;
+    color: #537082;
+    background: #f0f5f6;
+    font-size: 12px;
+    font-weight: 700;
+
+    i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #079b91;
+    }
+  }
 }
 
-.task-link {
-  min-width: 0;
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px 20px 20px;
 }
 
 .task-card {
-  min-height: 230px;
-  border: 1px solid #dbe7f5;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-  box-shadow: 0 20px 46px rgb(15 35 71 / 6%);
+  --task-accent: #078f87;
+  --task-glow: rgb(7 143 135 / 9%);
+  display: grid;
+  min-width: 0;
+  min-height: 106px;
+  grid-template-columns: 46px 52px minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 14px 16px 16px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #dce6ed;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: inset 0 1px 0 #fff;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
 
-  :deep(.el-card__body) {
-    display: grid;
-    height: 100%;
-    min-height: 230px;
-    justify-items: center;
-    align-content: center;
-    gap: 14px;
-    padding: 22px 12px 18px;
-    text-align: center;
+  &:hover {
+    border-color: #9fd6d1;
+    box-shadow:
+      0 12px 26px var(--task-glow),
+      inset 0 1px 0 #fff;
+    transform: translateY(-2px);
+
+    &::after {
+      transform: scaleY(1);
+    }
+
+    .task-card__arrow {
+      color: #fff;
+      background: var(--task-accent);
+      transform: translateX(3px);
+    }
   }
 
-  &:hover {
-    border-color: #9fded8;
-    box-shadow: 0 26px 60px rgb(8 112 128 / 12%);
-    transform: translateY(-2px);
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 3px;
+    height: 48px;
+    border-radius: 0 3px 3px 0;
+    background: var(--task-accent);
+    box-shadow: none;
+    transform: scaleY(0.35);
+    transition: transform 0.2s ease;
   }
 
   &__icon {
     display: inline-flex;
-    width: 72px;
-    height: 72px;
+    width: 46px;
+    height: 46px;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    color: var(--task-tone);
-    background:
-      radial-gradient(circle at 50% 38%, rgb(255 255 255 / 70%), transparent 42%),
-      color-mix(in srgb, var(--task-tone) 14%, white);
-    font-size: 36px;
-  }
+    border-radius: 14px;
+    font-size: 21px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 70%);
 
-  h3 {
-    margin: 6px 0 0;
-    color: #061936;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  strong {
-    color: #001b42;
-    font-size: 32px;
-    font-weight: 950;
-    line-height: 0.95;
-  }
-
-  small {
-    display: inline-flex;
-    min-width: 0;
-    width: 100%;
-    max-width: 140px;
-    height: 36px;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 0 14px;
-    border-radius: 8px;
-    color: var(--task-tone);
-    background: color-mix(in srgb, var(--task-tone) 9%, #f7fafc);
-    font-size: 14px;
-    font-weight: 900;
-    white-space: nowrap;
-
-    i {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-      flex-shrink: 0;
+    &--blue,
+    &--purple,
+    &--amber,
+    &--teal {
+      color: #078f87;
+      background: #e8f7f5;
     }
   }
 
-  &--teal {
-    --task-tone: #0aa99a;
+  &__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+
+    strong {
+      color: var(--task-accent);
+      font-size: 31px;
+      font-weight: 750;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    small {
+      color: var(--app-text-subtle);
+      font-size: 11px;
+      font-weight: 600;
+    }
   }
 
-  &--blue {
-    --task-tone: #1f73f2;
+  &__body {
+    display: grid;
+    min-width: 0;
+    gap: 6px;
+
+    strong {
+      color: var(--app-text-heading);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    span {
+      overflow: hidden;
+      color: var(--app-text-label);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
-  &--muted {
-    --task-tone: #708099;
+  &__arrow {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dbe5ee;
+    border-radius: 50%;
+    color: #8b9bae;
+    background: #fff;
+    transition:
+      color 0.2s ease,
+      background 0.2s ease,
+      transform 0.2s ease;
   }
 }
 
 @include narrow {
-  .task-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-    padding: 24px;
+  .task-card {
+    grid-template-columns: 42px 46px minmax(0, 1fr) 28px;
+    padding: 14px;
+
+    &__icon {
+      width: 42px;
+      height: 42px;
+    }
+
+    &__amount strong {
+      font-size: 27px;
+    }
   }
 }
 
 @include mobile {
+  .task-panel {
+    min-height: 0;
+  }
+
   .task-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
     padding: 14px;
   }
 
   .task-card {
-    min-height: 0;
-
-    :deep(.el-card__body) {
-      display: grid;
-      grid-template-columns: 48px minmax(0, 1fr) auto;
-      min-height: 0;
-      align-items: center;
-      justify-items: stretch;
-      gap: 12px;
-      padding: 14px;
-      text-align: left;
-    }
-
-    h3 {
-      margin: 0 0 5px;
-      font-size: 17px;
-      line-height: 1.2;
-    }
-
-    strong {
-      grid-column: 2;
-      color: var(--task-tone);
-      font-size: 24px;
-      line-height: 1;
-    }
-
-    &__icon {
-      grid-row: 1 / span 2;
-      width: 48px;
-      height: 48px;
-      font-size: 26px;
-    }
-
-    small {
-      grid-column: 3;
-      grid-row: 1 / span 2;
-      width: auto;
-      max-width: 118px;
-      height: 32px;
-      justify-self: end;
-      padding: 0 10px;
-      font-size: 12px;
-    }
+    min-height: 84px;
+    grid-template-columns: 42px 50px minmax(0, 1fr) 28px;
   }
 }
 </style>
