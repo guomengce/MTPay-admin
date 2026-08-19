@@ -1,7 +1,7 @@
 <template>
   <AdminPanel title="近期资金流水" :icon="Tickets">
     <template #extra>
-      <RouterLink class="text-link" to="/flow">查看全部 →</RouterLink>
+      <RouterLink class="text-link" to="/transactions">查看全部 →</RouterLink>
     </template>
     <ResponsiveList>
       <template #desktop>

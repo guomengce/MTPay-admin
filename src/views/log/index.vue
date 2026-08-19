@@ -1,218 +1,122 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="操作记录" description="记录管理员在平台上的所有操作行为" :icon="Clock">
-      <template #extra>
-        <el-button type="primary" :icon="Filter">筛选</el-button>
-      </template>
-    </AdminHero>
+    <AdminHero
+      title="操作记录"
+      description="记录管理员在平台上的重要操作，仅只读"
+      :icon="Clock"
+    />
 
-    <AdminPanel :icon="Tickets">
-      <el-timeline class="log-timeline">
-        <el-timeline-item
-          v-for="item in pagedLogs"
-          :key="item.time"
-          color="#0ea5a2"
-          size="large"
-        >
-          <article class="log-timeline__item">
-            <span class="log-timeline__icon">
-              <el-icon><component :is="item.icon" /></el-icon>
-            </span>
-            <div>
-              <h3>
-                {{ item.user }} <em>{{ item.type }}</em>
-              </h3>
-              <p>{{ item.description }}</p>
-              <small>192.168.1.25 | Chrome / Windows</small>
+    <AdminPanel>
+      <el-table v-loading="loading" class="admin-data-table" :data="list" stripe>
+        <el-table-column label="操作时间" min-width="150">
+          <template #default="{ row }">{{ row.operated_at || '—' }}</template>
+        </el-table-column>
+        <el-table-column label="管理员" min-width="180" show-overflow-tooltip>
+          <template #default="{ row }">
+            <div class="row-title">
+              <strong>{{ row.admin_name }}</strong>
+              <span>{{ row.admin_email }}</span>
             </div>
-            <time>{{ item.time }}</time>
-          </article>
-        </el-timeline-item>
-      </el-timeline>
-      <TablePager v-model="page" v-model:page-size="size" :total="total" />
+          </template>
+        </el-table-column>
+        <el-table-column label="操作内容" min-width="260">
+          <template #default="{ row }">
+            <div class="row-title">
+              <strong>{{ row.content }}</strong>
+              <span>{{ moduleLabel(row.module) }} · {{ row.action || '—' }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作对象" min-width="160">
+          <template #default="{ row }">
+            <div class="row-title">
+              <strong>{{ row.target_id || '—' }}</strong>
+              <span>{{ row.target_type || '—' }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="ip" label="IP" min-width="140" />
+      </el-table>
+
+      <el-empty v-if="!loading && list.length === 0" description="暂无操作记录" />
+
+      <div class="log-list__pager">
+        <TablePager
+          :model-value="page"
+          :page-size="limit"
+          :total="total"
+          @update:model-value="setPage"
+          @update:page-size="setLimit"
+        />
+      </div>
     </AdminPanel>
   </section>
 </template>
 
 <script setup lang="ts">
-import {
-  Clock,
-  Filter,
-  Plus,
-  Setting,
-  SwitchButton,
-  Tickets,
-} from '@element-plus/icons-vue';
+/** 操作记录列表：真实分页，只读。 */
+import { onMounted, ref } from 'vue';
+import { Clock } from '@element-plus/icons-vue';
 
+import * as LogApi from '@/api/modules/log';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import TablePager from '@/components/common/TablePager.vue';
-import { useTablePager } from '@/hooks/useTablePager';
 
-const logs = [
-  {
-    user: 'MTPay 管理员',
-    type: '登入',
-    description: '于 2024/08/03 16:08 从 192.168.1.25 登入管理后台',
-    time: '16:08:24',
-    icon: SwitchButton,
-  },
-  {
-    user: 'MTPay 管理员',
-    type: '更新代理帐户',
-    description: '于 2024/08/03 15:32 更新代理帐户「代理 A · Apex Trading」的联络方式',
-    time: '15:32:17',
-    icon: Setting,
-  },
-  {
-    user: 'MTPay 管理员',
-    type: '新增代理帐户',
-    description: '于 2024/08/03 14:21 新增代理帐户「代理 B · Bluewave Capital」',
-    time: '14:21:09',
-    icon: Plus,
-  },
-];
+const loading = ref(false);
+const list = ref<LogApi.AdminOperationLog[]>([]);
+const total = ref(0);
+const page = ref(1);
+const limit = ref(15);
 
-const { page, size, total, pagedData: pagedLogs } = useTablePager(logs);
+const MODULE_LABELS: Record<string, string> = {
+  admin: '管理员',
+  agent: '代理账户',
+  currency: '币种管理',
+  config: '业务配置',
+  deposit: '入金',
+  exchange: '兑换',
+  whitelist: '白名单',
+  withdrawal: 'USD出金',
+};
+
+function moduleLabel(module: string) {
+  return MODULE_LABELS[module] || module || '—';
+}
+
+async function loadList() {
+  loading.value = true;
+  try {
+    const result = await LogApi.fetchOperationLogList({ page: page.value, limit: limit.value });
+    list.value = result.data ?? [];
+    total.value = result.total ?? 0;
+    page.value = result.current_page ?? page.value;
+    limit.value = result.per_page ?? limit.value;
+  } finally {
+    loading.value = false;
+  }
+}
+
+function setPage(value: number) {
+  page.value = value;
+  void loadList();
+}
+
+function setLimit(value: number) {
+  limit.value = value;
+  page.value = 1;
+  void loadList();
+}
+
+onMounted(loadList);
 </script>
 
 <style scoped lang="scss">
-.button-showcase {
-  display: grid;
-  gap: 18px;
-  padding: 22px 24px;
-
-  &__section {
-    display: grid;
-    gap: 12px;
-    padding-bottom: 18px;
-    border-bottom: 1px solid #eef2f7;
-
-    &:last-child {
-      padding-bottom: 0;
-      border-bottom: 0;
-    }
-  }
-
-  h3 {
-    margin: 0;
-    color: #334155;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  &__row {
+.log-list {
+  &__pager {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-}
-
-.log-timeline {
-  padding: 24px 24px 24px 34px;
-
-  :deep(.el-timeline-item) {
-    padding-bottom: 0;
-  }
-
-  :deep(.el-timeline-item__node--large) {
-    left: -3px;
-    width: 18px;
-    height: 18px;
-  }
-
-  :deep(.el-timeline-item__wrapper) {
-    top: -16px;
-    padding-left: 28px;
-  }
-
-  &__item {
-    display: grid;
-    grid-template-columns: 52px minmax(0, 1fr) auto;
-    gap: 14px;
-    padding: 18px 0;
-    border-bottom: 1px solid #e6edf5;
-  }
-
-  :deep(.el-timeline-item:last-child) &__item {
-    border-bottom: 0;
-  }
-
-  &__icon {
-    display: inline-flex;
-    width: 44px;
-    height: 44px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    color: #0aa99a;
-    background: #e5faf6;
-    font-size: 20px;
-  }
-
-  h3 {
-    margin: 0 0 8px;
-    color: var(--app-text-heading);
-    font-size: 15px;
-    font-weight: 600;
-
-    em {
-      margin-left: 10px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      color: #078f82;
-      background: #dff6ec;
-      font-size: 12px;
-      font-style: normal;
-    }
-  }
-
-  p {
-    margin: 0 0 10px;
-    color: #42516a;
-    font-size: 13px;
-    font-weight: 400;
-  }
-
-  small,
-  time {
-    color: var(--app-text-label);
-    font-weight: 500;
-  }
-}
-
-@include mobile {
-  .button-showcase {
-    padding: 16px;
-
-    &__row {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    :deep(.el-button) {
-      width: 100%;
-      min-width: 0;
-    }
-  }
-
-  .log-timeline {
-    padding: 20px;
-
-    &__item {
-      grid-template-columns: 44px minmax(0, 1fr);
-    }
-
-    &__icon {
-      width: 44px;
-      height: 44px;
-      font-size: 20px;
-    }
-
-    time {
-      grid-column: 2;
-    }
+    justify-content: flex-end;
+    padding-top: 14px;
   }
 }
 </style>

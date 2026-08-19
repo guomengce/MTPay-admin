@@ -19,40 +19,38 @@
       />
     </div>
 
-    <AdminPanel title="代理专属比例" subtitle="不同代理可设定不同的专属交易比例">
-      <div class="fee-setting-page__filters filter-bar">
-        <el-input
-          v-model="agentQuery.keyword"
-          clearable
-          placeholder="代理编号 / 公司 / Email"
-          :prefix-icon="Search"
-          @keyup.enter="searchAgents"
-        />
-        <el-select v-model="agentQuery.status" clearable placeholder="代理状态">
-          <el-option label="待激活" :value="0" />
-          <el-option label="正常" :value="1" />
-          <el-option label="暂停" :value="2" />
-          <el-option label="停用" :value="3" />
-        </el-select>
-        <div class="filter-bar__actions">
-          <el-button type="primary" :icon="Search" @click="searchAgents">查询</el-button>
-          <el-button plain :icon="RefreshLeft" @click="resetAgents">重置</el-button>
-        </div>
+    <div class="fee-setting-page__filters filter-bar">
+      <el-input
+        v-model="agentQuery.keyword"
+        clearable
+        placeholder="代理编号 / 公司 / Email"
+        :prefix-icon="Search"
+        @keyup.enter="searchAgents"
+      />
+      <el-select v-model="agentQuery.status" clearable placeholder="代理状态">
+        <el-option label="待激活" :value="0" />
+        <el-option label="正常" :value="1" />
+        <el-option label="暂停" :value="2" />
+        <el-option label="停用" :value="3" />
+      </el-select>
+      <div class="filter-bar__actions">
+        <el-button type="primary" :icon="Search" @click="searchAgents">查询</el-button>
+        <el-button plain :icon="RefreshLeft" @click="resetAgents">重置</el-button>
       </div>
+    </div>
 
-      <FeeAgentTable v-if="!isCompact" :rows="agentList" :loading="loading" @edit="openEdit" @clear="handleClear" />
-      <FeeAgentCardList v-else :rows="agentList" :loading="loading" @edit="openEdit" @clear="handleClear" />
+    <FeeAgentTable v-if="!isCompact" :rows="agentList" :loading="loading" @edit="openEdit" @clear="handleClear" />
+    <FeeAgentCardList v-else :rows="agentList" :loading="loading" @edit="openEdit" @clear="handleClear" />
 
-      <div class="fee-setting-page__pager">
-        <TablePager
-          :model-value="agentPage"
-          :page-size="agentLimit"
-          :total="agentTotal"
-          @update:model-value="changePage"
-          @update:page-size="changeLimit"
-        />
-      </div>
-    </AdminPanel>
+    <div class="fee-setting-page__pager">
+      <TablePager
+        :model-value="agentPage"
+        :page-size="agentLimit"
+        :total="agentTotal"
+        @update:model-value="changePage"
+        @update:page-size="changeLimit"
+      />
+    </div>
 
     <FeeAgentEditDialog
       v-model="dialogVisible"
@@ -68,7 +66,6 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { RefreshLeft, Search } from '@element-plus/icons-vue';
 
-import AdminPanel from '@/components/admin/AdminPanel.vue';
 import TablePager from '@/components/common/TablePager.vue';
 import FeeAgentCardList from './components/FeeAgentCardList.vue';
 import FeeAgentEditDialog from './components/FeeAgentEditDialog.vue';
@@ -221,7 +218,7 @@ function changeLimit(value: number) {
   &__pager {
     display: flex;
     justify-content: flex-end;
-    padding: 4px 0 8px;
+    padding: 6px 8px;
   }
 }
 </style>

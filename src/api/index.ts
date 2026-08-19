@@ -17,6 +17,6 @@ export * as DepositApi from './modules/deposit';
 export * as ExchangeApi from './modules/exchange';
 export * as WhitelistApi from './modules/whitelist';
 export * as WithdrawalApi from './modules/withdrawal';
+export * as TransactionApi from './modules/transaction';
 export * as FeeApi from './modules/fee';
-export * as FlowApi from './modules/flow';
 export * as LogApi from './modules/log';

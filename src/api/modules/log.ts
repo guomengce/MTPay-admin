@@ -1,36 +1,37 @@
 /**
- * log 模块接口骨架
+ * 操作记录（管理员行为审计）
  * -----------------------------------------------------------------------------
- * 操作记录（管理员行为审计）。
+ * 第一版只提供列表，不提供筛选、详情和导出。
  */
 import request from '../request';
-import type { Id, ISODateString, PageParams, PageResult } from '../types';
 
-export interface LogEntry {
-  id: Id;
-  user: string;
-  type: string;
-  iconKey?: string;
-  description: string;
+export interface AdminOperationLog {
+  id: number;
+  admin_id: number;
+  admin_name: string;
+  admin_email: string;
+  module: string;
+  action: string;
+  content: string;
+  target_type: string;
+  target_id: string;
   ip: string;
-  userAgent: string;
-  time: ISODateString;
+  operated_at: string;
 }
 
-export type LogListParams = PageParams & {
-  user?: string;
-  action?: string;
-  range?: [ISODateString, ISODateString];
-};
-
-export function fetchLogList(params: LogListParams) {
-  return request.get<unknown, PageResult<LogEntry>>('/log/list', { params });
+export interface OperationLogPageResult {
+  current_page: number;
+  data: AdminOperationLog[];
+  per_page: number;
+  total: number;
+  last_page: number;
 }
 
-/** 导出 */
-export function fetchExportLog(params: LogListParams) {
-  return request.get<unknown, Blob>('/log/export', {
-    params,
-    responseType: 'blob',
-  });
+export interface OperationLogListParams {
+  page?: number;
+  limit?: number;
+}
+
+export function fetchOperationLogList(params: OperationLogListParams = {}) {
+  return request.get<unknown, OperationLogPageResult>('/admin/getOperationLogList', { params });
 }
