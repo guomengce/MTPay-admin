@@ -23,14 +23,6 @@
     </template>
 
     <div class="agent-form__body">
-      <div class="agent-form__notice" :class="{ 'agent-form__notice--warning': agent }">
-        <el-icon><InfoFilled /></el-icon>
-        <span>
-          {{ agent
-            ? '资料保存后立即生效；如果修改 Email，该代理已登录的旧 Token 将失效。'
-            : '代理编号由系统自动生成。创建成功后，后端会向代理 Email 发送账户激活邀请。' }}
-        </span>
-      </div>
 
       <div v-if="agent" class="agent-form__code">
         <div><small>代理编号</small><strong>{{ agent.agent_code }}</strong></div>
@@ -86,10 +78,9 @@
       <footer class="agent-form__footer">
         <span><el-icon><Lock /></el-icon>账户资料将通过加密连接提交</span>
         <div>
-          <el-button size="large" @click="emit('update:modelValue', false)">取消</el-button>
+          <el-button @click="emit('update:modelValue', false)">取消</el-button>
           <el-button
             type="primary"
-            size="large"
             :icon="agent ? DocumentChecked : Plus"
             :loading="submitting"
             @click="handleSubmit"

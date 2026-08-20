@@ -16,11 +16,12 @@
       </div>
 
       <label for="login-email">管理员 Email</label>
-      <el-input id="login-email" v-model="form.email" size="large" :prefix-icon="User" />
+      <el-input id="login-email" placeholder="Email" v-model="form.email" size="large" :prefix-icon="User" />
 
       <label for="login-password">密码</label>
       <el-input
         id="login-password"
+        placeholder="Password"
         v-model="form.password"
         size="large"
         type="password"

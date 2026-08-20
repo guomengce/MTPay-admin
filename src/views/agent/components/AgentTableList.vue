@@ -9,11 +9,12 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="联络方式" min-width="240">
-        <template #default="{ row }"><div class="contact-lines"><span>{{ row.email }}</span><span>{{ row.phone }}</span></div></template>
+      <el-table-column label="邮箱" prop="email" min-width="240">
+      </el-table-column>
+      <el-table-column label="手机号" prop="phone" min-width="240">
       </el-table-column>
       <el-table-column label="状态" width="120">
-        <template #default="{ row }"><StatusBadge :label="row.status_name" :type="statusType(row.status)" /></template>
+        <template #default="{ row }"><StatusBadge :label="row.status_name" :effect="row.status == 0?'pending':''" :type="statusType(row.status)" /></template>
       </el-table-column>
       <el-table-column prop="created_at" label="创建时间" min-width="160" />
       <el-table-column label="操作" width="280" fixed="right">
