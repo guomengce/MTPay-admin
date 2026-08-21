@@ -14,7 +14,7 @@
       <el-table-column label="手机号" prop="phone" min-width="240">
       </el-table-column>
       <el-table-column label="状态" width="120">
-        <template #default="{ row }"><StatusBadge :label="row.status_name" :effect="row.status == 0?'pending':''" :type="statusType(row.status)" /></template>
+        <template #default="{ row }"><StatusBadge :label="row.status_name" :effect="row.status == 0 ? 'pending' : undefined" :type="statusType(row.status)" /></template>
       </el-table-column>
       <el-table-column prop="created_at" label="创建时间" min-width="160" />
       <el-table-column label="操作" width="280" fixed="right">
@@ -27,7 +27,7 @@
               trigger="click"
               @command="(status: AgentStatus) => emit('status', row, status)"
             >
-              <el-button plain type="success" size="small" :icon="Setting">修改状态</el-button>
+              <el-button plain type="primary" size="small" :icon="Setting">修改状态</el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item

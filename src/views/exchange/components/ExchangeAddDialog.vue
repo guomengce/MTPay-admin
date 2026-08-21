@@ -77,7 +77,7 @@
       >
       <el-button
         v-else-if="mode === 'approve'"
-        type="success"
+        type="primary"
         :icon="CircleCheck"
         :loading="submitting"
         @click="handleSubmit"

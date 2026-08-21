@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { CircleCheck, CircleClose, Edit, VideoPause, View } from '@element-plus/icons-vue';
 import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
 import type { AgentAccount } from '@/api/modules/agent';
@@ -30,14 +31,20 @@ const cardItems = computed<AdminCardItem[]>(() =>
       { label: '创建时间', value: row.created_at || '—' },
     ],
     actions: [
-      { key: 'detail', label: '详情', plain: true },
-      { key: 'edit', label: '修改', plain: true },
+      { key: 'detail', label: '详情', icon: View, type: 'primary', plain: true },
+      { key: 'edit', label: '修改', icon: Edit, type: 'warning', plain: true },
       ...(row.status === 0
-        ? [{ key: 'status-3', label: '停用', plain: true }]
+        ? [{ key: 'status-3', label: '停用', icon: CircleClose, type: 'danger' as const, plain: true }]
         : row.status === 1
-          ? [{ key: 'status-2', label: '暂停', plain: true }, { key: 'status-3', label: '停用', plain: true }]
+          ? [
+              { key: 'status-2', label: '暂停', icon: VideoPause, type: 'warning' as const, plain: true },
+              { key: 'status-3', label: '停用', icon: CircleClose, type: 'danger' as const, plain: true },
+            ]
           : row.status === 2
-            ? [{ key: 'status-1', label: '恢复正常', plain: true }, { key: 'status-3', label: '停用', plain: true }]
+            ? [
+                { key: 'status-1', label: '恢复正常', icon: CircleCheck, type: 'primary' as const, plain: true },
+                { key: 'status-3', label: '停用', icon: CircleClose, type: 'danger' as const, plain: true },
+              ]
             : []),
     ],
   })),

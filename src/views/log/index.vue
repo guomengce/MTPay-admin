@@ -1,42 +1,25 @@
 <template>
   <section class="admin-page">
-    <AdminHero
-      title="操作记录"
-      description="记录管理员在平台上的重要操作，仅只读"
-      :icon="Clock"
-    />
+    <AdminHero title="操作记录" description="记录管理员在平台上的重要操作，仅只读" :icon="Clock" />
 
-    <AdminPanel>
-      <el-table v-loading="loading" class="admin-data-table" :data="list" stripe>
-        <el-table-column label="操作时间" min-width="150">
-          <template #default="{ row }">{{ row.operated_at || '—' }}</template>
-        </el-table-column>
-        <el-table-column label="管理员" min-width="180" show-overflow-tooltip>
-          <template #default="{ row }">
-            <div class="row-title">
-              <strong>{{ row.admin_name }}</strong>
-              <span>{{ row.admin_email }}</span>
+    <AdminPanel :icon="Tickets">
+      <el-timeline v-loading="loading" class="log-timeline">
+        <el-timeline-item v-for="item in list" :key="item.id" color="#0ea5a2" size="large">
+          <article class="log-timeline__item">
+            <span class="log-timeline__icon">
+              <el-icon><component :is="moduleIcon(item.module)" /></el-icon>
+            </span>
+            <div class="log-timeline__body">
+              <h3>
+                {{ item.admin_name || '未知管理员' }}
+                <em>{{ moduleLabel(item.module) }} · {{ actionLabel(item.action) }}</em>
+              </h3>
+              <p>{{ item.content || '—' }}</p>
             </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作内容" min-width="260">
-          <template #default="{ row }">
-            <div class="row-title">
-              <strong>{{ row.content }}</strong>
-              <span>{{ moduleLabel(row.module) }} · {{ row.action || '—' }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作对象" min-width="160">
-          <template #default="{ row }">
-            <div class="row-title">
-              <strong>{{ row.target_id || '—' }}</strong>
-              <span>{{ row.target_type || '—' }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="ip" label="IP" min-width="140" />
-      </el-table>
+            <time>{{ item.operated_at || '—' }}</time>
+          </article>
+        </el-timeline-item>
+      </el-timeline>
 
       <el-empty v-if="!loading && list.length === 0" description="暂无操作记录" />
 
@@ -55,8 +38,19 @@
 
 <script setup lang="ts">
 /** 操作记录列表：真实分页，只读。 */
-import { onMounted, ref } from 'vue';
-import { Clock } from '@element-plus/icons-vue';
+import { onMounted, ref, type Component } from 'vue';
+import {
+  Clock,
+  Coin,
+  CreditCard,
+  DocumentChecked,
+  Postcard,
+  Setting,
+  Switch,
+  Tickets,
+  User,
+  Wallet,
+} from '@element-plus/icons-vue';
 
 import * as LogApi from '@/api/modules/log';
 import AdminHero from '@/components/admin/AdminHero.vue';
@@ -82,6 +76,41 @@ const MODULE_LABELS: Record<string, string> = {
 
 function moduleLabel(module: string) {
   return MODULE_LABELS[module] || module || '—';
+}
+
+const ACTION_LABELS: Record<string, string> = {
+  create: '新增',
+  update: '修改',
+  delete: '删除',
+  status: '修改状态',
+  review: '审核',
+  request_supplement: '要求补件',
+  process_payment: '登记付款结果',
+  append_payment_files: '追加付款凭证',
+  set_default_rates: '设置默认比例',
+  set_agent_rates: '设置专属比例',
+  clear_agent_rates: '恢复默认比例',
+  set_withdrawal_fee: '设置出金手续费',
+  set_receiving_address: '设置收款地址',
+};
+
+function actionLabel(action: string) {
+  return ACTION_LABELS[action] || action || '操作';
+}
+
+const MODULE_ICONS: Record<string, Component> = {
+  admin: Setting,
+  agent: User,
+  currency: Coin,
+  config: Setting,
+  deposit: Wallet,
+  exchange: Switch,
+  whitelist: Postcard,
+  withdrawal: CreditCard,
+};
+
+function moduleIcon(module: string): Component {
+  return MODULE_ICONS[module] || DocumentChecked;
 }
 
 async function loadList() {
@@ -117,6 +146,110 @@ onMounted(loadList);
     display: flex;
     justify-content: flex-end;
     padding-top: 14px;
+  }
+}
+
+.log-timeline {
+  min-height: 180px;
+  padding: 28px 26px 12px 36px;
+
+  :deep(.el-timeline-item) {
+    padding-bottom: 0;
+  }
+  :deep(.el-timeline-item__node--large) {
+    left: -3px;
+    width: 18px;
+    height: 18px;
+  }
+  :deep(.el-timeline-item__wrapper) {
+    top: -16px;
+    padding-left: 28px;
+  }
+
+  &__item {
+    display: grid;
+    align-items: start;
+    padding: 18px 0;
+    border-bottom: 1px solid #e6edf5;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    gap: 14px;
+  }
+
+  :deep(.el-timeline-item:last-child) &__item {
+    border-bottom: 0;
+  }
+
+  &__icon {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #0aa99a;
+    background: #e5faf6;
+    font-size: 20px;
+  }
+
+  &__body {
+    min-width: 0;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    color: var(--app-text-heading);
+    font-size: 15px;
+    font-weight: 600;
+
+    em {
+      display: inline-flex;
+      margin-left: 10px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      color: #078f82;
+      background: #dff6ec;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 600;
+    }
+  }
+
+  p {
+    margin: 0 0 10px;
+    color: #42516a;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  time {
+    color: var(--app-text-label);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  time {
+    white-space: nowrap;
+  }
+}
+
+@include mobile {
+  .log-timeline {
+    padding: 20px;
+
+    &__item {
+      grid-template-columns: 44px minmax(0, 1fr);
+    }
+    &__icon {
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+    }
+    time {
+      grid-column: 2;
+    }
+    h3 em {
+      margin: 6px 0 0;
+    }
   }
 }
 </style>

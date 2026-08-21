@@ -17,8 +17,10 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="主体身份" min-width="150">
-        <template #default="{ row }"><StatusBadge :label="row.type" type="primary" /></template>
+      <el-table-column label="类型" min-width="150">
+        <template #default="{ row }">
+          <StatusBadge :label="row.type" :type="identityBadgeType(row)" />
+        </template>
       </el-table-column>
       <el-table-column label="主体" min-width="220">
         <template #default="{ row }">
@@ -28,10 +30,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="附件" width="90" align="center">
-        <template #default="{ row }">{{ row.fileCount }}</template>
-      </el-table-column>
-      <el-table-column label="状态" min-width="130">
+      <el-table-column label="状态" min-width="80">
         <template #default="{ row }">
           <StatusBadge :label="row.status" :type="row.statusType" :effect="row.statusEffect" />
         </template>
@@ -71,6 +70,7 @@
 import { CircleCheck, CircleClose, DocumentAdd, MoreFilled, View } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import type { WhitelistRow } from '../composables/mapper';
 export type { WhitelistRow } from '../composables/mapper';
 
@@ -88,6 +88,13 @@ function handleCommand(command: string | number | object, row: WhitelistRow) {
   ) {
     emit(command, row);
   }
+}
+
+function identityBadgeType(row: WhitelistRow): StatusBadgeType {
+  if (row.role === '付款人' && row.entityType === '公司') return 'primary';
+  if (row.role === '付款人' && row.entityType === '个人') return 'warning';
+  if (row.role === '收款人' && row.entityType === '公司') return 'mt';
+  return 'success';
 }
 </script>
 

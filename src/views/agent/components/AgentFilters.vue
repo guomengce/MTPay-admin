@@ -41,7 +41,7 @@ const emit = defineEmits<{
 <style scoped lang="scss">
 .agent-filters {
   @media (min-width: $desktop-min) {
-    grid-template-columns: minmax(260px, 1fr) 180px auto;
+    grid-template-columns: minmax(260px, 250px) 180px auto;
   }
 }
 </style>

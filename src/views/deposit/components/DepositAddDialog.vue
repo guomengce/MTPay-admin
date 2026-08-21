@@ -73,7 +73,7 @@
       <el-button v-if="mode === 'view'" plain @click="handleViewClose">关闭</el-button>
       <el-button
         v-else-if="mode === 'approve'"
-        type="success"
+        type="mt"
         :icon="CircleCheck"
         :loading="submitting"
         @click="handleSubmit"

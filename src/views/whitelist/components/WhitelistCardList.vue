@@ -10,6 +10,7 @@ import { CircleCheck, CircleClose, DocumentAdd, View } from '@element-plus/icons
 
 import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
+import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import type { WhitelistRow } from '../composables/mapper';
 
 const props = defineProps<{ data: WhitelistRow[] }>();
@@ -35,17 +36,17 @@ const cardItems = computed<AdminCardItem[]>(() =>
       { label: '编号', value: row.id, strong: true },
       { label: '时间', value: row.time },
       { label: '代理', value: row.agent, subValue: row.agentCode, strong: true },
-      { label: '类型', badge: { label: row.type, type: 'primary' } },
+      { label: '类型', badge: { label: row.type, type: identityBadgeType(row) } },
       { label: '主体', value: row.subject, subValue: row.country, strong: true },
       { label: '附件', value: `${row.fileCount} 个` },
     ],
     actions: [
-      { key: 'view', label: '详情', icon: View, plain: true },
+      { key: 'view', label: '详情', icon: View, type: 'primary', plain: true },
       {
         key: 'approve',
         label: '通过',
         icon: CircleCheck,
-        type: 'success',
+        type: 'primary',
         plain: true,
         visible: row.statusCode === 0,
       },
@@ -53,7 +54,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
         key: 'supplement',
         label: '补件',
         icon: DocumentAdd,
-        type: 'primary',
+        type: 'warning',
         plain: true,
         visible: row.statusCode === 0,
       },
@@ -68,6 +69,13 @@ const cardItems = computed<AdminCardItem[]>(() =>
     ],
   })),
 );
+
+function identityBadgeType(row: WhitelistRow): StatusBadgeType {
+  if (row.role === '付款人' && row.entityType === '公司') return 'primary';
+  if (row.role === '付款人' && row.entityType === '个人') return 'warning';
+  if (row.role === '收款人' && row.entityType === '公司') return 'mt';
+  return 'success';
+}
 
 function handleCardAction(actionKey: string, itemKey: string) {
   const row = props.data.find((item) => item.id === itemKey);

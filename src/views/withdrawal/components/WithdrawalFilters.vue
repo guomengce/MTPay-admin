@@ -3,7 +3,12 @@
     <el-select v-model="status" placeholder="订单状态" clearable>
       <el-option v-for="item in statusOptions" :key="item.value" v-bind="item" />
     </el-select>
-    <el-input v-model="keyword" placeholder="代理编号 / 公司 / Email" clearable :prefix-icon="Search" />
+    <el-input
+      v-model="keyword"
+      placeholder="代理编号 / 公司 / Email"
+      clearable
+      :prefix-icon="Search"
+    />
     <el-input v-model="orderNo" placeholder="订单号" clearable />
     <el-date-picker
       v-model="startedAt"
@@ -18,7 +23,9 @@
       value-format="YYYY-MM-DD"
     />
     <div class="filter-bar__actions">
-      <el-button type="primary" :loading="loading" :icon="Search" @click="emit('search')">查询</el-button>
+      <el-button type="primary" :loading="loading" :icon="Search" @click="emit('search')"
+        >查询</el-button
+      >
       <el-button plain :icon="RefreshLeft" @click="emit('reset')">重置</el-button>
     </div>
   </div>
@@ -71,7 +78,19 @@ const endedAt = computed({
 
 <style scoped lang="scss">
 .withdrawal-filters {
-  @media (min-width: $desktop-min) {
+  > * {
+    min-width: 0;
+  }
+
+  @include desktop {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    .filter-bar__actions {
+      grid-column: 2 / -1;
+    }
+  }
+
+  @include wide {
     grid-template-columns:
       minmax(130px, 0.7fr)
       minmax(200px, 1.15fr)
@@ -79,10 +98,16 @@ const endedAt = computed({
       minmax(150px, 0.8fr)
       minmax(150px, 0.8fr)
       max-content;
+  }
 
-    > * {
-      min-width: 0;
-    }
+  @include ultra-wide {
+    grid-template-columns:
+      minmax(130px, 0.7fr)
+      minmax(200px, 1.15fr)
+      minmax(170px, 0.9fr)
+      minmax(150px, 0.8fr)
+      minmax(150px, 0.8fr)
+      max-content;
   }
 }
 </style>

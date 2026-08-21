@@ -68,7 +68,7 @@
             </el-button>
             <el-button
               plain
-              :type="row.status === 1 ? 'danger' : 'success'"
+              :type="row.status === 1 ? 'danger' : 'primary'"
               size="small"
               :icon="row.status === 1 ? CircleClose : CircleCheck"
               @click="emit('toggle-status', row)"

@@ -39,8 +39,20 @@
       </div>
     </div>
 
-    <FeeAgentTable v-if="!isCompact" :rows="agentList" :loading="loading" @edit="openEdit" @clear="handleClear" />
-    <FeeAgentCardList v-else :rows="agentList" :loading="loading" @edit="openEdit" @clear="handleClear" />
+    <FeeAgentTable
+      v-if="!isCompact"
+      :rows="agentList"
+      :loading="loading"
+      @edit="openEdit"
+      @clear="handleClear"
+    />
+    <FeeAgentCardList
+      v-else
+      :rows="agentList"
+      :loading="loading"
+      @edit="openEdit"
+      @clear="handleClear"
+    />
 
     <div class="fee-setting-page__pager">
       <TablePager
@@ -63,7 +75,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { RefreshLeft, Search } from '@element-plus/icons-vue';
 
 import TablePager from '@/components/common/TablePager.vue';
@@ -95,7 +107,8 @@ const {
 const dialogVisible = ref(false);
 const editingRow = ref<FeeAgentRow | null>(null);
 
-const COMPACT_QUERY = '(max-width: 768px)';
+// 与 styles/breakpoints.scss 的 narrow-max 保持一致：窄屏 PC 也切换为卡片布局。
+const COMPACT_QUERY = '(max-width: 1310px)';
 const isCompact = ref(false);
 let mql: MediaQueryList | null = null;
 
@@ -142,6 +155,7 @@ function openEdit(row: FeeAgentRow) {
 async function handleSaveAgent(payload: { user_id: number; usdt_rate: string; usdc_rate: string }) {
   try {
     await saveAgentRates(payload);
+    dialogVisible.value = false;
     ElMessage.success('代理专属比例已保存');
   } catch {
     /* 统一请求层已提示 */
@@ -150,10 +164,17 @@ async function handleSaveAgent(payload: { user_id: number; usdt_rate: string; us
 
 async function handleClear(row: FeeAgentRow) {
   try {
+    await ElMessageBox.confirm(
+      `确认清除 ${row.company_name} 的专属比例并恢复平台默认吗？`,
+      '恢复平台默认比例',
+      { type: 'warning', confirmButtonText: '确认恢复', cancelButtonText: '取消' },
+    );
     await clearAgentRates(row.user_id);
     ElMessage.success(`已清除 ${row.company_name} 的专属比例，恢复平台默认`);
-  } catch {
-    /* 统一请求层已提示 */
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      /* 统一请求层已提示 */
+    }
   }
 }
 
@@ -211,8 +232,27 @@ function changeLimit(value: number) {
     }
   }
 
+  @include mobile {
+    gap: 16px;
+
+    &__header {
+      h1 { font-size: 20px; }
+      p { font-size: 13px; line-height: 1.6; }
+    }
+
+    &__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+    }
+    &__pager { justify-content: center; overflow-x: auto; padding: 4px 0; }
+  }
+
   &__filters {
     margin: 0 0 4px;
+
+    @media (min-width: $desktop-min) {
+      grid-template-columns: minmax(260px, 1fr) 180px auto;
+    }
   }
 
   &__pager {

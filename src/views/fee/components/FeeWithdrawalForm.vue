@@ -38,17 +38,18 @@ import { ref, watch } from 'vue';
 import { DocumentChecked, Money, WarningFilled } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import { formatFixedFee } from '@/utils/decimal';
 
 const props = defineProps<{ feeAmount?: string; saving?: boolean }>();
 const emit = defineEmits<{ (e: 'save', payload: { fee_amount: string }): void }>();
 
-const feeAmount = ref(props.feeAmount ?? '');
+const feeAmount = ref(formatFixedFee(props.feeAmount));
 const error = ref('');
 
 watch(
   () => props.feeAmount,
   (value) => {
-    if (value !== undefined) feeAmount.value = value;
+    if (value !== undefined) feeAmount.value = formatFixedFee(value);
   },
 );
 

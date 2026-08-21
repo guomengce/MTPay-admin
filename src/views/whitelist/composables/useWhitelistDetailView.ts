@@ -1,9 +1,8 @@
 /**
  * 白名单详情展示模型
  *
- * 将后端 business_data、records 按审核场景分组，页面不再遍历无序对象：
- * 1. 主体身份与登记信息；2. 地址信息；3. 银行与汇款信息；
- * 4. 与处理记录关联的文件；5. 处理时间线。
+ * 将后端 business_data 按"每个区块"暴露成单独的 computed，便于 SubjectInfo
+ * 根据角色 × 主体类型显式组合。同时维护文件分轮和处理时间线。
  */
 import { computed, type Ref } from 'vue';
 
@@ -16,6 +15,8 @@ export interface WhitelistDetailField {
   value: string;
   wide?: boolean;
   mono?: boolean;
+  optional?: boolean;
+  missing?: boolean;
 }
 
 export interface WhitelistFileRound {
@@ -86,10 +87,18 @@ export function useWhitelistDetailView(detail: Ref<WhitelistDetail | null>) {
   function field(
     key: string,
     label: string,
-    options: Pick<WhitelistDetailField, 'wide' | 'mono'> = {},
-  ): WhitelistDetailField | null {
+    options: Pick<WhitelistDetailField, 'wide' | 'mono' | 'optional'> = {},
+  ): WhitelistDetailField {
     const raw = detail.value?.business_data?.[key];
-    if (raw === undefined || raw === null || raw === '') return null;
+    if (raw === undefined || raw === null || raw === '') {
+      return {
+        key,
+        label,
+        value: options.optional ? '未填写' : '接口未返回',
+        missing: true,
+        ...options,
+      };
+    }
     return { key, label, value: presentValue(key, raw), ...options };
   }
 
@@ -97,45 +106,86 @@ export function useWhitelistDetailView(detail: Ref<WhitelistDetail | null>) {
     return items.filter((item): item is WhitelistDetailField => Boolean(item));
   }
 
-  /** 身份与登记：标题已展示主体名称，因此不重复 company_name / given_name / surname。 */
-  const identityFields = computed(() =>
+  /* ---------- 付款人 / 公司 ---------- */
+  const companyIdentityFields = computed(() =>
     compact([
+      field('company_name', '公司名称'),
       field('company_type', '公司类型'),
+      field('document_no', '证件编号', { mono: true }),
       field('registration_date', '注册日期'),
+    ]),
+  );
+
+  const registrationFields = computed(() =>
+    compact([
+      field('registration_country', '注册国家／地区'),
+      field('operating_country', '经营国家／地区'),
+      field('city', '所在城市'),
+      field('address', '详细地址', { wide: true }),
+    ]),
+  );
+
+  /* ---------- 付款人 / 个人 ---------- */
+  const payerIndividualIdentityFields = computed(() =>
+    compact([
+      field('given_name', '名'),
+      field('surname', '姓'),
+      field('nationality', '国籍'),
       field('birth_date', '出生日期'),
       field('document_type', '证件类型'),
       field('document_no', '证件编号', { mono: true }),
     ]),
   );
 
-  /** 地址资料：保留不同业务含义的注册、经营、国籍与居住国家，不使用顶层 country 重复占位。 */
-  const locationFields = computed(() =>
+  const payerIndividualResidenceFields = computed(() =>
     compact([
-      field('registration_country', '注册国家／地区'),
-      field('operating_country', '经营国家／地区'),
-      field('nationality', '国籍'),
       field('residence_country', '居住国家／地区'),
-      field('city', '城市'),
+      field('city', '所在城市'),
       field('address', '详细地址', { wide: true }),
     ]),
   );
 
-  /** 银行与汇款资料：仅收款人会有数据，无数据时整个区块不渲染。 */
-  const bankFields = computed(() =>
+  /* ---------- 收款人 / 公司 ---------- */
+  const payeeCompanyFields = computed(() => compact([field('company_name', '公司名称')]));
+
+  const payeeCompanyLocationFields = computed(() =>
+    compact([
+      field('operating_country', '经营国家／地区'),
+      field('city', '所在城市'),
+      field('address', '详细地址', { wide: true }),
+    ]),
+  );
+
+  /* ---------- 收款人 / 个人 ---------- */
+  const payeeIndividualIdentityFields = computed(() =>
+    compact([field('given_name', '名'), field('surname', '姓'), field('nationality', '国籍')]),
+  );
+
+  const payeeIndividualResidenceFields = computed(() =>
+    compact([
+      field('residence_country', '居住国家／地区'),
+      field('city', '所在城市'),
+      field('address', '详细地址', { wide: true }),
+    ]),
+  );
+
+  /* ---------- 收款账户信息（收款人共用） ---------- */
+  const payeeBankFields = computed(() =>
     compact([
       field('bank_name', '银行名称'),
       field('bank_account', '银行账号', { mono: true }),
       field('swift', 'SWIFT', { mono: true }),
-      field('intermediary_swift', '中间行 SWIFT', { mono: true }),
+      field('intermediary_swift', '中间行 SWIFT（可选）', { mono: true, optional: true }),
       field('remittance_purpose', '汇款目的', { wide: true }),
-      field('remark', '备注', { wide: true }),
+      field('remark', '备注（可选）', { wide: true, optional: true }),
     ]),
   );
 
-  /** 附件按每次提交/补件记录分轮展示，审核人员能看清材料来源和时间。 */
+  /* ---------- 附件 / 时间线 ---------- */
   const fileRounds = computed<WhitelistFileRound[]>(() =>
     (detail.value?.records ?? [])
-      .filter((record) => record.files?.length)
+      // 代理提交与补件记录即使没有附件也保留，让审核人员明确知道本轮未提交证明文件。
+      .filter((record) => record.actor_type === 1)
       .map((record) => ({
         key: record.id,
         title: record.action_name,
@@ -159,9 +209,15 @@ export function useWhitelistDetailView(detail: Ref<WhitelistDetail | null>) {
   );
 
   return {
-    identityFields,
-    locationFields,
-    bankFields,
+    companyIdentityFields,
+    registrationFields,
+    payerIndividualIdentityFields,
+    payerIndividualResidenceFields,
+    payeeCompanyFields,
+    payeeCompanyLocationFields,
+    payeeIndividualIdentityFields,
+    payeeIndividualResidenceFields,
+    payeeBankFields,
     fileRounds,
     timelineItems,
   };

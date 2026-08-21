@@ -30,7 +30,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
     ];
     if (row.statusCode === 0) {
       actions.unshift(
-        { key: 'approve', label: '通过', icon: CircleCheck, type: 'success', plain: true },
+        { key: 'approve', label: '通过', icon: CircleCheck, type: 'primary', plain: true },
         { key: 'reject', label: '驳回', icon: CircleClose, type: 'danger', plain: true },
         { key: 'supplement', label: '要求补件', icon: DocumentAdd, type: 'warning', plain: true },
       );
@@ -38,7 +38,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
       actions.unshift({ key: 'reject', label: '驳回', icon: CircleClose, type: 'danger', plain: true });
     } else if (row.statusCode === 2) {
       actions.unshift(
-        { key: 'pay-complete', label: '付款完成', icon: CreditCard, type: 'success', plain: true },
+        { key: 'pay-complete', label: '付款完成', icon: CreditCard, type: 'primary', plain: true },
         { key: 'pay-fail', label: '付款失败', icon: CircleClose, type: 'danger', plain: true },
       );
     } else if (row.statusCode === 3) {
@@ -63,7 +63,6 @@ const cardItems = computed<AdminCardItem[]>(() =>
         {
           label: '总扣款',
           value: `${row.totalAmount} ${row.currency}`,
-          subValue: `含手续费 ${row.feeAmount} ${row.currency}`,
         },
       ],
       actions,

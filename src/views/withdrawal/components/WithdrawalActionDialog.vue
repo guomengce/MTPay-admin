@@ -9,30 +9,7 @@
     @update:model-value="emit('update:modelValue', $event)"
   >
     <template v-if="row">
-      <p class="withdrawal-action__hint">{{ dialogHint }}</p>
-
-      <dl class="withdrawal-action__summary">
-        <div>
-          <dt>订单号</dt>
-          <dd>{{ row.id }}</dd>
-        </div>
-        <div>
-          <dt>代理</dt>
-          <dd>{{ row.agent }} · {{ row.agentCode }}</dd>
-        </div>
-        <div>
-          <dt>出金金额</dt>
-          <dd>{{ row.amount }} {{ row.currency }}</dd>
-        </div>
-        <div>
-          <dt>总扣款</dt>
-          <dd>{{ row.totalAmount }} {{ row.currency }}</dd>
-        </div>
-        <div class="is-wide">
-          <dt>付款关系</dt>
-          <dd>{{ row.payer }} → {{ row.payee }}</dd>
-        </div>
-      </dl>
+      <el-alert type="warning" class="withdrawal-action__hint">{{ dialogHint }}</el-alert>
 
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" @submit.prevent>
         <el-form-item
@@ -79,6 +56,7 @@
             multiple
             :limit="5"
             accept=".pdf,.png,.jpg,.jpeg"
+            @change="handleFileChange"
           >
             <el-button plain :icon="Upload">选择文件</el-button>
             <template #tip>
@@ -119,10 +97,10 @@
 /** 出金详情动作弹框：表单只收集输入，接口和文件上传由详情 composable 统一执行。 */
 import { computed, reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import type { FormInstance, FormRules, UploadRawFile, UploadUserFile } from 'element-plus';
+import type { FormInstance, FormRules, UploadFile, UploadFiles, UploadUserFile } from 'element-plus';
 import { CircleCheck, CircleClose, DocumentAdd, Upload } from '@element-plus/icons-vue';
 
-import type { WithdrawalPaymentResult } from '@/api/modules/withdrawal';
+import type { WithdrawalFile, WithdrawalPaymentResult } from '@/api/modules/withdrawal';
 import type { WithdrawalRow } from '../composables/mapper';
 
 export type WithdrawalActionMode = 'approve' | 'reject' | 'supplement' | 'payment' | 'append';
@@ -135,6 +113,7 @@ const props = defineProps<{
   uploading?: boolean;
   /** 打开付款弹窗时的预选结果（列表快捷按钮直接点“付款失败”时预选 fail）。 */
   initialResult?: WithdrawalPaymentResult;
+  uploadFile: (file: File) => Promise<WithdrawalFile>;
 }>();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
@@ -145,7 +124,7 @@ const emit = defineEmits<{
       message?: string;
       result?: WithdrawalPaymentResult;
       failureReason?: string;
-      files: File[];
+      fileIds: number[];
     },
   ): void;
 }>();
@@ -216,22 +195,14 @@ function reset() {
   formRef.value?.clearValidate();
 }
 
-function getFiles() {
-  return fileList.value
-    .map((item) => item.raw)
-    .filter((file): file is UploadRawFile => Boolean(file)) as File[];
-}
+async function handleFileChange(file:UploadFile,files:UploadFiles){fileList.value=files;if(!file.raw||file.status==='success')return;if(file.raw.size>10*1024*1024){ElMessage.warning('单个文件不能超过 10 MB');fileList.value=fileList.value.filter(item=>item.uid!==file.uid);return}try{file.status='uploading';file.response=await props.uploadFile(file.raw);file.status='success'}catch{file.status='fail';fileList.value=fileList.value.filter(item=>item.uid!==file.uid)}}
 
 async function handleSubmit() {
   if (!props.row) return;
   if (formRef.value && !(await formRef.value.validate().catch(() => false))) return;
-  const files = getFiles();
-  if (props.mode === 'append' && files.length === 0) {
+  const fileIds=fileList.value.map(item=>(item.response as WithdrawalFile|undefined)?.file_id).filter((id):id is number=>typeof id==='number');
+  if (props.mode === 'append' && fileIds.length === 0) {
     ElMessage.warning('请至少选择一个付款凭证');
-    return;
-  }
-  if (files.some((file) => file.size > 10 * 1024 * 1024)) {
-    ElMessage.warning('单个文件不能超过 10 MB');
     return;
   }
   emit('submit', {
@@ -239,7 +210,7 @@ async function handleSubmit() {
     message: form.message.trim() || undefined,
     result: props.mode === 'payment' ? form.result : undefined,
     failureReason: form.failureReason.trim() || undefined,
-    files,
+    fileIds,
   });
 }
 </script>
@@ -250,41 +221,8 @@ async function handleSubmit() {
     margin: 0 0 18px;
     padding: 12px 14px;
     border-radius: 10px;
-    color: #50617b;
-    background: #f3f8fc;
     font-size: 13px;
     line-height: 1.6;
-  }
-
-  &__summary {
-    display: grid;
-    margin: 0 0 18px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-
-    > div {
-      min-width: 0;
-      padding: 11px 12px;
-      border: 1px solid #e3eaf1;
-      border-radius: 10px;
-      background: #fbfcfe;
-
-      &.is-wide {
-        grid-column: 1 / -1;
-      }
-    }
-
-    dt {
-      color: var(--app-text-label);
-      font-size: 12px;
-    }
-    dd {
-      margin: 5px 0 0;
-      color: var(--app-text-body);
-      font-size: 13px;
-      font-weight: 600;
-      overflow-wrap: anywhere;
-    }
   }
 
   &__file-tip {

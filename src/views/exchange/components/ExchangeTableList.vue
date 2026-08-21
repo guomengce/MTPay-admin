@@ -9,7 +9,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="代理" min-width="240">
+      <el-table-column label="代理" min-width="180">
         <template #default="{ row }">
           <div class="row-title">
             <strong>{{ row.agent }}</strong>
@@ -17,7 +17,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="支付资产" min-width="180">
+      <el-table-column label="支付资产" min-width="160">
         <template #default="{ row }">
           <div class="asset">
             <span>{{ row.amount }}</span>
@@ -25,18 +25,21 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="rate" label="比例" min-width="100" />
+      <el-table-column prop="rate" label="比例" min-width="120" />
       <el-table-column label="获得USD" min-width="160">
         <template #default="{ row }">
-          <strong>{{ row.usd }}</strong>
+          <div class="asset">
+            <strong>{{ row.usd }}</strong>
+            <small>{{ row.toSymbol }}</small>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="状态" min-width="130">
+      <el-table-column label="状态" min-width="100">
         <template #default="{ row }">
           <StatusBadge :label="row.status" :type="row.statusType" :effect="row.statusEffect" />
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="110" fixed="right">
+      <el-table-column label="操作" width="100" fixed="right">
         <template #default="{ row }">
           <el-dropdown trigger="click" @command="handleCommand($event, row)">
             <el-button plain size="small" :icon="MoreFilled">操作</el-button>
@@ -101,7 +104,8 @@ function handleCommand(command: string | number | object, row: ExchangeRow) {
 
   small {
     color: var(--app-text-label);
-    font-weight: 500;
+    font-weight: 700;
+    color:#048F8F;
   }
 }
 

@@ -13,15 +13,19 @@
       <el-option label="已驳回" value="rejected" />
       <el-option label="失败" value="failed" />
     </el-select>
-    <el-select v-model="currencyCode" placeholder="币种" clearable>
-      <el-option label="USDT" value="USDT" />
-      <el-option label="USDC" value="USDC" />
-      <el-option label="USD" value="USD" />
-    </el-select>
-    <el-input v-model="orderNo" placeholder="订单号" clearable />
-    <el-input v-model="keyword" placeholder="代理编号 / 公司 / Email" clearable />
-    <el-date-picker v-model="startedAt" type="date" placeholder="起始日期" value-format="YYYY-MM-DD" />
-    <el-date-picker v-model="endedAt" type="date" placeholder="结束日期" value-format="YYYY-MM-DD" />
+    <el-input v-model="orderNo" placeholder="订单号" clearable @keyup.enter="emit('search')" />
+    <el-date-picker
+      v-model="startedAt"
+      type="date"
+      placeholder="起始日期"
+      value-format="YYYY-MM-DD"
+    />
+    <el-date-picker
+      v-model="endedAt"
+      type="date"
+      placeholder="结束日期"
+      value-format="YYYY-MM-DD"
+    />
     <div class="filter-bar__actions">
       <el-button type="primary" :loading="loading" @click="emit('search')">查询</el-button>
       <el-button @click="emit('reset')">重置</el-button>
@@ -49,18 +53,18 @@ const statusGroup = computed({
   get: () => props.query.status_group,
   set: (value: string) => emit('update', { status_group: value || '' }),
 });
-const currencyCode = computed({
-  get: () => props.query.currency_code,
-  set: (value: string) => emit('update', { currency_code: value || '' }),
-});
+// const currencyCode = computed({
+//   get: () => props.query.currency_code,
+//   set: (value: string) => emit('update', { currency_code: value || '' }),
+// });
 const orderNo = computed({
   get: () => props.query.order_no,
   set: (value: string) => emit('update', { order_no: value }),
 });
-const keyword = computed({
-  get: () => props.query.keyword,
-  set: (value: string) => emit('update', { keyword: value }),
-});
+// const keyword = computed({
+//   get: () => props.query.keyword,
+//   set: (value: string) => emit('update', { keyword: value }),
+// });
 const startedAt = computed({
   get: () => props.query.started_at,
   set: (value: string) => emit('update', { started_at: value || '' }),
@@ -73,26 +77,32 @@ const endedAt = computed({
 
 <style scoped lang="scss">
 .transaction-filters {
-  grid-template-columns:
-    minmax(130px, 0.8fr)
-    minmax(150px, 0.9fr)
-    minmax(120px, 0.7fr)
-    minmax(160px, 1fr)
-    minmax(190px, 1.1fr)
-    minmax(140px, 0.8fr)
-    minmax(140px, 0.8fr)
-    max-content;
-
   > * {
     min-width: 0;
   }
 
-  @include narrow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  @include desktop {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    .filter-bar__actions {
+      grid-column: 1 / -1;
+    }
   }
 
-  @include mobile {
-    grid-template-columns: minmax(0, 1fr);
+  @include wide {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+
+    .filter-bar__actions {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @include ultra-wide {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+
+    .filter-bar__actions {
+      grid-column: 1 / -1;
+    }
   }
 }
 </style>

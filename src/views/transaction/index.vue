@@ -15,6 +15,7 @@
         @reset="reset"
       />
       <TransactionTable :data="list" :loading="loading" @view="openDetail" />
+      <TransactionCardList :data="list" @view="openDetail" />
       <el-empty v-if="!loading && list.length === 0" description="暂无交易记录" />
       <TablePager
         :model-value="page"
@@ -38,6 +39,7 @@ import AdminPanel from '@/components/admin/AdminPanel.vue';
 import TablePager from '@/components/common/TablePager.vue';
 import type { TransactionItem } from '@/api/modules/transaction';
 import TransactionFilters from './components/TransactionFilters.vue';
+import TransactionCardList from './components/TransactionCardList.vue';
 import TransactionTable from './components/TransactionTable.vue';
 import { useTransactionList } from './composables/useTransactionList';
 

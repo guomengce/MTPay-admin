@@ -49,7 +49,7 @@
       <div
         v-if="visibleActions(item).length"
         class="admin-card-list__actions"
-        :class="`is-${visibleActions(item).length}`"
+        :style="actionGridStyle(item)"
       >
         <el-button
           v-for="action in visibleActions(item)"
@@ -186,6 +186,11 @@ function visibleActions(item: AdminCardItem) {
   return item.actions?.filter((action) => action.visible !== false) ?? [];
 }
 
+function actionGridStyle(item: AdminCardItem) {
+  const count = visibleActions(item).length;
+  return { gridTemplateColumns: count <= 1 ? 'minmax(0, 1fr)' : `repeat(${count}, minmax(0, 1fr))` };
+}
+
 function resolveRowKey(row: AdminCardRecord, index: number) {
   if (typeof props.rowKey === 'function') return String(props.rowKey(row, index));
   if (typeof props.rowKey === 'string') {
@@ -281,24 +286,43 @@ function getByPath(row: AdminCardRecord, path: string) {
 <style scoped lang="scss">
 .admin-card-list {
   display: grid;
-  gap: 10px;
-  padding: 12px;
+  gap: 14px;
+  padding: 14px;
 
   &__item {
-    border-color: #e3ebf4;
-    border-radius: 12px;
-    background: #ffffff;
-    box-shadow: 0 8px 24px rgb(16 42 80 / 5%);
+    position: relative;
+    overflow: hidden;
+    border-color: #d8e7ea;
+    border-radius: 15px;
+    background: linear-gradient(180deg, #fff 0%, #fbfefe 100%);
+    box-shadow: 0 10px 28px rgb(15 63 82 / 8%);
+
+    &::before {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #0aa39b, #2b83d5);
+      content: '';
+    }
+
+    &.is-pending {
+      border-color: #d5e5df;
+      box-shadow: 0 10px 30px rgb(9 145 132 / 11%);
+    }
 
     :deep(.el-card__header) {
-      padding: 12px 14px;
-      border-bottom-color: #eef2f7;
+      padding: 15px 16px 13px;
+      border-bottom-color: #dfecef;
+      background: linear-gradient(105deg, #f0faf8 0%, #f6faff 72%, #fff 100%);
     }
 
     :deep(.el-card__body) {
       display: grid;
-      gap: 8px;
-      padding: 6px 14px 10px;
+      gap: 10px;
+      padding: 10px 16px 14px;
     }
   }
 
@@ -318,7 +342,7 @@ function getByPath(row: AdminCardRecord, path: string) {
     strong {
       color: var(--app-text-heading);
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -340,9 +364,9 @@ function getByPath(row: AdminCardRecord, path: string) {
     grid-template-columns: 56px minmax(0, 1fr);
     align-items: center;
     gap: 10px;
-    min-height: 32px;
-    padding: 6px 0;
-    border-bottom: 1px solid #eef2f7;
+    min-height: 38px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #dfe9ee;
 
     &:last-child {
       border-bottom: 0;
@@ -350,7 +374,7 @@ function getByPath(row: AdminCardRecord, path: string) {
   }
 
   &__label {
-    color: var(--app-text-label);
+    color: #698096;
     font-size: 12px;
     font-weight: 400;
   }
@@ -392,25 +416,25 @@ function getByPath(row: AdminCardRecord, path: string) {
   &__actions {
     display: grid;
     gap: 8px;
-    padding-top: 4px;
-
-    &.is-1 {
-      grid-template-columns: 1fr;
-    }
-
-    &.is-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    &.is-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+    padding-top: 6px;
+    border-top: 1px solid #e5edef;
   }
 
   &__action {
     width: 100%;
     min-width: 0;
     margin-left: 0 !important;
+    padding-right: 7px;
+    padding-left: 7px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 650;
+
+    &:not(.el-button--primary):not(.el-button--warning):not(.el-button--danger):not(.el-button--info) {
+      border-color: #bcdedb;
+      color: #087f79;
+      background: #edf9f7;
+    }
   }
 }
 </style>

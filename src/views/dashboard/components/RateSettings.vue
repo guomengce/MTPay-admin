@@ -11,13 +11,13 @@
         <span class="settings-list__icon settings-list__icon--teal">T</span>
         <span class="settings-list__label">USDT 预设比例</span>
         <span class="settings-list__divider" aria-hidden="true" />
-        <span class="settings-list__value">0.9900</span>
+        <span class="settings-list__value">0.99</span>
       </li>
       <li class="settings-list__item">
         <span class="settings-list__icon settings-list__icon--blue">$</span>
         <span class="settings-list__label">USDC 预设比例</span>
         <span class="settings-list__divider" aria-hidden="true" />
-        <span class="settings-list__value">0.9900</span>
+        <span class="settings-list__value">0.99</span>
       </li>
       <li class="settings-list__item">
         <span class="settings-list__icon settings-list__icon--indigo">
@@ -25,7 +25,7 @@
         </span>
         <span class="settings-list__label">固定出金费</span>
         <span class="settings-list__divider" aria-hidden="true" />
-        <span class="settings-list__value">50.00 USD</span>
+        <span class="settings-list__value">50 USD</span>
       </li>
     </ul>
   </AdminPanel>

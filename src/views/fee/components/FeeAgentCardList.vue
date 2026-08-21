@@ -11,20 +11,26 @@
           <div class="fee-agent-card-list__metric">
             <span>USDT 比例</span>
             <strong>{{ row.usdt_rate }}</strong>
-            <small :class="{ 'is-custom': row.usdt_source === '代理专属' }">{{ row.usdt_source }}</small>
+            <StatusBadge
+              :label="row.usdt_source"
+              :type="row.usdt_source === '代理专属' ? 'primary' : 'gray'"
+            />
           </div>
           <div class="fee-agent-card-list__metric">
             <span>USDC 比例</span>
             <strong>{{ row.usdc_rate }}</strong>
-            <small :class="{ 'is-custom': row.usdc_source === '代理专属' }">{{ row.usdc_source }}</small>
+            <StatusBadge
+              :label="row.usdc_source"
+              :type="row.usdc_source === '代理专属' ? 'primary' : 'gray'"
+            />
           </div>
         </div>
 
         <div class="fee-agent-card-list__actions">
-          <el-button plain :icon="Edit" @click="emit('edit', row)">修改</el-button>
+          <el-button type="warning" plain :icon="Edit" @click="emit('edit', row)">修改</el-button>
           <el-button
             v-if="row.has_custom_rate"
-            type="danger"
+            type="warning"
             plain
             :icon="RefreshLeft"
             @click="emit('clear', row)"
@@ -40,6 +46,7 @@
 import { Edit, RefreshLeft, UserFilled } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { FeeAgentRow } from '../composables/useFeeSettings';
 
 defineProps<{ rows: FeeAgentRow[]; loading?: boolean }>();
@@ -52,6 +59,7 @@ const emit = defineEmits<{
 <style scoped lang="scss">
 .fee-agent-card-list {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
   margin: 0;
   padding: 0;
@@ -127,14 +135,11 @@ const emit = defineEmits<{
       font-weight: 600;
     }
 
-    small {
-      color: #8794a6;
-      font-size: 11px;
-
-      &.is-custom {
-        color: #0a7f7a;
-      }
+    :deep(.status-badge) {
+      justify-self: start;
+      width: fit-content;
     }
+
   }
 
   &__actions {
@@ -148,6 +153,7 @@ const emit = defineEmits<{
   }
 
   @include mobile {
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
 
     &__item {

@@ -35,7 +35,6 @@ export interface WithdrawalRow {
   payeeNo: string;
   payeeType: string;
   amount: string;
-  feeAmount: string;
   totalAmount: string;
   currency: string;
   applicationFileCount: number;
@@ -67,7 +66,6 @@ export function toWithdrawalRow(order: WithdrawalOrder): WithdrawalRow {
     payeeNo: order.payee.whitelist_no,
     payeeType: entityTypeName(order.payee.entity_type),
     amount: order.amount,
-    feeAmount: order.fee_amount,
     totalAmount: order.total_amount,
     currency: order.currency.code,
     applicationFileCount: order.application_file_count,

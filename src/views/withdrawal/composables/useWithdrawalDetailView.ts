@@ -1,7 +1,7 @@
 /** 出金详情展示模型：根据接口真实字段生成主体、审核、付款、资金和时间线信息。 */
 import { computed, type Ref } from 'vue';
 
-import type { WithdrawalOrderDetail, WithdrawalParty } from '@/api/modules/withdrawal';
+import type { WithdrawalFile, WithdrawalOrderDetail, WithdrawalParty } from '@/api/modules/withdrawal';
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
 
 export interface DetailField {
@@ -11,6 +11,15 @@ export interface DetailField {
   wide?: boolean;
   mono?: boolean;
   accent?: boolean;
+}
+
+export interface WithdrawalFileRound {
+  key: number;
+  title: string;
+  actor: string;
+  time: string;
+  message: string;
+  files: WithdrawalFile[];
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -164,6 +173,20 @@ export function useWithdrawalDetailView(detail: Ref<WithdrawalOrderDetail | null
     })),
   );
 
+  /** 附件按每次处理记录分轮展示，时间线节点直接展示本次关联的文件。 */
+  const fileRounds = computed<WithdrawalFileRound[]>(() =>
+    (detail.value?.records ?? [])
+      .filter((record) => (record.files?.length ?? 0) > 0)
+      .map((record) => ({
+        key: record.id,
+        title: record.action_name || record.name || record.event || '订单处理',
+        actor: record.actor_name || record.actor_type_name || '—',
+        time: record.created_at || record.time || '—',
+        message: record.message || '',
+        files: record.files ?? [],
+      })),
+  );
+
   function partyType(party: WithdrawalParty | undefined) {
     if (!party) return '—';
     return party.entity_type === 1 ? '公司' : '个人';
@@ -177,6 +200,7 @@ export function useWithdrawalDetailView(detail: Ref<WithdrawalOrderDetail | null
     reviewFields,
     paymentFields,
     timelineItems,
+    fileRounds,
     partyType,
   };
 }

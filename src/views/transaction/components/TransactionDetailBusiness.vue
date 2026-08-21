@@ -15,6 +15,7 @@ import { Document } from '@element-plus/icons-vue';
 
 import type { TransactionBusinessType } from '@/api/modules/transaction';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import { formatExchangeRate, formatFixedFee } from '@/utils/decimal';
 
 interface FieldItem {
   label: string;
@@ -68,7 +69,7 @@ const fields = computed<FieldItem[]>(() => {
     return [
       ...pick(d, ['source_currency', 'target_currency']),
       { label: '支付数量', value: text(d.source_amount), mono: true },
-      { label: '采用比例', value: text(d.exchange_rate), mono: true },
+      { label: '采用比例', value: formatExchangeRate(text(d.exchange_rate)), mono: true },
       { label: '比例来源', value: text(d.rate_source_name) },
       { label: '获得金额', value: text(d.target_amount), mono: true },
       { label: '冻结时间', value: text(d.frozen_at) },
@@ -85,7 +86,7 @@ const fields = computed<FieldItem[]>(() => {
   const payment = (d.payment ?? {}) as Record<string, unknown>;
   return [
     { label: '出金金额（实收）', value: text(d.amount), mono: true },
-    { label: '固定手续费', value: text(d.fee_amount), mono: true },
+    { label: '固定手续费', value: formatFixedFee(text(d.fee_amount)), mono: true },
     { label: '总扣款', value: text(d.total_amount), mono: true },
     { label: '付款人', value: text(payer.name), wide: true },
     { label: '付款人白名单编号', value: text(payer.whitelist_no), mono: true },

@@ -38,12 +38,12 @@ const cardItems = computed<AdminCardItem[]>(() =>
       { label: '申报金额', value: `${row.amount} ${row.asset}`, strong: true },
     ],
     actions: [
-      { key: 'view', label: '详情', icon: View, plain: true },
+      { key: 'view', label: '详情', icon: View, type: 'primary', plain: true },
       {
         key: 'approve',
         label: '通过',
         icon: CircleCheck,
-        type: 'success',
+        type: 'primary',
         plain: true,
         visible: row.statusEffect === 'pending',
       },

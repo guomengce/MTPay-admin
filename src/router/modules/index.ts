@@ -115,7 +115,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     meta: {
       title: '白名单审核',
       description: '四种类型均只需一次审核',
-      icon: 'List',
+      icon: 'Postcard',
       requiresAuth: true,
       hidden: false,
       keepAlive: false,
@@ -128,7 +128,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     meta: {
       title: '白名单详情',
       description: '核对收付款主体、银行资料与审核风险',
-      icon: 'List',
+      icon: 'Postcard',
       requiresAuth: true,
       hidden: true,
       keepAlive: false,
@@ -151,7 +151,7 @@ export const featureRoutes: RouteRecordRaw[] = [
   {
     path: '/withdrawal/detail/:id',
     name: 'WithdrawalDetail',
-    component: () => import('@/views/withdrawal/detail/WithdrawalDetailPage.vue'),
+    component: () => import('@/views/withdrawal/detail/index.vue'),
     meta: {
       title: '出金详情',
       description: '核对付款组合、收款主体、佐证文件与资金冻结影响',

@@ -27,6 +27,11 @@ withDefaults(
 <style scoped lang="scss">
 .status-badge {
   display: inline-flex;
+  align-self: center;
+  justify-self: start;
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
   height: 28px;
   align-items: center;
   gap: 7px;

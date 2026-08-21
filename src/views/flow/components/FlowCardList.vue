@@ -44,7 +44,7 @@ const fields: AdminCardFieldConfig[] = [
 ];
 
 const actions: AdminCardActionConfig[] = [
-  { key: 'view', label: '查看详情', icon: View, plain: true },
+  { key: 'view', label: '查看详情', icon: View, type: 'primary', plain: true },
 ];
 
 function getStatusBadge(row: AdminCardRecord) {

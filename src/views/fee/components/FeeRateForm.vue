@@ -14,7 +14,12 @@
               USDT → USD
             </span>
           </template>
-          <el-input v-model="usdtRate" placeholder="如 1.000000000000" />
+          <el-input
+            :model-value="usdtRate"
+            inputmode="decimal"
+            placeholder="如 0.99"
+            @input="usdtRate = limitDecimalInput($event, 2)"
+          />
           <p>每 1 USDT 可兑换的 USD 金额</p>
         </el-form-item>
 
@@ -25,7 +30,12 @@
               USDC → USD
             </span>
           </template>
-          <el-input v-model="usdcRate" placeholder="如 1.000000000000" />
+          <el-input
+            :model-value="usdcRate"
+            inputmode="decimal"
+            placeholder="如 0.99"
+            @input="usdcRate = limitDecimalInput($event, 2)"
+          />
           <p>每 1 USDC 可兑换的 USD 金额</p>
         </el-form-item>
       </div>
@@ -48,29 +58,30 @@ import { ref, watch } from 'vue';
 import { Checked, TrendCharts } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import { formatExchangeRate, limitDecimalInput } from '@/utils/decimal';
 
 const props = defineProps<{ usdtRate?: string; usdcRate?: string; saving?: boolean }>();
 const emit = defineEmits<{ (e: 'save', payload: { usdt_rate: string; usdc_rate: string }): void }>();
 
-const usdtRate = ref(props.usdtRate ?? '');
-const usdcRate = ref(props.usdcRate ?? '');
+const usdtRate = ref(formatExchangeRate(props.usdtRate));
+const usdcRate = ref(formatExchangeRate(props.usdcRate));
 const error = ref('');
 
 watch(
   () => props.usdtRate,
   (value) => {
-    if (value !== undefined) usdtRate.value = value;
+    if (value !== undefined) usdtRate.value = formatExchangeRate(value);
   },
 );
 watch(
   () => props.usdcRate,
   (value) => {
-    if (value !== undefined) usdcRate.value = value;
+    if (value !== undefined) usdcRate.value = formatExchangeRate(value);
   },
 );
 
 function isValidRate(value: string) {
-  if (!/^\d{1,16}(\.\d{1,12})?$/.test(value)) return false;
+  if (!/^\d{1,16}(\.\d{1,2})?$/.test(value)) return false;
   return !/^0+(?:\.0+)?$/.test(value);
 }
 
@@ -78,7 +89,7 @@ function submit() {
   const usdt = usdtRate.value.trim();
   const usdc = usdcRate.value.trim();
   if (!isValidRate(usdt) || !isValidRate(usdc)) {
-    error.value = '请输入大于 0 的比例（整数最多 16 位、小数最多 12 位）';
+    error.value = '请输入大于 0 的比例（最多 2 位小数）';
     return;
   }
   error.value = '';

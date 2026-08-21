@@ -36,9 +36,11 @@
 
 <script setup lang="ts">
 import {
+  Coin,
   Grid,
   List,
   Money,
+  Postcard,
   Switch,
   SwitchButton,
   Tickets,
@@ -65,9 +67,11 @@ const adminEmail = computed(() => authStore.userInfo?.email || '—');
 const adminInitial = computed(() => adminName.value.trim().charAt(0).toUpperCase() || 'M');
 
 const icons = {
+  Coin,
   Grid,
   List,
   Money,
+  Postcard,
   Switch,
   Tickets,
   Upload,

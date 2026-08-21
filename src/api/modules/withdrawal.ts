@@ -72,15 +72,10 @@ export interface WithdrawalOrderDetail extends WithdrawalOrder {
     completed_at: string | null;
     failed_at: string | null;
   };
-  fund_times: {
-    frozen_at: string | null;
-    released_at: string | null;
-    rejected_at: string | null;
-  };
   application_files: WithdrawalFile[];
   payment_files: WithdrawalFile[];
   records: WithdrawalRecord[];
-  available_actions: {
+  available_actions?: {
     agent_can_supplement: boolean;
     admin_can_request_supplement: boolean;
     admin_can_approve: boolean;

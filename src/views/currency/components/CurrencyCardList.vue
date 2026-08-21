@@ -7,6 +7,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { CircleCheck, CircleClose, Edit, View } from '@element-plus/icons-vue';
 import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
 import type { CurrencyNetwork } from '@/api/modules/currency';
@@ -36,15 +37,19 @@ const cardItems = computed<AdminCardItem[]>(() =>
       { label: '更新时间', value: row.updated_at || '—' },
     ],
     actions: [
-      { key: 'detail' as CardAction, label: '详情', plain: true },
+      { key: 'detail' as CardAction, label: '详情', icon: View, type: 'primary', plain: true },
       {
         key: 'set-address' as CardAction,
         label: row.current_receiving_address ? '更换地址' : '设置地址',
+        icon: Edit,
+        type: 'warning',
         plain: true,
       },
       {
         key: 'toggle-status' as CardAction,
         label: row.status === 1 ? '禁用' : '启用',
+        icon: row.status === 1 ? CircleClose : CircleCheck,
+        type: row.status === 1 ? 'danger' : 'primary',
         plain: true,
       },
     ],

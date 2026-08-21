@@ -50,6 +50,7 @@
       :submitting="submitting"
       :uploading="uploading"
       :initial-result="initialResult"
+      :upload-file="uploadFile"
       @submit="handleSubmit"
     />
   </section>
@@ -88,7 +89,7 @@ const dialogVisible = ref(false);
 const actionMode = ref<WithdrawalActionMode>('approve');
 const actionRow = ref<WithdrawalRow | null>(null);
 const initialResult = ref<WithdrawalPaymentResult | undefined>(undefined);
-const { submitting, uploading, requestSupplement, submitReview, submitPayment, appendPaymentFiles, uploadFiles } =
+const { submitting, uploading, requestSupplement, submitReview, submitPayment, appendPaymentFiles, uploadFile } =
   useWithdrawalDetail();
 
 function openDialog(mode: WithdrawalActionMode, row: WithdrawalRow) {
@@ -110,7 +111,7 @@ async function handleSubmit(payload: {
   message?: string;
   result?: WithdrawalPaymentResult;
   failureReason?: string;
-  files: File[];
+  fileIds: number[];
 }) {
   const row = actionRow.value;
   if (!row) return;
@@ -127,7 +128,7 @@ async function handleSubmit(payload: {
       });
       ElMessage.success(payload.mode === 'approve' ? '出金审核已通过，进入付款处理' : '出金已驳回，冻结资金已释放');
     } else if (payload.mode === 'payment') {
-      const fileIds = payload.result === 'complete' ? await uploadFiles(payload.files) : [];
+      const fileIds = payload.result === 'complete' ? payload.fileIds : [];
       await submitPayment({
         id,
         result: payload.result!,
@@ -136,8 +137,7 @@ async function handleSubmit(payload: {
       });
       ElMessage.success(payload.result === 'complete' ? '付款完成已登记' : '付款失败已登记，冻结资金已释放');
     } else {
-      const fileIds = await uploadFiles(payload.files);
-      await appendPaymentFiles({ id, file_ids: fileIds, message: payload.message });
+      await appendPaymentFiles({ id, file_ids: payload.fileIds, message: payload.message });
       ElMessage.success('付款凭证已追加');
     }
     dialogVisible.value = false;

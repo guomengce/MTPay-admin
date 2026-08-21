@@ -79,10 +79,6 @@
 
     <template #footer>
       <footer class="receiving-address__footer">
-        <span>
-          <el-icon><Lock /></el-icon>
-          数据通过加密连接提交，地址严格按字符串原样存储
-        </span>
         <div>
           <el-button @click="emit('update:modelValue', false)">取消</el-button>
           <el-button
@@ -267,7 +263,7 @@ async function handleSubmit() {
     display: flex;
     min-height: 78px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 16px;
     padding: 14px 26px;
     border-top: 1px solid #e3e9f0;

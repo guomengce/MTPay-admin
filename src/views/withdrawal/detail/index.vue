@@ -1,388 +1,256 @@
 <template>
-  <section class="admin-page withdrawal-detail-page">
-    <DetailHero
-      order="出金管理"
-      :title="detail.title"
-      :description="detail.description"
-      :order-id="detail.id"
-      :status="heroStatus"
-      :actions="heroActions"
-      @back="goBack"
-      @complete="openCompleteDialog"
-      @return="handleReturn"
-    />
-
-    <DetailSummaryCard :items="summaryItems" />
-
-    <div class="withdrawal-detail-page__split">
-      <DetailBusinessInfo
-        title="业务信息"
-        :sections="businessSections"
-        :status="detail.status ? { type: detail.statusType, effect: detail.statusEffect } : undefined"
-      />
-
-      <DetailTimelinePanel title="处理时间线" :items="detail.timeline" />
-    </div>
-
-    <AdminPanel class="withdrawal-detail-page__files">
-      <h2>合同及 Invoice</h2>
-
-      <div class="withdrawal-detail-page__file-list">
-        <article
-          v-for="file in detail.files"
-          :key="file.key"
-          class="withdrawal-detail-page__file-item"
-        >
-          <span class="withdrawal-detail-page__file-icon">
-            <DocumentChecked />
-          </span>
-
-          <div class="withdrawal-detail-page__file-body">
-            <span>{{ file.label }}</span>
-            <strong>{{ file.name }}</strong>
-            <small>{{ file.status }}</small>
-          </div>
-
-          <el-button plain :icon="View">查看</el-button>
-        </article>
+  <section v-loading="loading" class="admin-page withdrawal-detail-page">
+    <template v-if="detail">
+      <div class="withdrawal-detail-page__toolbar">
+        <el-button plain :icon="Back" @click="goBack">返回出金列表</el-button>
+        <div v-if="heroActions.length" class="withdrawal-detail-page__actions">
+          <el-button
+            v-for="action in heroActions"
+            :key="action.emitName"
+            :type="action.type"
+            :icon="action.icon"
+            @click="openAction(action.emitName)"
+          >{{ action.label }}</el-button>
+        </div>
       </div>
-    </AdminPanel>
 
-    <DetailFundImpact
-      :flow="fundFlowNode"
-      :result="fundResultNode"
-    />
+      <OrderHeader :detail="detail" />
 
-    <WithdrawalAddDialog
-      v-model="dialogVisible"
-      :row="completeRow"
-      mode="complete"
-      @submit="handleSubmit"
-    />
+      <div class="withdrawal-detail-page__workspace">
+        <main class="withdrawal-detail-page__main">
+          <SettlementCard :detail="detail" />
+
+          <PartyPanel
+            :payer="detail.payer"
+            :payee="detail.payee"
+            :payer-bank-fields="payerBankFields"
+            :payer-subject-fields="payerSubjectFields"
+            :payee-bank-fields="payeeBankFields"
+            :payee-subject-fields="payeeSubjectFields"
+            :party-type="partyType"
+          />
+
+          <AgentCard
+            :agent-company="detail.user.company_name"
+            :agent-code="detail.user.agent_code"
+            :agent-email="detail.user.email"
+          />
+
+          <ResultPanel
+            :review-fields="reviewFields"
+            :payment-fields="paymentFields"
+          />
+        </main>
+
+        <aside class="withdrawal-detail-page__aside">
+          <Timeline :timeline-items="timelineItems" :file-rounds="fileRounds" />
+        </aside>
+      </div>
+
+      <WithdrawalActionDialog
+        v-model="dialogVisible"
+        :row="actionRow"
+        :mode="actionMode"
+        :submitting="submitting"
+        :uploading="uploading"
+        :upload-file="uploadFile"
+        @submit="handleAction"
+      />
+    </template>
+    <el-empty v-else-if="!loading" description="未找到出金订单" />
   </section>
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck -- 旧版详情已停用；路由已切换至 WithdrawalDetailPage.vue，待文件锁释放后删除。
-import { computed, ref } from 'vue';
+/** 管理端 USD 出金详情：页面结构和可用动作完全由详情接口字段决定。 */
+import { computed, onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
+  Back,
   CircleCheck,
   CircleClose,
-  DocumentChecked,
-  Money,
-  Switch,
-  Tickets,
-  UserFilled,
-  View,
-  Wallet,
+  CreditCard,
+  DocumentAdd,
+  Upload,
 } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import AdminPanel from '@/components/admin/AdminPanel.vue';
-import DetailBusinessInfo, { type DetailSection } from '@/components/detail/DetailBusinessInfo.vue';
-import DetailFundImpact, { type FundImpactNode } from '@/components/detail/DetailFundImpact.vue';
-import DetailHero, { type HeroAction } from '@/components/detail/DetailHero.vue';
-import DetailSummaryCard, { type SummaryItem } from '@/components/detail/DetailSummaryCard.vue';
-import DetailTimelinePanel from '@/components/detail/DetailTimelinePanel.vue';
-
-import WithdrawalAddDialog from '../components/WithdrawalAddDialog.vue';
-import type { WithdrawalRow } from '../components/WithdrawalTableList.vue';
-import type { WithdrawalDetail } from './types';
+import OrderHeader from './components/OrderHeader.vue';
+import SettlementCard from './components/SettlementCard.vue';
+import AgentCard from './components/AgentCard.vue';
+import PartyPanel from './components/PartyPanel.vue';
+import ResultPanel from './components/ResultPanel.vue';
+import Timeline from './components/Timeline.vue';
+import WithdrawalActionDialog from '../components/WithdrawalActionDialog.vue';
+import type { WithdrawalActionMode } from '../components/WithdrawalActionDialog.vue';
+import { toWithdrawalRow } from '../composables/mapper';
+import { useWithdrawalDetail } from '../composables/useWithdrawalDetail';
+import { useWithdrawalDetailView } from '../composables/useWithdrawalDetailView';
 
 const route = useRoute();
 const router = useRouter();
+const { detail, loading, submitting, uploading, loadDetail, requestSupplement, submitReview, submitPayment, appendPaymentFiles, uploadFile } = useWithdrawalDetail();
+const { payerBankFields, payeeBankFields, payerSubjectFields, payeeSubjectFields, reviewFields, paymentFields, timelineItems, fileRounds, partyType } = useWithdrawalDetailView(detail);
 
-const detail = computed<WithdrawalDetail>(() => {
-  const id = String(route.params.id || 'WD-26073001');
+interface DetailAction {
+  label: string;
+  icon: unknown;
+  type: 'primary' | 'warning' | 'danger';
+  emitName: WithdrawalActionMode;
+}
 
-  return {
-    id,
-    title: 'USD 出金详情',
-    description: '核对付款组合、收款主体、佐证文件与资金冻结影响',
-    status: '付款处理中',
-    statusType: 'primary',
-    statusEffect: 'pending',
-    agent: '代理A · Apex Trading',
-    agentCode: 'AG-A',
-    relation: 'B→B',
-    payer: 'Harbor Trade Pte. Ltd.',
-    payee: 'Northstar Supplies LLC',
-    receiveAmount: '5,000.00',
-    fixedFee: '50.00',
-    totalDebit: '5,050.00',
-    currency: 'USD',
-    reference: '尚未产生',
-    documentRequirement: '必须上传合同及 Invoice',
-    submittedAt: '2026/08/10 15:09:26',
-    files: [
-      { key: 'contract', label: '合同', name: 'Harbor_Northstar_Contract.pdf', status: '已上传' },
-      { key: 'invoice', label: 'Invoice', name: 'INV-20260730.pdf', status: '已上传' },
-    ],
-    timeline: [
-      {
-        key: 'submit',
-        title: '代理提交 USD 出金',
-        time: '2026/08/10 15:09:26',
-        description: '收款金额 5,000.00 USD，固定手续费 50.00 USD',
-        state: 'done',
-      },
-      {
-        key: 'documents',
-        title: '佐证文件已提交',
-        time: '2026/08/10 15:09:26',
-        description: '付款人和收款人为不同企业，已上传合同及 Invoice',
-        state: 'done',
-      },
-      {
-        key: 'freeze',
-        title: 'USD 已冻结',
-        time: '2026/08/10 15:09:27',
-        description: '总扣款 5,050.00 USD 由可用余额转入冻结余额',
-        state: 'done',
-      },
-      { key: 'processing', title: '等待付款完成', state: 'active' },
-      { key: 'done', title: '付款完成 / 退回', state: 'pending' },
-    ],
-  };
+const heroActions = computed<DetailAction[]>(() => {
+  const status = detail.value?.status;
+  if (status === 0) {
+    return [
+      { label: '审核通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
+      { label: '要求补件', icon: DocumentAdd, type: 'warning', emitName: 'supplement' },
+      { label: '审核拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' },
+    ];
+  }
+  if (status === 1) {
+    return [{ label: '审核拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' }];
+  }
+  if (status === 2) {
+    return [{ label: '登记付款结果', icon: CreditCard, type: 'primary', emitName: 'payment' }];
+  }
+  if (status === 3) {
+    return [{ label: '追加付款凭证', icon: Upload, type: 'primary', emitName: 'append' }];
+  }
+  return [];
 });
 
-const heroStatus = computed(() => ({
-  label: detail.value.status,
-  type: detail.value.statusType,
-  effect: detail.value.statusEffect,
-}));
-
-const heroActions: HeroAction[] = [
-  { label: '付款完成', icon: CircleCheck, type: 'primary', emitName: 'complete' },
-  { label: '退回', icon: CircleClose, type: 'danger', emitName: 'return' },
-];
-
-const summaryItems = computed<SummaryItem[]>(() => [
-  {
-    label: '总扣款',
-    value: detail.value.totalDebit,
-    suffix: detail.value.currency,
-    icon: Wallet,
-    tone: 'mt',
-  },
-  {
-    label: '收款金额',
-    value: detail.value.receiveAmount,
-    suffix: detail.value.currency,
-    icon: UserFilled,
-    tone: 'blue',
-  },
-  {
-    label: '固定手续费',
-    value: detail.value.fixedFee,
-    suffix: detail.value.currency,
-    icon: Money,
-    tone: 'mt',
-  },
-  { label: '付款组合', value: detail.value.relation, icon: Switch, tone: 'blue' },
-]);
-
-const businessSections = computed<DetailSection[]>(() => [
-  {
-    title: '基础信息',
-    icon: Tickets,
-    fields: [
-      { label: '交易编号：', value: detail.value.id },
-      { label: '当前状态：', value: detail.value.status, badge: true },
-      { label: '所属代理：', value: detail.value.agent },
-      { label: '付款参考号：', value: detail.value.reference },
-    ],
-  },
-  {
-    title: '收付款信息',
-    icon: UserFilled,
-    fields: [
-      { label: '付款人：', value: detail.value.payer },
-      { label: '收款金额：', value: `${detail.value.receiveAmount} ${detail.value.currency}` },
-      { label: '收款人：', value: detail.value.payee },
-      { label: '总扣款：', value: `${detail.value.totalDebit} ${detail.value.currency}` },
-    ],
-  },
-  {
-    title: '费用与要求',
-    icon: Money,
-    fields: [
-      { label: '固定手续费：', value: `${detail.value.fixedFee} ${detail.value.currency}` },
-      { label: '佐证文件要求：', value: detail.value.documentRequirement },
-    ],
-  },
-]);
-
-const fundFlowNode: FundImpactNode = {
-  icon: Money,
-  tone: 'blue',
-  label: '当前：',
-  value: '已冻结',
-  suffix: 'USD',
-};
-
-const fundResultNode = computed<FundImpactNode>(() => ({
-  icon: Wallet,
-  tone: 'mt',
-  label: '付款完成后：',
-  value: '已扣款',
-  delta: detail.value.totalDebit,
-  suffix: 'USD',
-}));
-
-const completeRow = computed<WithdrawalRow>(() => ({
-  id: detail.value.id,
-  time: '08/03 14:08',
-  agent: detail.value.agent,
-  relation: detail.value.relation,
-  parties: `${detail.value.payer} → ${detail.value.payee}`,
-  amount: `${detail.value.receiveAmount} ${detail.value.currency}`,
-  fee: `${detail.value.fixedFee} / ${detail.value.totalDebit} ${detail.value.currency}`,
-  status: detail.value.status,
-  statusType: 'primary',
-  statusEffect: 'pending',
-}));
-
+const actionRow = computed(() => (detail.value ? toWithdrawalRow(detail.value) : null));
 const dialogVisible = ref(false);
+const actionMode = ref<WithdrawalActionMode>('approve');
 
-function goBack() {
-  router.push('/withdrawal');
+function goBack() { void router.push('/withdrawal'); }
+function openAction(mode: WithdrawalActionMode) { actionMode.value = mode; dialogVisible.value = true; }
+
+async function handleAction(payload: { mode: WithdrawalActionMode; message?: string; result?: 'complete' | 'fail'; failureReason?: string; fileIds: number[] }) {
+  if (!detail.value) return;
+  const id = detail.value.id;
+  try {
+    if (payload.mode === 'supplement') {
+      await requestSupplement({ id, message: payload.message! });
+      ElMessage.success('补件要求已发送');
+    } else if (payload.mode === 'approve' || payload.mode === 'reject') {
+      await submitReview({ id, decision: payload.mode, review_note: payload.mode === 'reject' ? payload.message : undefined });
+      ElMessage.success(payload.mode === 'approve' ? '出金审核已通过，进入付款处理' : '出金已驳回，冻结资金已释放');
+    } else if (payload.mode === 'payment') {
+      const fileIds = payload.result === 'complete' ? payload.fileIds : [];
+      await submitPayment({ id, result: payload.result!, file_ids: fileIds.length ? fileIds : undefined, failure_reason: payload.result === 'fail' ? payload.failureReason : undefined });
+      ElMessage.success(payload.result === 'complete' ? '付款完成已登记' : '付款失败已登记，冻结资金已释放');
+    } else {
+      await appendPaymentFiles({ id, file_ids: payload.fileIds, message: payload.message });
+      ElMessage.success('付款凭证已追加');
+    }
+    dialogVisible.value = false;
+  } catch { /* 统一请求层已显示后端错误 */ }
 }
 
-function openCompleteDialog() {
-  dialogVisible.value = true;
-}
-
-function handleReturn() {
-  ElMessage.info('退回功能待接入');
-}
-
-function handleSubmit(payload: {
-  row: WithdrawalRow;
-  mode: 'complete';
-  reference?: string;
-  note?: string;
-}) {
-  // 接入 API：await api.withdrawals.complete(payload)
-  console.log('withdrawal detail complete', payload);
-  dialogVisible.value = false;
-}
+onMounted(() => {
+  const id = Number(route.params.id);
+  if (Number.isInteger(id) && id > 0) void loadDetail(id);
+});
 </script>
 
 <style scoped lang="scss">
 .withdrawal-detail-page {
   gap: 20px;
 
-  &__split {
+  &__toolbar {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  &__actions {
+    display: flex;
+    min-width: 0;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    :deep(.el-button + .el-button) { margin-left: 0; }
+  }
+
+  &__workspace {
     display: grid;
+    min-width: 0;
+    align-items: start;
+    grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.95fr);
     gap: 20px;
-    grid-template-columns: 1fr;
-
-    @media (min-width: 1311px) {
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    }
   }
 
-  &__files {
-    padding: 24px 28px;
-
-    h2 {
-      margin: 0 0 16px;
-      color: var(--app-text-heading);
-      font-size: 22px;
-      font-weight: 600;
-    }
+  &__main,
+  &__aside {
+    display: grid;
+    min-width: 0;
+    gap: 20px;
   }
 
-  &__file-list {
+  &__aside {
+    position: sticky;
+    top: 20px;
+  }
+
+  :deep(.admin-panel) {
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgb(20 46 78 / 5%);
+  }
+
+  :deep(.admin-panel__header) {
+    padding: 16px 18px;
+  }
+
+  :deep(.admin-panel__title) {
+    gap: 12px;
+  }
+
+  :deep(.admin-panel__icon) {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+    border-radius: 10px;
+    font-size: 19px;
+  }
+
+  :deep(.admin-panel h2) {
+    font-size: 16px;
+  }
+
+  :deep(.admin-panel__header p) {
+    margin-top: 3px;
+    font-size: 12px;
+  }
+}
+
+@include narrow {
+  .withdrawal-detail-page__workspace { grid-template-columns: 1fr; }
+  .withdrawal-detail-page__aside { position: static; }
+}
+
+@include mobile {
+  .withdrawal-detail-page { gap: 16px; }
+  .withdrawal-detail-page__toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+
+    > :deep(.el-button) { width: fit-content; }
+  }
+  .withdrawal-detail-page__actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
-  }
 
-  &__file-item {
-    display: flex;
-    align-items: center;
+    :deep(.el-button) { width: 100%; margin-left: 0; }
+  }
+  .withdrawal-detail-page__workspace {
+    grid-template-columns: minmax(0, 1fr);
     gap: 14px;
-    min-width: 0;
-    padding: 16px;
-    border: 1px solid #dce7f5;
-    border-radius: 14px;
-    background: #fbfdff;
   }
-
-  &__file-icon {
-    display: inline-flex;
-    width: 44px;
-    height: 44px;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    color: #fff;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    font-size: 22px;
-  }
-
-  &__file-body {
-    display: grid;
-    gap: 4px;
-    min-width: 0;
-    margin-right: auto;
-
-    span,
-    small {
-      color: var(--app-text-label);
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    strong {
-      min-width: 0;
-      overflow: hidden;
-      color: var(--app-text-body);
-      font-size: 15px;
-      font-weight: 600;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
-  @include narrow {
-    &__file-list {
-      gap: 14px;
-    }
-
-    &__file-item {
-      padding: 14px;
-    }
-
-    &__file-icon {
-      width: 40px;
-      height: 40px;
-      font-size: 20px;
-    }
-  }
-
-  @media (max-width: 1310px) {
-    // ≤ narrow：先从 2 列降为 1 列，避免两侧挤
-    &__file-list {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @include mobile {
-    // ≤768：单列布局进一步收紧
-    &__file-list {
-      gap: 12px;
-    }
-
-    &__file-item {
-      flex-wrap: wrap;
-      align-items: flex-start;
-      padding: 14px;
-    }
-  }
+  .withdrawal-detail-page__aside { position: static; }
 }
 </style>

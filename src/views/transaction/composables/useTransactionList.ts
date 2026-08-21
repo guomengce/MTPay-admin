@@ -4,6 +4,7 @@
  * - 详情跳转使用列表返回的 detail_type / detail_id。
  */
 import { reactive, ref } from 'vue';
+import { ElMessage } from 'element-plus';
 
 import * as TransactionApi from '@/api/modules/transaction';
 import type {
@@ -68,6 +69,10 @@ export function useTransactionList() {
   }
 
   function search() {
+    if (query.started_at && query.ended_at && query.started_at > query.ended_at) {
+      ElMessage.warning('起始日期不能晚于结束日期');
+      return;
+    }
     page.value = 1;
     void loadList();
   }

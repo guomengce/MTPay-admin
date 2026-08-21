@@ -2,6 +2,7 @@
  * fee mapper
  * 集中处理比例 / 金额格式化（页面不直接调 toFixed）
  */
+import { formatExchangeRate } from '@/utils/decimal';
 export interface RateFormat {
   display: string;
   ratio: number;
@@ -16,7 +17,7 @@ export function parseRate(rate: string): number {
 export function toRateDisplay(rate: string, assetLabel: string): string {
   const value = parseRate(rate);
   if (!value) return '—';
-  return `1 ${assetLabel} → ${value.toFixed(4)} USD`;
+  return `1 ${assetLabel} → ${formatExchangeRate(rate)} USD`;
 }
 
 /** 输入金额 + 比例 → 可得 USD */

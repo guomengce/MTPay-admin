@@ -98,27 +98,6 @@
             </small>
           </article>
         </section>
-
-        <section class="currency-detail__section">
-          <div class="currency-detail__section-title">
-            <span
-              ><el-icon><Clock /></el-icon
-            ></span>
-            <div>
-              <h3>时间记录</h3>
-              <p>创建与最后更新时间</p>
-            </div>
-          </div>
-          <div class="currency-detail__info-grid">
-            <article>
-              <small>创建时间</small><strong>{{ detail.created_at || '—' }}</strong>
-            </article>
-            <article>
-              <small>更新时间</small><strong>{{ detail.updated_at || '—' }}</strong>
-            </article>
-          </div>
-        </section>
-
         <section class="currency-detail__section">
           <div class="currency-detail__section-title">
             <span
@@ -172,7 +151,7 @@
           </el-button>
           <el-button
             plain
-            :type="detail?.status === 1 ? 'info' : 'success'"
+            :type="detail?.status === 1 ? 'info' : 'primary'"
             :icon="detail?.status === 1 ? CircleClose : CircleCheck"
             :disabled="loading"
             @click="emit('toggle-status')"

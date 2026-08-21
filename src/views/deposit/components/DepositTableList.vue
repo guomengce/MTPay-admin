@@ -21,8 +21,10 @@
       <el-table-column prop="hash" show-overflow-tooltip label="交易哈希" min-width="190" />
       <el-table-column label="申报金额" min-width="150">
         <template #default="{ row }">
-          <strong>{{ row.amount }}</strong>
-          <small class="asset-currency">{{ row.asset }}</small>
+          <div class="asset">
+            <strong>{{ row.amount }}</strong>
+            <small class="asset-currency">{{ row.asset }}</small>
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="状态" min-width="130">
@@ -97,7 +99,7 @@ function handleCommand(command: string | number | object, row: DepositRow) {
 
   small,
   .asset-currency {
-    color: #126df0;
+    color: #048F8F;
     font-weight: 600;
   }
 }

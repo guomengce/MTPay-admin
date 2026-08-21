@@ -1,5 +1,6 @@
 import type { ExchangeOrder } from '@/api/modules/exchange';
 import type { StatusBadgeEffect, StatusBadgeType } from '@/components/admin/StatusBadge.vue';
+import { formatExchangeRate } from '@/utils/decimal';
 
 export interface ExchangeRow {
   businessId: number;
@@ -12,6 +13,7 @@ export interface ExchangeRow {
   rate: string;
   rateSource: string;
   usd: string;
+  toSymbol: string;
   status: string;
   statusCode: 0 | 1 | 2;
   statusType: StatusBadgeType;
@@ -33,9 +35,10 @@ export function toExchangeRow(order: ExchangeOrder): ExchangeRow {
     code: order.user.agent_code,
     amount: order.source_amount,
     asset: order.source_currency.code,
-    rate: order.exchange_rate,
+    rate: formatExchangeRate(order.exchange_rate),
     rateSource: order.rate_source_name,
-    usd: `${order.target_amount} ${order.target_currency.code}`,
+    usd: order.target_amount,
+    toSymbol: order.target_currency.code,
     status: order.status_name,
     statusCode: order.status,
     statusType: statusMeta[order.status].type,

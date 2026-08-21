@@ -3,10 +3,11 @@
  * - 默认兑换比例 + 固定出金手续费来自 /admin/getRateFeeConfig；
  * - 代理专属比例来自 /admin/getAgentExchangeRateList，支持保存与恢复默认。
  */
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import * as FeeApi from '@/api/modules/fee';
 import type { RateFeeConfig } from '@/api/modules/fee';
+import { formatExchangeRate } from '@/utils/decimal';
 
 export interface FeeAgentRow {
   user_id: number;
@@ -33,16 +34,18 @@ function toAgentRow(item: FeeApi.AgentRateConfig): FeeAgentRow {
     status: item.status,
     status_name: item.status_name,
     has_custom_rate: item.has_custom_rate,
-    usdt_rate: usdt?.effective_rate ?? '—',
+    usdt_rate: formatExchangeRate(usdt?.effective_rate) || '—',
     usdt_source: usdt?.rate_source_name ?? '—',
-    usdc_rate: usdc?.effective_rate ?? '—',
+    usdc_rate: formatExchangeRate(usdc?.effective_rate) || '—',
     usdc_source: usdc?.rate_source_name ?? '—',
   };
 }
 
 export function useFeeSettings() {
-  const loading = ref(false);
-  const saving = ref(false);
+  const loadingCount = ref(0);
+  const savingCount = ref(0);
+  const loading = computed(() => loadingCount.value > 0);
+  const saving = computed(() => savingCount.value > 0);
   const config = ref<RateFeeConfig | null>(null);
 
   const agentList = ref<FeeAgentRow[]>([]);
@@ -52,16 +55,16 @@ export function useFeeSettings() {
   const agentQuery = reactive({ keyword: '', status: undefined as number | undefined });
 
   async function fetchConfig() {
-    loading.value = true;
+    loadingCount.value += 1;
     try {
       config.value = await FeeApi.fetchRateFeeConfig();
     } finally {
-      loading.value = false;
+      loadingCount.value -= 1;
     }
   }
 
   async function loadAgents() {
-    loading.value = true;
+    loadingCount.value += 1;
     try {
       const result = await FeeApi.fetchAgentExchangeRateList({
         keyword: agentQuery.keyword.trim() || undefined,
@@ -74,28 +77,28 @@ export function useFeeSettings() {
       agentPage.value = result.current_page;
       agentLimit.value = result.per_page;
     } finally {
-      loading.value = false;
+      loadingCount.value -= 1;
     }
   }
 
   async function saveDefaultRates(payload: { usdt_rate: string; usdc_rate: string }) {
-    saving.value = true;
+    savingCount.value += 1;
     try {
       config.value = await FeeApi.setDefaultExchangeRates(payload);
     } finally {
-      saving.value = false;
+      savingCount.value -= 1;
     }
   }
 
   async function saveFee(feeAmount: string) {
-    saving.value = true;
+    savingCount.value += 1;
     try {
       const fee = await FeeApi.setUsdWithdrawalFee({ fee_amount: feeAmount });
       if (config.value) {
         config.value = { ...config.value, usd_withdrawal_fee: fee };
       }
     } finally {
-      saving.value = false;
+      savingCount.value -= 1;
     }
   }
 
@@ -104,22 +107,22 @@ export function useFeeSettings() {
     usdt_rate: string;
     usdc_rate: string;
   }) {
-    saving.value = true;
+    savingCount.value += 1;
     try {
       await FeeApi.setAgentExchangeRates(payload);
       await loadAgents();
     } finally {
-      saving.value = false;
+      savingCount.value -= 1;
     }
   }
 
   async function clearAgentRates(userId: number) {
-    saving.value = true;
+    savingCount.value += 1;
     try {
       await FeeApi.clearAgentExchangeRates(userId);
       await loadAgents();
     } finally {
-      saving.value = false;
+      savingCount.value -= 1;
     }
   }
 

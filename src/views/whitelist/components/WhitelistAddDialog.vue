@@ -9,26 +9,7 @@
     @update:model-value="emit('update:modelValue', $event)"
   >
     <template v-if="row">
-      <p class="whitelist-dialog__hint">{{ dialogHint }}</p>
-
-      <dl class="whitelist-dialog__summary">
-        <div>
-          <dt>白名单编号</dt>
-          <dd>{{ row.id }}</dd>
-        </div>
-        <div>
-          <dt>主体</dt>
-          <dd>{{ row.subject }}</dd>
-        </div>
-        <div>
-          <dt>主体身份</dt>
-          <dd>{{ row.type }}</dd>
-        </div>
-        <div>
-          <dt>所属代理</dt>
-          <dd>{{ row.agent }} · {{ row.agentCode }}</dd>
-        </div>
-      </dl>
+      <el-alert type="warning" class="whitelist-dialog__hint">{{ dialogHint }}</el-alert>
 
       <el-form
         v-if="mode !== 'approve'"
@@ -54,7 +35,7 @@
     <template #footer>
       <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
       <el-button
-        :type="mode === 'reject' ? 'danger' : mode === 'approve' ? 'success' : 'primary'"
+        :type="mode === 'reject' ? 'danger' : 'primary'"
         :icon="mode === 'reject' ? CircleClose : mode === 'approve' ? CircleCheck : DocumentAdd"
         :loading="submitting"
         @click="handleSubmit"
@@ -129,44 +110,10 @@ async function handleSubmit() {
     margin: 0 0 18px;
     padding: 12px 14px;
     border-radius: 10px;
-    color: #50617b;
-    background: #f3f8fc;
     font-size: 13px;
     line-height: 1.6;
   }
-
-  &__summary {
-    display: grid;
-    margin: 0 0 18px;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-
-    div {
-      min-width: 0;
-      padding: 12px;
-      border: 1px solid #e3eaf1;
-      border-radius: 10px;
-      background: #fbfcfe;
-    }
-
-    dt {
-      color: var(--app-text-label);
-      font-size: 12px;
-    }
-
-    dd {
-      margin: 6px 0 0;
-      color: var(--app-text-body);
-      font-size: 14px;
-      font-weight: 600;
-      overflow-wrap: anywhere;
-    }
-  }
 }
 
-@include mobile {
-  .whitelist-dialog__summary {
-    grid-template-columns: 1fr;
-  }
-}
+
 </style>

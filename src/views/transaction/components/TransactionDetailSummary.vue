@@ -47,7 +47,7 @@
         <dd class="is-accent">
           {{ transaction.amount }} {{ transaction.currency_code }} →
           {{ transaction.target_amount }} {{ transaction.target_currency_code }}
-          <small v-if="transaction.exchange_rate">· 比例 {{ transaction.exchange_rate }}</small>
+          <small v-if="transaction.exchange_rate">· 比例 {{ formatExchangeRate(transaction.exchange_rate) }}</small>
         </dd>
       </div>
       <template v-if="transaction.business_type === 'withdrawal'">
@@ -58,7 +58,7 @@
         <div>
           <dt>手续费 / 总扣款</dt>
           <dd>
-            {{ transaction.fee_amount }} / {{ transaction.total_amount }}
+            {{ formatFixedFee(transaction.fee_amount) }} / {{ transaction.total_amount }}
             {{ transaction.currency_code }}
           </dd>
         </div>
@@ -78,6 +78,7 @@ import { Tickets } from '@element-plus/icons-vue';
 import type { TransactionItem } from '@/api/modules/transaction';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge, { type StatusBadgeType } from '@/components/admin/StatusBadge.vue';
+import { formatExchangeRate, formatFixedFee } from '@/utils/decimal';
 
 const props = defineProps<{ transaction: TransactionItem }>();
 

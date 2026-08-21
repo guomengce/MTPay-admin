@@ -2,7 +2,9 @@
 import request from '../request';
 
 export type WhitelistStatus = 0 | 1 | 2 | 3;
+/** 白名单角色：1 付款人，2 收款人。 */
 export type WhitelistRole = 1 | 2;
+/** 主体类型：1 公司，2 个人。该枚举必须与提交白名单接口保持一致。 */
 export type WhitelistEntityType = 1 | 2;
 
 export interface WhitelistUser {

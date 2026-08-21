@@ -15,6 +15,7 @@ import type {
   RequestWithdrawalSupplementPayload,
   ReviewWithdrawalPayload,
   WithdrawalOrderDetail,
+  WithdrawalFile,
 } from '@/api/modules/withdrawal';
 
 export function useWithdrawalDetail() {
@@ -61,21 +62,9 @@ export function useWithdrawalDetail() {
     return execute(() => appendWithdrawalPaymentFiles(payload));
   }
 
-  /** 每个文件单独上传，全部成功后再提交绑定 file_id 的业务动作。 */
-  async function uploadFiles(files: File[]) {
-    uploading.value = true;
-    try {
-      const ids: number[] = [];
-      for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        const uploaded = await uploadWithdrawalFile(formData);
-        ids.push(uploaded.file_id);
-      }
-      return ids;
-    } finally {
-      uploading.value = false;
-    }
+  async function uploadFile(file: File): Promise<WithdrawalFile> {
+    uploading.value=true;
+    try{const formData=new FormData();formData.append('file',file);return await uploadWithdrawalFile(formData)}finally{uploading.value=false}
   }
 
   return {
@@ -88,6 +77,6 @@ export function useWithdrawalDetail() {
     submitReview,
     submitPayment,
     appendPaymentFiles,
-    uploadFiles,
+    uploadFile,
   };
 }

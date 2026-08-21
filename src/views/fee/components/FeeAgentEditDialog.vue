@@ -9,7 +9,8 @@
   >
     <template v-if="row">
       <p class="fee-agent-dialog__hint">
-        为 <strong>{{ row.company_name }}</strong>（<span>{{ row.agent_code }}</span
+        为 <strong>{{ row.company_name }}</strong
+        >（<span>{{ row.agent_code }}</span
         >）设定 USDT / USDC 兑换比例，保存后立即对该代理生效。
       </p>
 
@@ -22,11 +23,21 @@
         @submit.prevent
       >
         <el-form-item label="USDT 比例" prop="usdtRate">
-          <el-input v-model="form.usdtRate" placeholder="如 0.990000000000" />
+          <el-input
+            :model-value="form.usdtRate"
+            inputmode="decimal"
+            placeholder="如 0.99"
+            @input="form.usdtRate = limitDecimalInput($event, 2)"
+          />
         </el-form-item>
 
         <el-form-item label="USDC 比例" prop="usdcRate">
-          <el-input v-model="form.usdcRate" placeholder="如 0.990000000000" />
+          <el-input
+            :model-value="form.usdcRate"
+            inputmode="decimal"
+            placeholder="如 0.99"
+            @input="form.usdcRate = limitDecimalInput($event, 2)"
+          />
         </el-form-item>
       </el-form>
     </template>
@@ -46,6 +57,7 @@ import type { FormInstance, FormRules } from 'element-plus';
 import { DocumentChecked } from '@element-plus/icons-vue';
 
 import type { FeeAgentRow } from '../composables/useFeeSettings';
+import { limitDecimalInput } from '@/utils/decimal';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -62,7 +74,7 @@ const form = reactive({ usdtRate: '', usdcRate: '' });
 const formRef = ref<FormInstance>();
 
 function isValidRate(value: string) {
-  if (!/^\d{1,16}(\.\d{1,12})?$/.test(value)) return false;
+  if (!/^\d{1,16}(\.\d{1,2})?$/.test(value)) return false;
   return !/^0+(?:\.0+)?$/.test(value);
 }
 
@@ -71,7 +83,9 @@ const rules: FormRules = {
     { required: true, message: '请填写 USDT 比例', trigger: 'blur' },
     {
       validator: (_rule, value: string, cb) =>
-        isValidRate(value) ? cb() : cb(new Error('请输入大于 0 的比例（整数 ≤16 位、小数 ≤12 位）')),
+        isValidRate(value)
+          ? cb()
+          : cb(new Error('请输入大于 0 的比例（最多 2 位小数）')),
       trigger: 'blur',
     },
   ],
@@ -79,7 +93,9 @@ const rules: FormRules = {
     { required: true, message: '请填写 USDC 比例', trigger: 'blur' },
     {
       validator: (_rule, value: string, cb) =>
-        isValidRate(value) ? cb() : cb(new Error('请输入大于 0 的比例（整数 ≤16 位、小数 ≤12 位）')),
+        isValidRate(value)
+          ? cb()
+          : cb(new Error('请输入大于 0 的比例（最多 2 位小数）')),
       trigger: 'blur',
     },
   ],
@@ -105,7 +121,6 @@ async function handleSubmit() {
     usdt_rate: form.usdtRate.trim(),
     usdc_rate: form.usdcRate.trim(),
   });
-  emit('update:modelValue', false);
 }
 </script>
 
