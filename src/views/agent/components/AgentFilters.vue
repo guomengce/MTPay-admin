@@ -3,7 +3,7 @@
     <el-input
       :model-value="keyword"
       clearable
-      placeholder="搜索编号、公司、Email 或电话"
+      placeholder="編號 / 公司 / Email /電話"
       :prefix-icon="Search"
       @update:model-value="emit('update:keyword', String($event))"
       @keyup.enter="emit('search')"
@@ -11,16 +11,16 @@
     <el-select
       :model-value="status"
       clearable
-      placeholder="全部状态"
+      placeholder="全部狀態"
       @update:model-value="emit('update:status', $event as number | undefined)"
     >
       <el-option label="待激活" :value="0" />
       <el-option label="正常" :value="1" />
-      <el-option label="暂停" :value="2" />
+      <el-option label="暫停" :value="2" />
       <el-option label="停用" :value="3" />
     </el-select>
     <div class="filter-bar__actions">
-      <el-button type="primary" :icon="Search" @click="emit('search')">查询</el-button>
+      <el-button type="primary" :icon="Search" @click="emit('search')">查詢</el-button>
       <el-button plain :icon="RefreshLeft" @click="emit('reset')">重置</el-button>
     </div>
   </div>

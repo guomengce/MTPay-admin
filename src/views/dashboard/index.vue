@@ -1,21 +1,31 @@
 <template>
-  <section v-loading="loading" class="admin-page overview-page">
-    <HeaderMetrics
-      :agent-summary="overview?.agent_summary ?? null"
-      :balance-totals="overview?.balance_totals ?? []"
+  <section class="admin-page overview-page">
+    <div
+      v-if="loading"
+      class="overview-page__loading"
+      element-loading-text="正在載入營運資料…"
+      element-loading-background="rgba(245, 249, 252, 0.82)"
     />
 
-    <div class="overview-page__split">
-      <Tasks :pending="overview?.pending_businesses ?? null" />
-      <TradingTrend :trend="overview?.transaction_trend ?? null" />
-    </div>
+    <template v-else>
+      <HeaderMetrics
+        :agent-summary="overview?.agent_summary ?? null"
+        :balance-totals="overview?.balance_totals ?? []"
+      />
 
-    <AssetFlows :transactions="overview?.recent_transactions ?? []" />
+      <div class="overview-page__split">
+        <Tasks :pending="overview?.pending_businesses ?? null" />
+        <TradingTrend :trend="overview?.transaction_trend ?? null" />
+      </div>
+
+      <AssetFlows :transactions="overview?.recent_transactions ?? []" />
+    </template>
   </section>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import { usePageLoading } from '@/composables/usePageLoading';
 
 import AssetFlows from './components/AssetFlows.vue';
 import HeaderMetrics from './components/HeaderMetrics.vue';
@@ -24,6 +34,7 @@ import TradingTrend from './components/TradingTrend.vue';
 import { useDashboard } from './composables/useDashboard';
 
 const { loading, overview, fetchOverview } = useDashboard();
+usePageLoading(loading);
 
 onMounted(fetchOverview);
 </script>
@@ -56,6 +67,13 @@ onMounted(fetchOverview);
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
+  }
+
+  &__loading {
+    min-height: clamp(360px, 62vh, 680px);
+    border: 1px solid #dce7ef;
+    border-radius: 20px;
+    background: rgb(255 255 255 / 72%);
   }
 }
 

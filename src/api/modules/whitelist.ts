@@ -73,6 +73,9 @@ export interface WhitelistPageResult {
 }
 
 export interface WhitelistListParams {
+  keyword?: string;
+  role?: WhitelistRole;
+  entity_type?: WhitelistEntityType;
   page: number;
   limit: number;
 }
@@ -88,7 +91,7 @@ export interface RequestWhitelistSupplementPayload {
   message: string;
 }
 
-/** 获取白名单分页列表；第一版仅支持 page/limit。 */
+/** 获取白名单分页列表。 */
 export function fetchWhitelistList(params: WhitelistListParams) {
   return request.get<unknown, WhitelistPageResult>('/admin/getWhitelistList', { params });
 }

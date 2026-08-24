@@ -2,7 +2,7 @@
   <el-dialog
     :model-value="modelValue"
     :title="dialogTitle"
-    width="560px"
+    width="min(560px, calc(100vw - 24px))"
     :close-on-click-modal="false"
     align-center
     @open="resetForm"

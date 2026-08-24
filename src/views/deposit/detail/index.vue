@@ -1,5 +1,5 @@
 <template>
-  <section v-loading="loading" class="admin-page deposit-detail-page">
+  <section class="admin-page deposit-detail-page">
     <template v-if="detail">
       <DetailHero
         compact
@@ -58,6 +58,7 @@ import { CircleCheck, CircleClose } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import DetailHero, { type HeroAction } from '@/components/detail/DetailHero.vue';
+import { usePageLoading } from '@/composables/usePageLoading';
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 
@@ -74,6 +75,7 @@ import { useDepositDetail } from '../composables/useDepositDetail';
 const route = useRoute();
 const router = useRouter();
 const { detail, loading, reviewing, loadDetail, submitReview } = useDepositDetail();
+usePageLoading(loading);
 
 const statusType = computed<StatusBadgeType>(() => {
   if (detail.value?.status === 1) return 'success';
@@ -218,6 +220,15 @@ onMounted(() => {
 @include mobile {
   .deposit-detail-page {
     gap: 16px;
+
+    &__split {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    &__split-col {
+      gap: 16px;
+    }
   }
 }
 </style>

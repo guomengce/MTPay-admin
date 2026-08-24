@@ -19,7 +19,7 @@
 
       <div class="identity-stats">
         <div class="identity-stats__status">
-          <small>账户状态</small>
+          <small>賬户狀態</small>
           <StatusBadge
             :label="user.status_name"
             :type="accountStatusType"
@@ -33,7 +33,7 @@
           :icon="Promotion"
           :loading="mailLoading"
           @click="emit('send-invitation')"
-        >发送激活邮件</el-button>
+        >發送激活郵件</el-button>
         <el-button
           v-else-if="user.status === 1 || user.status === 2"
           class="identity-stats__action"
@@ -41,7 +41,7 @@
           :icon="Key"
           :loading="mailLoading"
           @click="emit('send-password-reset')"
-        >发送密码重置邮件</el-button>
+        >發送密碼重置郵件</el-button>
       </div>
     </div>
 
@@ -63,21 +63,21 @@
           </em>
         </header>
         <div class="asset-card__total">
-          <small>总余额</small>
+          <small>總餘額</small>
           <strong>{{ asset.total_balance }}</strong>
         </div>
         <footer>
           <div>
-            <small>可用余额</small>
+            <small>可用餘額</small>
             <strong>{{ asset.available_balance }}</strong>
           </div>
           <div>
-            <small>冻结余额</small>
+            <small>凍結餘額</small>
             <strong>{{ asset.frozen_balance }}</strong>
           </div>
         </footer>
       </article>
-      <el-empty v-if="!assets.length" description="暂无资产余额" />
+      <el-empty v-if="!assets.length" description="暫無資產餘額" />
     </div>
   </section>
 </template>

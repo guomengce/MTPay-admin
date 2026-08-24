@@ -3,7 +3,7 @@
     :model-value="modelValue"
     width="min(820px, calc(100vw - 24px))"
     class="agent-transaction-dialog"
-    title="交易详情"
+    title="交易詳情"
     append-to-body
     @update:model-value="emit('update:modelValue', $event)"
   >
@@ -13,10 +13,10 @@
           <div class="transaction-detail__hero-copy">
             <span class="transaction-detail__type">{{ info.transaction.business_name }}</span>
             <h3>{{ info.transaction.order_no }}</h3>
-            <small>交易编号</small>
+            <small>交易編號</small>
           </div>
           <div class="transaction-detail__hero-status">
-            <small>当前状态</small>
+            <small>當前狀態</small>
             <StatusBadge
               :label="info.transaction.status_name"
               :type="statusType(info.transaction.status_group)"
@@ -29,23 +29,23 @@
           <section class="withdrawal-summary">
             <header class="transaction-detail__section-title">
               <span class="transaction-detail__section-icon is-teal">$</span>
-              <div><h4>金额明细</h4><small>出金金额、手续费与账户实际扣款</small></div>
+              <div><h4>金額明細</h4><small>出金金額、手續費與賬户實際扣款</small></div>
             </header>
             <div class="amount-formula">
               <div class="amount-formula__item">
-                <small>出金金额</small>
+                <small>出金金額</small>
                 <strong>{{ info.transaction.amount }}</strong>
                 <span>{{ info.transaction.currency_code }}</span>
               </div>
               <span class="amount-formula__operator">＋</span>
               <div class="amount-formula__item">
-                <small>固定手续费</small>
+                <small>固定手續費</small>
                 <strong>{{ formatFixedFee(info.transaction.fee_amount) || '—' }}</strong>
                 <span>{{ info.transaction.currency_code }}</span>
               </div>
               <span class="amount-formula__operator">＝</span>
               <div class="amount-formula__item is-total">
-                <small>账户合计扣款</small>
+                <small>賬户合計扣款</small>
                 <strong>{{ info.transaction.total_amount || '—' }}</strong>
                 <span>{{ info.transaction.currency_code }}</span>
               </div>
@@ -55,19 +55,19 @@
           <section class="withdrawal-summary">
             <header class="transaction-detail__section-title">
               <span class="transaction-detail__section-icon">方</span>
-              <div><h4>付款关系</h4><small>本次出金使用的付款人与收款人</small></div>
+              <div><h4>付款關係</h4><small>本次出金使用的付款人與收款人</small></div>
             </header>
             <div class="party-flow">
               <article>
                 <small>付款方</small>
                 <strong>{{ info.transaction.payer_name || '—' }}</strong>
-                <span>资金发起方</span>
+                <span>資金髮起方</span>
               </article>
               <span class="party-flow__arrow"><el-icon><Right /></el-icon></span>
               <article>
                 <small>收款方</small>
                 <strong>{{ info.transaction.payee_name || '—' }}</strong>
-                <span>资金接收方</span>
+                <span>資金接收方</span>
               </article>
             </div>
           </section>
@@ -76,21 +76,21 @@
         <section v-if="isExchange" class="exchange-summary">
           <header class="transaction-detail__section-title">
             <span class="transaction-detail__section-icon is-teal">兑</span>
-            <div><h4>兑换明细</h4><small>支付资产、订单锁定汇率与到账结果</small></div>
+            <div><h4>兑換明細</h4><small>支付資產、訂單鎖定匯率與到賬結果</small></div>
           </header>
           <div class="exchange-flow">
             <article>
-              <small>支付金额</small>
+              <small>支付金額</small>
               <strong>{{ info.transaction.amount }}</strong>
               <span>{{ info.transaction.currency_code }}</span>
             </article>
             <div class="exchange-flow__rate">
-              <small>锁定汇率</small>
+              <small>鎖定匯率</small>
               <strong>× {{ formatExchangeRate(info.transaction.exchange_rate) || '—' }}</strong>
               <el-icon><Right /></el-icon>
             </div>
             <article class="is-target">
-              <small>到账金额</small>
+              <small>到賬金額</small>
               <strong>{{ info.transaction.target_amount || '—' }}</strong>
               <span>{{ info.transaction.target_currency_code || '—' }}</span>
             </article>
@@ -127,8 +127,8 @@
         <AdminPanel
           v-if="timelineItems.length"
           class="transaction-detail__timeline-panel"
-          title="处理时间线"
-          subtitle="本次订单的处理流程与状态变更记录"
+          title="處理時間線"
+          subtitle="本次訂單的處理流程與狀態變更記錄"
           :icon="Clock"
         >
           <div class="transaction-detail__timeline-scroll">
@@ -136,10 +136,10 @@
           </div>
         </AdminPanel>
       </template>
-      <el-empty v-else-if="!loading" description="暂无交易详情" />
+      <el-empty v-else-if="!loading" description="暫無交易詳情" />
     </div>
     <template #footer>
-      <el-button @click="emit('update:modelValue', false)">关闭</el-button>
+      <el-button @click="emit('update:modelValue', false)">關閉</el-button>
     </template>
   </el-dialog>
 </template>

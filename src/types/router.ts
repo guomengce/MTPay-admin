@@ -7,7 +7,6 @@ export interface AppRouteMeta {
   subtitle?: string;
   requiresAuth: boolean;
   hidden: boolean;
-  keepAlive: boolean;
   showPageHeader?: boolean;
 }
 

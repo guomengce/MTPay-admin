@@ -1,6 +1,5 @@
 <template>
-  <AdminPanel title="代理专属比例" subtitle="不同代理可设定不同的专属交易比例" :icon="UserFilled">
-    <el-table class="admin-data-table" v-loading="loading" :data="rows" stripe>
+  <el-table class="admin-data-table" v-loading="loading" :data="rows" stripe>
       <el-table-column label="代理" min-width="260" show-overflow-tooltip>
         <template #default="{ row }">
           <div class="row-title">
@@ -46,14 +45,12 @@
           </div>
         </template>
       </el-table-column>
-    </el-table>
-  </AdminPanel>
+  </el-table>
 </template>
 
 <script setup lang="ts">
-import { Edit, RefreshLeft, UserFilled } from '@element-plus/icons-vue';
+import { Edit, RefreshLeft } from '@element-plus/icons-vue';
 
-import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { FeeAgentRow } from '../composables/useFeeSettings';
 

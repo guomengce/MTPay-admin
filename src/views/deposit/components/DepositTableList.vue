@@ -1,7 +1,7 @@
 <template>
   <div class="deposit-table-list">
     <el-table v-loading="loading" class="admin-data-table" :data="data" stripe>
-      <el-table-column label="编号" min-width="170">
+      <el-table-column label="編號" min-width="170">
         <template #default="{ row }">
           <div class="row-title">
             <strong>{{ row.id }}</strong>
@@ -10,7 +10,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="agent" label="代理" min-width="220" />
-      <el-table-column label="资产 / 网络" min-width="140">
+      <el-table-column label="資產 / 網絡" min-width="140">
         <template #default="{ row }">
           <div class="asset">
             <span>{{ row.asset }}</span>
@@ -19,7 +19,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="hash" show-overflow-tooltip label="交易哈希" min-width="190" />
-      <el-table-column label="申报金额" min-width="150">
+      <el-table-column label="申報金額" min-width="150">
         <template #default="{ row }">
           <div class="asset">
             <strong>{{ row.amount }}</strong>
@@ -27,7 +27,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="状态" min-width="130">
+      <el-table-column label="狀態" min-width="130">
         <template #default="{ row }">
           <StatusBadge :label="row.status" :type="row.statusType" :effect="row.statusEffect" />
         </template>
@@ -38,13 +38,13 @@
             <el-button plain size="small" :icon="MoreFilled">操作</el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="view" :icon="View">详情</el-dropdown-item>
+                <el-dropdown-item command="view" :icon="View">詳情</el-dropdown-item>
                 <template v-if="row.statusEffect === 'pending'">
                   <el-dropdown-item command="approve" :icon="CircleCheck">
-                    <span class="review-command review-command--success">通过</span>
+                    <span class="review-command review-command--success">通過</span>
                   </el-dropdown-item>
                   <el-dropdown-item command="reject" :icon="CircleClose">
-                    <span class="review-command review-command--danger">拒绝</span>
+                    <span class="review-command review-command--danger">拒絕</span>
                   </el-dropdown-item>
                 </template>
               </el-dropdown-menu>

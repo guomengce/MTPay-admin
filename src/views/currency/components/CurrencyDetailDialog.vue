@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :model-value="modelValue"
-    width="720px"
+    width="min(720px, calc(100vw - 24px))"
     class="currency-detail-dialog"
     :show-close="false"
     align-center
@@ -40,7 +40,7 @@
           circle
           text
           :icon="Close"
-          aria-label="关闭"
+          aria-label="關閉"
           @click="emit('update:modelValue', false)"
         />
       </div>
@@ -54,25 +54,25 @@
               ><el-icon><Coin /></el-icon
             ></span>
             <div>
-              <h3>基础资料</h3>
-              <p>币种与网络基础信息</p>
+              <h3>基礎資料</h3>
+              <p>幣種與網絡基礎信息</p>
             </div>
           </div>
           <div class="currency-detail__info-grid">
             <article>
-              <small>币种名称</small>
+              <small>幣種名稱</small>
               <strong>{{ detail.currency.name }}</strong>
             </article>
             <article>
-              <small>币种代码</small>
+              <small>幣種代碼</small>
               <strong class="is-mono">{{ detail.currency.code }}</strong>
             </article>
             <article>
-              <small>网络名称</small>
+              <small>網絡名稱</small>
               <strong>{{ detail.network.name }}</strong>
             </article>
             <article>
-              <small>网络代码</small>
+              <small>網絡代碼</small>
               <strong class="is-mono">{{ detail.network.code }}</strong>
             </article>
           </div>
@@ -84,17 +84,16 @@
               ><el-icon><Position /></el-icon
             ></span>
             <div>
-              <h3>当前收款地址</h3>
-              <p>平台正在使用的地址，旧地址由后端停用并保留</p>
+              <h3>當前收款地址</h3>
+              <p>平台正在使用的地址，舊地址由後端停用並保留</p>
             </div>
           </div>
           <article class="currency-detail__current">
             <strong v-if="detail.current_receiving_address" class="is-mono">
               {{ detail.current_receiving_address.address }}
             </strong>
-            <span v-else class="currency-detail__empty">暂未设置</span>
-            <small v-if="detail.current_receiving_address">
-              启用时间：{{ detail.current_receiving_address.activated_at }}
+            <span v-else class="currency-detail__empty">暫未設置</span>
+            <small v-if="detail.current_receiving_address"> 啓用時間：{{ detail.current_receiving_address.activated_at }}
             </small>
           </article>
         </section>
@@ -104,8 +103,8 @@
               ><el-icon><List /></el-icon
             ></span>
             <div>
-              <h3>历史收款地址</h3>
-              <p>仅展示，不可删除；新地址由后端停用旧地址</p>
+              <h3>歷史收款地址</h3>
+              <p>僅展示，不可刪除；新地址由後端停用舊地址</p>
             </div>
           </div>
           <ul v-if="detail.receiving_addresses?.length" class="currency-detail__history">
@@ -116,7 +115,7 @@
             >
               <div class="address-line">
                 <strong class="is-mono">{{ addr.address }}</strong>
-                <StatusBadge v-if="addr.is_effective" label="当前有效" type="primary" />
+                <StatusBadge v-if="addr.is_effective" label="當前有效" type="primary" />
                 <StatusBadge
                   v-else
                   :label="addr.status_name"
@@ -125,20 +124,20 @@
               </div>
               <p v-if="addr.remark" class="remark">{{ addr.remark }}</p>
               <div class="time-line">
-                <span>启用：{{ addr.activated_at }}</span>
+                <span>啓用：{{ addr.activated_at }}</span>
                 <span v-if="addr.deactivated_at">停用：{{ addr.deactivated_at }}</span>
                 <span v-else class="muted">仍在使用</span>
               </div>
             </li>
           </ul>
-          <p v-else class="currency-detail__empty">暂无历史地址记录</p>
+          <p v-else class="currency-detail__empty">暫無歷史地址記錄</p>
         </section>
       </template>
     </div>
 
     <template #footer>
       <div class="currency-detail__footer">
-        <el-button @click="emit('update:modelValue', false)">关闭</el-button>
+        <el-button @click="emit('update:modelValue', false)">關閉</el-button>
         <div class="currency-detail__primary-actions">
           <el-button
             plain
@@ -459,7 +458,20 @@ const emit = defineEmits<{
 
   .currency-detail__header {
     min-height: 96px;
+    align-items: flex-start;
+    gap: 12px;
     padding: 20px;
+  }
+
+  .currency-detail__identity {
+    min-width: 0;
+    align-items: flex-start;
+    flex: 1;
+    gap: 12px;
+  }
+
+  .currency-detail__identity > div {
+    min-width: 0;
   }
 
   .currency-detail__avatar {
@@ -470,15 +482,24 @@ const emit = defineEmits<{
   }
 
   .currency-detail__title-line {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 6px;
   }
 
   .currency-detail__title-line h2 {
-    max-width: 220px;
+    width: 100%;
+    max-width: none;
+    overflow: visible;
     font-size: 18px;
+    line-height: 1.35;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
+
+  .currency-detail__identity p { overflow-wrap: anywhere; }
 
   .currency-detail__body {
     padding: 20px 18px 6px;

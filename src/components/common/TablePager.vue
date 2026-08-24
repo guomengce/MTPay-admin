@@ -54,7 +54,7 @@ const end = computed(() => {
 .table-pager {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 24px;
   padding: 20px 24px;
 
@@ -66,12 +66,11 @@ const end = computed(() => {
 
 @include mobile {
   .table-pager {
-    align-items: stretch;
-    flex-direction: column;
+    align-items: flex-end;
     gap: 14px;
 
     :deep(.el-pagination) {
-      justify-content: center;
+      justify-content: flex-end;
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <AdminPanel
     title="最近交易"
-    subtitle="展示该代理最近 5 笔入金、兑换和出金订单"
+    subtitle="展示該代理最近 5 筆入金、兑換和出金訂單"
     :icon="Tickets"
   >
     <template #extra>
@@ -9,14 +9,14 @@
     </template>
     <div class="recent-orders">
       <el-table :data="orders" class="admin-data-table" stripe>
-        <el-table-column prop="order_no" label="订单号" min-width="190" />
-        <el-table-column prop="business_name" label="业务类型" width="110" />
-        <el-table-column label="金额" min-width="180">
+        <el-table-column prop="order_no" label="訂單號" min-width="190" />
+        <el-table-column prop="business_name" label="業務類型" width="110" />
+        <el-table-column label="金額" min-width="180">
           <template #default="{ row }"
             ><span class="amount-cell">{{ orderAmount(row) }}</span></template
           >
         </el-table-column>
-        <el-table-column label="状态" width="120">
+        <el-table-column label="狀態" width="120">
           <template #default="{ row }">
             <StatusBadge
               :label="row.status_name"
@@ -24,7 +24,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="submitted_at" label="提交时间" min-width="170" />
+        <el-table-column prop="submitted_at" label="提交時間" min-width="170" />
         <el-table-column label="操作" width="110" fixed="right">
           <template #default="{ row }">
             <el-button
@@ -33,12 +33,12 @@
               size="small"
               :icon="View"
               @click="emit('view', row)"
-              >详情</el-button
+              >詳情</el-button
             >
           </template>
         </el-table-column>
       </el-table>
-      <el-empty v-if="orders.length === 0" description="暂无最近交易" />
+      <el-empty v-if="orders.length === 0" description="暫無最近交易" />
     </div>
   </AdminPanel>
 </template>

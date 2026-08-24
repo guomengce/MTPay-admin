@@ -3,6 +3,16 @@
     <AdminHero title="入金审核" description="核对链上入金并处理代理余额" :icon="Checked" />
 
     <AdminPanel>
+      <ReviewFilters
+        :query="query"
+        keyword-placeholder="訂單編號 / 交易哈希 / 代理編號 / 公司 / 郵箱"
+        completed-label="已入賬"
+        wide-keyword
+        :loading="loading"
+        @update="Object.assign(query, $event)"
+        @search="search"
+        @reset="reset"
+      />
       <DepositTableList
         :data="list"
         :loading="loading"
@@ -38,6 +48,7 @@ import { ElMessage } from 'element-plus';
 import { reviewDeposit } from '@/api/modules/deposit';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import ReviewFilters from '@/components/admin/ReviewFilters.vue';
 import TablePager from '@/components/common/TablePager.vue';
 
 import DepositAddDialog from './components/DepositAddDialog.vue';
@@ -47,7 +58,7 @@ import type { DepositRow } from './composables/mapper';
 import { useDepositList } from './composables/useDepositList';
 
 const router = useRouter();
-const { list, loading, total, page, limit, loadList } = useDepositList();
+const { list, loading, total, page, limit, query, loadList, search, reset } = useDepositList();
 const dialogVisible = ref(false);
 const dialogMode = ref<'approve' | 'reject'>('approve');
 const activeRow = ref<DepositRow | null>(null);

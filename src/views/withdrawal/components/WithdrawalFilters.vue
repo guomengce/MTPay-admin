@@ -1,26 +1,24 @@
 <template>
   <div class="withdrawal-filters filter-bar">
+    <el-input
+      v-model="keyword"
+      class="filter-bar__keyword filter-bar__keyword--wide"
+      placeholder="訂單編號 / 付款人 / 收款人 / 代理編號 / 公司 / 郵箱"
+      clearable
+      :prefix-icon="Search"
+      @keyup.enter="emit('search')"
+    />
     <el-select v-model="status" placeholder="订单状态" clearable>
       <el-option v-for="item in statusOptions" :key="item.value" v-bind="item" />
     </el-select>
-    <el-input
-      v-model="keyword"
-      placeholder="代理编号 / 公司 / Email"
-      clearable
-      :prefix-icon="Search"
-    />
-    <el-input v-model="orderNo" placeholder="订单号" clearable />
     <el-date-picker
-      v-model="startedAt"
-      type="date"
-      placeholder="起始日期"
+      v-model="dateRange"
+      type="daterange"
+      range-separator="至"
+      start-placeholder="開始日期"
+      end-placeholder="結束日期"
       value-format="YYYY-MM-DD"
-    />
-    <el-date-picker
-      v-model="endedAt"
-      type="date"
-      placeholder="结束日期"
-      value-format="YYYY-MM-DD"
+      unlink-panels
     />
     <div class="filter-bar__actions">
       <el-button type="primary" :loading="loading" :icon="Search" @click="emit('search')"
@@ -62,17 +60,15 @@ const keyword = computed({
   get: () => props.query.keyword,
   set: (value: string) => emit('update', { keyword: value }),
 });
-const orderNo = computed({
-  get: () => props.query.order_no,
-  set: (value: string) => emit('update', { order_no: value }),
-});
-const startedAt = computed({
-  get: () => props.query.started_at,
-  set: (value: string) => emit('update', { started_at: value || '' }),
-});
-const endedAt = computed({
-  get: () => props.query.ended_at,
-  set: (value: string) => emit('update', { ended_at: value || '' }),
+const dateRange = computed<string[]>({
+  get: () =>
+    props.query.started_at && props.query.ended_at
+      ? [props.query.started_at, props.query.ended_at]
+      : [],
+  set: (value: string[]) => emit('update', {
+    started_at: value?.[0] || '',
+    ended_at: value?.[1] || '',
+  }),
 });
 </script>
 
@@ -82,32 +78,8 @@ const endedAt = computed({
     min-width: 0;
   }
 
-  @include desktop {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-
-    .filter-bar__actions {
-      grid-column: 2 / -1;
-    }
-  }
-
-  @include wide {
-    grid-template-columns:
-      minmax(130px, 0.7fr)
-      minmax(200px, 1.15fr)
-      minmax(170px, 0.9fr)
-      minmax(150px, 0.8fr)
-      minmax(150px, 0.8fr)
-      max-content;
-  }
-
-  @include ultra-wide {
-    grid-template-columns:
-      minmax(130px, 0.7fr)
-      minmax(200px, 1.15fr)
-      minmax(170px, 0.9fr)
-      minmax(150px, 0.8fr)
-      minmax(150px, 0.8fr)
-      max-content;
+  @include mobile {
+    .filter-bar__keyword { grid-column: 1 / -1; }
   }
 }
 </style>

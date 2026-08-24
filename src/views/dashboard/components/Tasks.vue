@@ -1,7 +1,7 @@
 <template>
-  <AdminPanel class="task-panel" title="待处理业务" subtitle="需要管理员审核、补件或付款处理">
+  <AdminPanel class="task-panel" title="待處理業務" subtitle="需要管理員審核、補件或付款處理">
     <template #extra>
-      <span class="task-panel__count"><i />{{ total }} 项</span>
+      <span class="task-panel__count"><i />{{ total }} 項</span>
     </template>
 
     <div class="task-grid">
@@ -11,11 +11,10 @@
         </span>
         <div class="task-card__amount">
           <strong>{{ task.count }}</strong>
-          <small>笔</small>
+          <small>筆</small>
         </div>
         <div class="task-card__body">
-          <strong>{{ task.title }}审核</strong>
-          <span>{{ task.note }}</span>
+          <strong>{{ task.title }}審核</strong>
         </div>
         <span class="task-card__arrow"
           ><el-icon><ArrowRight /></el-icon
@@ -38,7 +37,6 @@ const props = defineProps<{ pending: OperationPendingBusinesses | null }>();
 const tasks = computed(() => [
   {
     title: '入金',
-    note: '等待确认收款',
     count: props.pending?.deposit ?? 0,
     to: '/deposit',
     icon: Download,
@@ -46,7 +44,6 @@ const tasks = computed(() => [
   },
   {
     title: '兑换',
-    note: '等待管理员审核',
     count: props.pending?.exchange ?? 0,
     to: '/exchange',
     icon: Switch,
@@ -54,7 +51,6 @@ const tasks = computed(() => [
   },
   {
     title: '白名单',
-    note: '待审核或补件处理',
     count: props.pending?.whitelist ?? 0,
     to: '/whitelist',
     icon: Tickets,
@@ -62,7 +58,6 @@ const tasks = computed(() => [
   },
   {
     title: '出金',
-    note: '待审核、补件或付款',
     count: props.pending?.withdrawal ?? 0,
     to: '/withdrawal',
     icon: Wallet,
@@ -271,6 +266,37 @@ const total = computed(() => props.pending?.total ?? 0);
 
     &__amount strong {
       font-size: 27px;
+    }
+  }
+}
+
+@include desktop {
+  .task-card {
+    grid-template-columns: 46px minmax(0, 1fr) 30px;
+    grid-template-rows: auto auto;
+    gap: 5px 12px;
+
+    &__icon {
+      grid-column: 1;
+      grid-row: 1 / 3;
+    }
+
+    &__amount {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: end;
+    }
+
+    &__body {
+      grid-column: 2;
+      grid-row: 2;
+      align-self: start;
+      gap: 0;
+    }
+
+    &__arrow {
+      grid-column: 3;
+      grid-row: 1 / 3;
     }
   }
 }

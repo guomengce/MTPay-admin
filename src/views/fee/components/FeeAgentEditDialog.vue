@@ -2,7 +2,7 @@
   <el-dialog
     :model-value="modelValue"
     title="修改代理专属比例"
-    width="520px"
+    width="min(520px, calc(100vw - 24px))"
     :close-on-click-modal="false"
     align-center
     @update:model-value="(val: boolean) => emit('update:modelValue', val)"

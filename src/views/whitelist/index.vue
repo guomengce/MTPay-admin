@@ -7,6 +7,13 @@
     />
 
     <AdminPanel>
+      <WhitelistFilters
+        :query="query"
+        :loading="loading"
+        @update="Object.assign(query, $event)"
+        @search="search"
+        @reset="reset"
+      />
       <WhitelistTableList
         :data="list"
         :loading="loading"
@@ -55,13 +62,15 @@ import TablePager from '@/components/common/TablePager.vue';
 import WhitelistAddDialog from './components/WhitelistAddDialog.vue';
 import type { WhitelistActionMode } from './components/WhitelistAddDialog.vue';
 import WhitelistCardList from './components/WhitelistCardList.vue';
+import WhitelistFilters from './components/WhitelistFilters.vue';
 import WhitelistTableList from './components/WhitelistTableList.vue';
 import type { WhitelistRow } from './composables/mapper';
 import { useWhitelistDetail } from './composables/useWhitelistDetail';
 import { useWhitelistList } from './composables/useWhitelistList';
 
 const router = useRouter();
-const { loading, list, total, page, limit, loadList, setPage, setLimit } = useWhitelistList();
+const { loading, list, total, page, limit, query, loadList, search, reset, setPage, setLimit } =
+  useWhitelistList();
 const { submitting, submitReview, requestSupplement } = useWhitelistDetail();
 
 const dialogVisible = ref(false);

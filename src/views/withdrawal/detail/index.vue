@@ -1,5 +1,5 @@
 <template>
-  <section v-loading="loading" class="admin-page withdrawal-detail-page">
+  <section class="admin-page withdrawal-detail-page">
     <template v-if="detail">
       <div class="withdrawal-detail-page__toolbar">
         <el-button plain :icon="Back" @click="goBack">返回出金列表</el-button>
@@ -74,6 +74,7 @@ import {
   Upload,
 } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
+import { usePageLoading } from '@/composables/usePageLoading';
 
 import OrderHeader from './components/OrderHeader.vue';
 import SettlementCard from './components/SettlementCard.vue';
@@ -90,6 +91,7 @@ import { useWithdrawalDetailView } from '../composables/useWithdrawalDetailView'
 const route = useRoute();
 const router = useRouter();
 const { detail, loading, submitting, uploading, loadDetail, requestSupplement, submitReview, submitPayment, appendPaymentFiles, uploadFile } = useWithdrawalDetail();
+usePageLoading(loading);
 const { payerBankFields, payeeBankFields, payerSubjectFields, payeeSubjectFields, reviewFields, paymentFields, timelineItems, fileRounds, partyType } = useWithdrawalDetailView(detail);
 
 interface DetailAction {

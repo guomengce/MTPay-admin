@@ -9,7 +9,6 @@ import { toWithdrawalRow, type WithdrawalRow } from './mapper';
 export interface WithdrawalQuery {
   status?: WithdrawalStatus;
   keyword: string;
-  order_no: string;
   started_at: string;
   ended_at: string;
 }
@@ -17,7 +16,6 @@ export interface WithdrawalQuery {
 const INITIAL_QUERY: WithdrawalQuery = {
   status: undefined,
   keyword: '',
-  order_no: '',
   started_at: '',
   ended_at: '',
 };
@@ -36,7 +34,6 @@ export function useWithdrawalList() {
       limit: limit.value,
       status: query.status,
       keyword: query.keyword.trim() || undefined,
-      order_no: query.order_no.trim() || undefined,
       started_at: query.started_at || undefined,
       ended_at: query.ended_at || undefined,
     };

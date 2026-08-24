@@ -2,7 +2,7 @@
   <el-dialog
     :model-value="modelValue"
     :title="dialogTitle"
-    width="560px"
+    width="min(560px, calc(100vw - 24px))"
     :close-on-click-modal="false"
     align-center
     @open="resetForm"
@@ -218,6 +218,19 @@ async function handleSubmit() {
       font-weight: 600;
       padding-bottom: 6px;
     }
+  }
+}
+
+@include mobile {
+  .exchange-dialog__detail div {
+    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .exchange-dialog__detail dd {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 }
 </style>

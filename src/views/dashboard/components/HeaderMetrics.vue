@@ -3,37 +3,35 @@
     <section class="agent-health-card">
       <div class="agent-health-card__heading">
         <div>
-          <span class="dashboard-eyebrow">代理运营</span>
+          <span class="dashboard-eyebrow">代理運營</span>
           <h2>正常代理</h2>
         </div>
         <span class="agent-health-card__icon"><UserFilled /></span>
       </div>
 
       <div class="agent-health-card__value">{{ agentSummary?.active_count ?? 0 }}</div>
-      <p>可正常登录并使用业务功能</p>
+      <p>可正常登錄並使用業務功能</p>
 
       <div class="agent-health-card__progress">
         <div class="agent-health-card__progress-label">
-          <span>正常使用占比</span>
+          <span>正常使用佔比</span>
           <strong>{{ agentSummary?.active_percentage ?? 0 }}%</strong>
         </div>
         <div class="agent-health-card__track">
           <i :style="{ width: `${agentSummary?.active_percentage ?? 0}%` }" />
         </div>
         <small>
-          共 {{ agentSummary?.total_count ?? 0 }} 个代理账户，
-          {{ agentSummary?.active_count ?? 0 }} 个状态正常
-        </small>
+          共 {{ agentSummary?.total_count ?? 0 }} 個代理賬户， {{ agentSummary?.active_count ?? 0 }} 個狀態正常 </small>
       </div>
     </section>
 
     <AdminPanel
       class="asset-overview"
-      title="全平台代理账户余额"
-      subtitle="汇总所有代理的可用与冻结资金"
+      title="全平台代理賬户餘額"
+      subtitle="彙總所有代理的可用與凍結資金"
     >
       <template #extra>
-        <span class="dashboard-count"><i />{{ assets.length }} 个币种</span>
+        <span class="dashboard-count"><i />{{ assets.length }} 個幣種</span>
       </template>
 
       <div class="asset-overview__grid">
@@ -54,25 +52,23 @@
           </header>
 
           <strong class="asset-card__total">{{ asset.total }}</strong>
-          <span class="asset-card__caption">全部代理账户合计</span>
 
           <div class="asset-card__details">
             <div>
-              <span>可用余额</span><strong>{{ asset.available }}</strong>
+              <span>可用餘額</span><strong>{{ asset.available }}</strong>
             </div>
             <div>
-              <span>冻结余额</span><strong>{{ asset.frozen }}</strong>
+              <span>凍結餘額</span><strong>{{ asset.frozen }}</strong>
             </div>
           </div>
 
+          <div class="asset-card__track-label">
+            <span>凍結資金佔總餘額</span>
+            <strong>{{ asset.frozenPercentage }}%</strong>
+          </div>
           <div class="asset-card__track"><i :style="{ width: asset.frozenRate }" /></div>
         </article>
       </div>
-
-      <footer class="asset-overview__footer">
-        <span>统计范围：全部代理账户 · 按币种汇总</span>
-        <span>余额不代表链上钱包或银行实际资产</span>
-      </footer>
     </AdminPanel>
   </div>
 </template>
@@ -98,6 +94,7 @@ const assets = computed(() =>
     total: formatAmount(item.total_balance),
     available: formatAmount(item.available_balance),
     frozen: formatAmount(item.frozen_balance),
+    frozenPercentage: clampPercentage(item.frozen_percentage),
     frozenRate: `${clampPercentage(item.frozen_percentage)}%`,
     tone: index === 1 ? 'blue' : index === 2 ? 'mint' : 'teal',
   })),
@@ -267,6 +264,7 @@ function formatAmount(value: string) {
     color: #7898af;
     font-size: 12px;
   }
+
 }
 
 .dashboard-count {
@@ -329,15 +327,6 @@ function formatAmount(value: string) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
     padding: 18px 20px 14px;
-  }
-
-  &__footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 0 22px 18px;
-    color: var(--app-text-subtle);
-    font-size: 11px;
   }
 }
 
@@ -443,13 +432,6 @@ function formatAmount(value: string) {
     text-shadow: none;
   }
 
-  &__caption {
-    display: block;
-    margin-top: 5px;
-    color: #8997a8;
-    font-size: 11px;
-  }
-
   &__details {
     display: grid;
     gap: 8px;
@@ -498,6 +480,27 @@ function formatAmount(value: string) {
       box-shadow: 0 0 10px color-mix(in srgb, var(--asset-color) 45%, transparent);
     }
   }
+
+  &__track-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 13px;
+    color: #75859a;
+    font-size: 11px;
+
+    strong {
+      color: var(--asset-color);
+      font-size: 12px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    + .asset-card__track {
+      margin-top: 7px;
+    }
+  }
 }
 
 @include narrow {
@@ -506,12 +509,10 @@ function formatAmount(value: string) {
   }
 
   .asset-overview__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .asset-card:last-child {
-    grid-column: 1 / -1;
-  }
+
 }
 
 @media (max-width: 900px) {

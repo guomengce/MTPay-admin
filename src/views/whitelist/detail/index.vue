@@ -1,5 +1,5 @@
 <template>
-  <section v-loading="loading" class="admin-page whitelist-detail-page">
+  <section class="admin-page whitelist-detail-page">
     <template v-if="detail">
       <DetailHero
         compact
@@ -69,6 +69,7 @@ import {
 import { useRoute, useRouter } from 'vue-router';
 
 import DetailHero, { type HeroAction } from '@/components/detail/DetailHero.vue';
+import { usePageLoading } from '@/composables/usePageLoading';
 
 import SubjectInfo from './components/SubjectInfo.vue';
 import Timeline from './components/Timeline.vue';
@@ -84,6 +85,7 @@ const router = useRouter();
 const id = computed(() => Number(route.params.id));
 const { loading, submitting, detail, loadDetail, submitReview, requestSupplement } =
   useWhitelistDetail();
+usePageLoading(loading);
 const {
   companyIdentityFields,
   registrationFields,

@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading" class="currency-card-list">
     <AdminCardList v-if="data.length" :items="cardItems" @action="handleAction" />
-    <el-empty v-else-if="!loading" description="暂无币种网络关系" />
+    <el-empty v-else-if="!loading" description="暫無幣種網絡關係" />
   </div>
 </template>
 

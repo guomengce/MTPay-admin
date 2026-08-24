@@ -390,6 +390,10 @@ const targetTone = computed(() => resolveGlyph(props.targetCurrency.code).tone);
   .exchange-asset {
     padding: 23px 20px;
 
+    &.is-source {
+      flex-direction: row-reverse;
+    }
+
     &.is-target {
       flex-direction: row;
       text-align: left;
@@ -397,6 +401,11 @@ const targetTone = computed(() => resolveGlyph(props.targetCurrency.code).tone);
 
     &.is-target p {
       justify-content: flex-start;
+    }
+
+    p {
+      flex-wrap: wrap;
+      gap: 5px 8px;
     }
   }
 

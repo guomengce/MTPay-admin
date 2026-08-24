@@ -17,7 +17,6 @@ export interface TransactionQuery {
   business_type: TransactionBusinessType | undefined;
   status_group: string;
   currency_code: string;
-  order_no: string;
   keyword: string;
   started_at: string;
   ended_at: string;
@@ -27,7 +26,6 @@ const INITIAL_QUERY: TransactionQuery = {
   business_type: undefined,
   status_group: '',
   currency_code: '',
-  order_no: '',
   keyword: '',
   started_at: '',
   ended_at: '',
@@ -48,7 +46,6 @@ export function useTransactionList() {
       business_type: query.business_type,
       status_group: query.status_group.trim() || undefined,
       currency_code: query.currency_code.trim() || undefined,
-      order_no: query.order_no.trim() || undefined,
       keyword: query.keyword.trim() || undefined,
       started_at: query.started_at || undefined,
       ended_at: query.ended_at || undefined,

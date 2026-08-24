@@ -1,6 +1,7 @@
 import { useAgentDetail } from './useAgentDetail';
 import { useAgentForm } from './useAgentForm';
 import { useAgentList } from './useAgentList';
+import { useAgentMail } from './useAgentMail';
 import { useAgentStatus } from './useAgentStatus';
 
 /**
@@ -11,7 +12,8 @@ export function useAgentManagement() {
   const list = useAgentList();
   const form = useAgentForm(list.loadAgents);
   const detail = useAgentDetail();
+  const mail = useAgentMail();
   const status = useAgentStatus(list.loadAgents);
 
-  return { ...list, ...form, ...detail, ...status };
+  return { ...list, ...form, ...detail, ...mail, ...status };
 }

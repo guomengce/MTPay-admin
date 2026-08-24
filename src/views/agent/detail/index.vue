@@ -1,5 +1,5 @@
 <template>
-  <section v-loading="loading" class="admin-page agent-overview-page">
+  <section class="admin-page agent-overview-page">
     <div class="agent-overview-page__hero-actions">
       <el-button :icon="Back" @click="goBack">返回列表</el-button>
     </div>
@@ -18,24 +18,24 @@
       <!-- 业务能力 -->
       <div v-if="capabilitiesAvailable" class="agent-overview-page__config-grid">
         <AdminPanel
-          title="业务能力"
-          subtitle="当前代理可使用的通道和费用配置"
+          title="業務能力"
+          subtitle="當前代理可使用的通道和費用配置"
           :icon="Setting"
         >
           <div class="capability-list">
             <article>
               <small>入金通道</small
-              ><strong>{{ overview.capabilities.deposit_channel_count }} 个</strong>
+              ><strong>{{ overview.capabilities.deposit_channel_count }} 個</strong>
             </article>
             <article>
-              <small>兑换方向</small><strong>{{ exchangeDirection }}</strong>
+              <small>兑換方向</small><strong>{{ exchangeDirection }}</strong>
             </article>
             <article>
-              <small>出金币种</small
+              <small>出金幣種</small
               ><strong>{{ overview.capabilities.withdrawal_currency }}</strong>
             </article>
             <article>
-              <small>出金手续费</small
+              <small>出金手續費</small
               ><strong
                 >{{ formatFixedFee(overview.capabilities.withdrawal_fee_amount) }}
                 {{ overview.capabilities.withdrawal_currency }}</strong
@@ -49,7 +49,7 @@
       <RecentOrders :orders="overview.recent_orders" @refresh="loadOverview" @view="openTransaction" />
     </template>
 
-    <el-empty v-else-if="!loading" description="未读取到代理资产概览">
+    <el-empty v-else-if="!loading" description="未讀取到代理資產概覽">
       <el-button type="primary" @click="goBack">返回代理列表</el-button>
     </el-empty>
 
@@ -66,6 +66,7 @@ import { computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Back, Setting } from '@element-plus/icons-vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import { usePageLoading } from '@/composables/usePageLoading';
 import { formatFixedFee } from '@/utils/decimal';
 import type { AgentRecentTransaction } from '@/api/modules/agent';
 import AgentOverviewCard from './components/AgentOverviewCard.vue';
@@ -87,6 +88,8 @@ const {
   sendPasswordReset,
   goBack,
 } = useAgentOverview();
+usePageLoading(loading);
+usePageLoading(loading);
 
 const exchangeDirection = computed(() => {
   if (!overview.value) return '—';

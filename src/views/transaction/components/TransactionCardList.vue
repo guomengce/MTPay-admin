@@ -56,12 +56,21 @@ function businessType(row: TransactionItem): StatusBadgeType {
 }
 
 function contentLabel(row: TransactionItem) {
-  if (row.business_type === 'withdrawal') return [row.payer_name, row.payee_name].filter(Boolean).join(' → ') || '—';
+  if (row.business_type === 'withdrawal') {
+    const payer = partyLabel(row.payer_name, row.payer_entity_type_name, row.payer_entity_type);
+    const payee = partyLabel(row.payee_name, row.payee_entity_type_name, row.payee_entity_type);
+    return [payer, payee].filter(Boolean).join(' → ') || '—';
+  }
   if (row.business_type === 'exchange') {
     const rate = formatExchangeRate(row.exchange_rate);
     return `${row.currency_code} → ${row.target_currency_code || '—'}${rate ? ` · 兑换比例 ${rate}` : ''}`;
   }
   return [row.currency_code, row.network_code].filter(Boolean).join(' · ');
+}
+
+function partyLabel(name?: string | null, typeName?: string | null, type?: 1 | 2 | null) {
+  const entity = typeName || (type === 1 ? '公司' : type === 2 ? '个人' : '');
+  return [name, entity].filter(Boolean).join(' · ');
 }
 
 function amountSubValue(row: TransactionItem) {

@@ -1,5 +1,5 @@
 <template>
-  <section v-loading="loading" class="admin-page transaction-detail-page">
+  <section class="admin-page transaction-detail-page">
     <template v-if="info">
       <template v-if="depositDetail">
         <DetailHero compact order="订单号" title="入金审核" description="核对链上凭证与申报金额后完成审核" :order-id="depositDetail.order_no" :status="heroStatus" @back="goBack" />
@@ -75,6 +75,7 @@ import type { TransactionBusinessType } from '@/api/modules/transaction';
 import type { WithdrawalOrderDetail } from '@/api/modules/withdrawal';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import DetailHero from '@/components/detail/DetailHero.vue';
+import { usePageLoading } from '@/composables/usePageLoading';
 import DepositChainVerification from '@/views/deposit/detail/components/ChainVerification.vue';
 import DepositCoreCard from '@/views/deposit/detail/components/CoreCard.vue';
 import DepositReviewResult from '@/views/deposit/detail/components/ReviewResult.vue';
@@ -97,6 +98,7 @@ const router = useRouter();
 const businessTypeRef = toRef(() => route.params.businessType as TransactionBusinessType | string | undefined);
 const businessIdRef = toRef(() => (route.params.businessId ?? '') as string);
 const { loading, info, invalid } = useTransactionDetail(businessTypeRef, businessIdRef);
+usePageLoading(loading);
 const { depositView, exchangeView, timeline } = useTransactionDetailView(info);
 
 const depositDetail = computed(() => info.value?.transaction.business_type === 'deposit' ? info.value.detail as DepositOrderDetail : null);
@@ -154,5 +156,27 @@ async function copyValue(label: string, value: string) {
   .transaction-detail-page__aside { position: static; }
 }
 
-@include mobile { .transaction-detail-page { gap: 16px; } }
+@include mobile {
+  .transaction-detail-page {
+    gap: 16px;
+
+    &__split,
+    &__split.is-deposit,
+    &__split.is-exchange,
+    &__withdrawal-workspace {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    &__split-col,
+    &__main,
+    &__aside {
+      gap: 16px;
+    }
+
+    &__aside {
+      position: static;
+    }
+  }
+}
 </style>

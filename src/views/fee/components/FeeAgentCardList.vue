@@ -1,6 +1,5 @@
 <template>
-  <AdminPanel title="代理专属比例" subtitle="不同代理可设定不同的专属交易比例" :icon="UserFilled">
-    <ul v-loading="loading" class="fee-agent-card-list">
+  <ul v-loading="loading" class="fee-agent-card-list">
       <li v-for="row in rows" :key="row.user_id" class="fee-agent-card-list__item">
         <header class="fee-agent-card-list__head">
           <strong>{{ row.company_name }}</strong>
@@ -38,14 +37,12 @@
           >
         </div>
       </li>
-    </ul>
-  </AdminPanel>
+  </ul>
 </template>
 
 <script setup lang="ts">
-import { Edit, RefreshLeft, UserFilled } from '@element-plus/icons-vue';
+import { Edit, RefreshLeft } from '@element-plus/icons-vue';
 
-import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { FeeAgentRow } from '../composables/useFeeSettings';
 
@@ -155,6 +152,7 @@ const emit = defineEmits<{
   @include mobile {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
+    padding: 14px;
 
     &__item {
       padding: 16px;

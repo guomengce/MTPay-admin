@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :model-value="modelValue"
-    width="560px"
+    width="min(560px, calc(100vw - 24px))"
     class="receiving-address-dialog"
     :show-close="false"
     :close-on-click-modal="false"
@@ -30,7 +30,7 @@
           circle
           text
           :icon="Close"
-          aria-label="关闭"
+          aria-label="關閉"
           @click="emit('update:modelValue', false)"
         />
       </header>
@@ -39,11 +39,9 @@
     <div class="receiving-address__body">
       <div class="receiving-address__notice">
         <el-icon><InfoFilled /></el-icon>
-        <span v-if="replacing && currentAddress">
-          当前地址：
-          <strong class="is-mono">{{ currentAddress }}</strong>
+        <span v-if="replacing && currentAddress"> 當前地址： <strong class="is-mono">{{ currentAddress }}</strong>
         </span>
-        <span v-else>提交后将立即生效</span>
+        <span v-else>提交後將立即生效</span>
       </div>
 
       <el-form
@@ -59,19 +57,19 @@
             :prefix-icon="Link"
             maxlength="255"
             show-word-limit
-            placeholder="请输入完整地址，不能包含空白字符"
+            placeholder="請輸入完整地址，不能包含空白字符"
             autocomplete="off"
           />
         </el-form-item>
 
-        <el-form-item label="备注（可选）" prop="remark">
+        <el-form-item label="備註（可選）" prop="remark">
           <el-input
             v-model="form.remark"
             type="textarea"
             :rows="3"
             :maxlength="500"
             show-word-limit
-            placeholder="补充说明，最多 500 字"
+            placeholder="補充説明，最多 500 字"
           />
         </el-form-item>
       </el-form>
@@ -331,3 +329,6 @@ async function handleSubmit() {
   }
 }
 </style>
+
+undefined
+undefined

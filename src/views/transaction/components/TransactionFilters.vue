@@ -1,5 +1,12 @@
 <template>
   <div class="transaction-filters filter-bar">
+    <el-input
+      v-model="keyword"
+      class="filter-bar__keyword"
+      placeholder="訂單編號 / 代理編號 / 公司 / 郵箱"
+      clearable
+      @keyup.enter="emit('search')"
+    />
     <el-select v-model="businessType" placeholder="业务类型" clearable>
       <el-option label="入金" value="deposit" />
       <el-option label="兑换" value="exchange" />
@@ -13,18 +20,14 @@
       <el-option label="已驳回" value="rejected" />
       <el-option label="失败" value="failed" />
     </el-select>
-    <el-input v-model="orderNo" placeholder="订单号" clearable @keyup.enter="emit('search')" />
     <el-date-picker
-      v-model="startedAt"
-      type="date"
-      placeholder="起始日期"
+      v-model="dateRange"
+      type="daterange"
+      range-separator="至"
+      start-placeholder="開始日期"
+      end-placeholder="結束日期"
       value-format="YYYY-MM-DD"
-    />
-    <el-date-picker
-      v-model="endedAt"
-      type="date"
-      placeholder="结束日期"
-      value-format="YYYY-MM-DD"
+      unlink-panels
     />
     <div class="filter-bar__actions">
       <el-button type="primary" :loading="loading" @click="emit('search')">查询</el-button>
@@ -57,21 +60,19 @@ const statusGroup = computed({
 //   get: () => props.query.currency_code,
 //   set: (value: string) => emit('update', { currency_code: value || '' }),
 // });
-const orderNo = computed({
-  get: () => props.query.order_no,
-  set: (value: string) => emit('update', { order_no: value }),
+const keyword = computed({
+  get: () => props.query.keyword,
+  set: (value: string) => emit('update', { keyword: value }),
 });
-// const keyword = computed({
-//   get: () => props.query.keyword,
-//   set: (value: string) => emit('update', { keyword: value }),
-// });
-const startedAt = computed({
-  get: () => props.query.started_at,
-  set: (value: string) => emit('update', { started_at: value || '' }),
-});
-const endedAt = computed({
-  get: () => props.query.ended_at,
-  set: (value: string) => emit('update', { ended_at: value || '' }),
+const dateRange = computed<string[]>({
+  get: () =>
+    props.query.started_at && props.query.ended_at
+      ? [props.query.started_at, props.query.ended_at]
+      : [],
+  set: (value: string[]) => emit('update', {
+    started_at: value?.[0] || '',
+    ended_at: value?.[1] || '',
+  }),
 });
 </script>
 
@@ -81,24 +82,14 @@ const endedAt = computed({
     min-width: 0;
   }
 
-  @include desktop {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-
-    .filter-bar__actions {
-      grid-column: 1 / -1;
-    }
+  .filter-bar__actions {
+    grid-column: auto;
   }
 
-  @include wide {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-
-    .filter-bar__actions {
+  @include mobile {
+    .filter-bar__keyword {
       grid-column: 1 / -1;
     }
-  }
-
-  @include ultra-wide {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
 
     .filter-bar__actions {
       grid-column: 1 / -1;

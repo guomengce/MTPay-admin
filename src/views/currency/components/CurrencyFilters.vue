@@ -4,7 +4,7 @@
       :model-value="keyword"
       clearable
       maxlength="100"
-      placeholder="搜索币种代码或名称"
+      placeholder="幣種代碼/名稱"
       :prefix-icon="Search"
       @update:model-value="emit('update:keyword', String($event))"
       @keyup.enter="emit('search')"
@@ -12,14 +12,14 @@
     <el-select
       :model-value="status"
       clearable
-      placeholder="全部状态"
+      placeholder="全部狀態"
       @update:model-value="emit('update:status', $event as CurrencyStatus | undefined)"
     >
-      <el-option label="启用" :value="1" />
+      <el-option label="啓用" :value="1" />
       <el-option label="禁用" :value="0" />
     </el-select>
     <div class="filter-bar__actions">
-      <el-button type="primary" :icon="Search" @click="emit('search')">查询</el-button>
+      <el-button type="primary" :icon="Search" @click="emit('search')">查詢</el-button>
       <el-button plain :icon="RefreshLeft" @click="emit('reset')">重置</el-button>
     </div>
   </div>

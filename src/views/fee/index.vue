@@ -1,5 +1,5 @@
 <template>
-  <section class="admin-page fee-setting-page" v-loading="loading">
+  <section class="admin-page fee-setting-page">
     <header class="fee-setting-page__header">
       <h1>比例与费用</h1>
       <p>维护兑换比例、出金手续费以及各代理的专属交易设置</p>
@@ -19,50 +19,52 @@
       />
     </div>
 
-    <div class="fee-setting-page__filters filter-bar">
-      <el-input
-        v-model="agentQuery.keyword"
-        clearable
-        placeholder="代理编号 / 公司 / Email"
-        :prefix-icon="Search"
-        @keyup.enter="searchAgents"
-      />
-      <el-select v-model="agentQuery.status" clearable placeholder="代理状态">
-        <el-option label="待激活" :value="0" />
-        <el-option label="正常" :value="1" />
-        <el-option label="暂停" :value="2" />
-        <el-option label="停用" :value="3" />
-      </el-select>
-      <div class="filter-bar__actions">
-        <el-button type="primary" :icon="Search" @click="searchAgents">查询</el-button>
-        <el-button plain :icon="RefreshLeft" @click="resetAgents">重置</el-button>
+    <AdminPanel title="代理專屬比例" subtitle="不同代理可設定不同的專屬交易比例" :icon="UserFilled">
+      <div class="fee-setting-page__filters filter-bar">
+        <el-input
+          v-model="agentQuery.keyword"
+          clearable
+          placeholder="代理編號 / 公司 / Email"
+          :prefix-icon="Search"
+          @keyup.enter="searchAgents"
+        />
+        <el-select v-model="agentQuery.status" clearable placeholder="代理狀態">
+          <el-option label="待啟用" :value="0" />
+          <el-option label="正常" :value="1" />
+          <el-option label="暫停" :value="2" />
+          <el-option label="停用" :value="3" />
+        </el-select>
+        <div class="filter-bar__actions">
+          <el-button type="primary" :icon="Search" @click="searchAgents">查詢</el-button>
+          <el-button plain :icon="RefreshLeft" @click="resetAgents">重置</el-button>
+        </div>
       </div>
-    </div>
 
-    <FeeAgentTable
-      v-if="!isCompact"
-      :rows="agentList"
-      :loading="loading"
-      @edit="openEdit"
-      @clear="handleClear"
-    />
-    <FeeAgentCardList
-      v-else
-      :rows="agentList"
-      :loading="loading"
-      @edit="openEdit"
-      @clear="handleClear"
-    />
-
-    <div class="fee-setting-page__pager">
-      <TablePager
-        :model-value="agentPage"
-        :page-size="agentLimit"
-        :total="agentTotal"
-        @update:model-value="changePage"
-        @update:page-size="changeLimit"
+      <FeeAgentTable
+        v-if="!isCompact"
+        :rows="agentList"
+        :loading="loading"
+        @edit="openEdit"
+        @clear="handleClear"
       />
-    </div>
+      <FeeAgentCardList
+        v-else
+        :rows="agentList"
+        :loading="loading"
+        @edit="openEdit"
+        @clear="handleClear"
+      />
+
+      <div class="fee-setting-page__pager">
+        <TablePager
+          :model-value="agentPage"
+          :page-size="agentLimit"
+          :total="agentTotal"
+          @update:model-value="changePage"
+          @update:page-size="changeLimit"
+        />
+      </div>
+    </AdminPanel>
 
     <FeeAgentEditDialog
       v-model="dialogVisible"
@@ -76,8 +78,10 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { RefreshLeft, Search } from '@element-plus/icons-vue';
+import { RefreshLeft, Search, UserFilled } from '@element-plus/icons-vue';
 
+import AdminPanel from '@/components/admin/AdminPanel.vue';
+import { usePageLoading } from '@/composables/usePageLoading';
 import TablePager from '@/components/common/TablePager.vue';
 import FeeAgentCardList from './components/FeeAgentCardList.vue';
 import FeeAgentEditDialog from './components/FeeAgentEditDialog.vue';
@@ -103,6 +107,7 @@ const {
   saveAgentRates,
   clearAgentRates,
 } = useFeeSettings();
+usePageLoading(loading);
 
 const dialogVisible = ref(false);
 const editingRow = ref<FeeAgentRow | null>(null);
@@ -244,7 +249,7 @@ function changeLimit(value: number) {
       grid-template-columns: minmax(0, 1fr);
       gap: 14px;
     }
-    &__pager { justify-content: center; overflow-x: auto; padding: 4px 0; }
+    &__pager { justify-content: flex-end; overflow-x: auto; padding: 4px 0; }
   }
 
   &__filters {

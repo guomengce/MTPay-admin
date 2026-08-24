@@ -1,12 +1,12 @@
 <template>
-  <AdminPanel class="trend-panel" title="近 7 日交易趋势" subtitle="按订单提交时间统计交易笔数">
+  <AdminPanel class="trend-panel" title="近 7 日交易趨勢" subtitle="按訂單提交時間統計交易筆數">
     <template #extra>
-      <span class="trend-panel__count"><i />共 {{ total }} 笔</span>
+      <span class="trend-panel__count"><i />共 {{ total }} 筆</span>
     </template>
-    <div ref="chartRef" class="trend-panel__chart" role="img" aria-label="近七日交易趋势柱状图" />
+    <div ref="chartRef" class="trend-panel__chart" role="img" aria-label="近七日交易趨勢柱狀圖" />
     <footer class="trend-panel__footer">
-      <span>悬停柱状图可查看每日明细</span>
-      <span>仅统计笔数，不混算不同币种金额</span>
+      <span>懸停柱狀圖可查看每日明細</span>
+      <span>僅統計筆數，不混算不同幣種金額</span>
     </footer>
   </AdminPanel>
 </template>

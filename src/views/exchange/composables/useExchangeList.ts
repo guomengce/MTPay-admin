@@ -1,5 +1,6 @@
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { fetchExchangeList } from '@/api/modules/exchange';
+import type { ExchangeStatus } from '@/api/modules/exchange';
 import type { ExchangeRow } from './mapper';
 import { toExchangeRow } from './mapper';
 
@@ -10,11 +11,24 @@ export function useExchangeList() {
   const total = ref(0);
   const page = ref(1);
   const limit = ref(15);
+  const query = reactive({
+    status: undefined as ExchangeStatus | undefined,
+    keyword: '',
+    started_at: '',
+    ended_at: '',
+  });
 
   async function loadList() {
     loading.value = true;
     try {
-      const result = await fetchExchangeList({ page: page.value, limit: limit.value });
+      const result = await fetchExchangeList({
+        page: page.value,
+        limit: limit.value,
+        status: query.status,
+        keyword: query.keyword.trim() || undefined,
+        started_at: query.started_at || undefined,
+        ended_at: query.ended_at || undefined,
+      });
       list.value = result.data.map(toExchangeRow);
       total.value = result.total;
     } finally {
@@ -29,5 +43,15 @@ export function useExchangeList() {
   });
   onMounted(loadList);
 
-  return { loading, list, total, page, limit, loadList };
+  function search() {
+    if (page.value !== 1) page.value = 1;
+    else void loadList();
+  }
+
+  function reset() {
+    Object.assign(query, { status: undefined, keyword: '', started_at: '', ended_at: '' });
+    search();
+  }
+
+  return { loading, list, total, page, limit, query, loadList, search, reset };
 }

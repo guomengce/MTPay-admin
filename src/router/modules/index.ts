@@ -11,7 +11,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Grid',
       requiresAuth: true,
       hidden: false,
-      keepAlive: true,
     },
   },
   {
@@ -24,7 +23,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'User',
       requiresAuth: true,
       hidden: false,
-      keepAlive: false,
     },
   },
   {
@@ -37,7 +35,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'User',
       requiresAuth: true,
       hidden: true,
-      keepAlive: false,
       activeMenu: '/agent',
     },
   },
@@ -51,7 +48,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Coin',
       requiresAuth: true,
       hidden: false,
-      keepAlive: false,
     },
   },
   {
@@ -64,7 +60,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Wallet',
       requiresAuth: true,
       hidden: false,
-      keepAlive: false,
     },
   },
   {
@@ -77,7 +72,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Wallet',
       requiresAuth: true,
       hidden: true,
-      keepAlive: false,
       activeMenu: '/deposit',
     },
   },
@@ -91,7 +85,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Switch',
       requiresAuth: true,
       hidden: false,
-      keepAlive: false,
     },
   },
   {
@@ -104,7 +97,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Switch',
       requiresAuth: true,
       hidden: true,
-      keepAlive: false,
       activeMenu: '/exchange',
     },
   },
@@ -118,7 +110,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Postcard',
       requiresAuth: true,
       hidden: false,
-      keepAlive: false,
     },
   },
   {
@@ -131,7 +122,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Postcard',
       requiresAuth: true,
       hidden: true,
-      keepAlive: false,
       activeMenu: '/whitelist',
     },
   },
@@ -145,7 +135,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Upload',
       requiresAuth: true,
       hidden: false,
-      keepAlive: false,
     },
   },
   {
@@ -158,7 +147,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Upload',
       requiresAuth: true,
       hidden: true,
-      keepAlive: false,
       activeMenu: '/withdrawal',
     },
   },
@@ -172,7 +160,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Money',
       requiresAuth: true,
       hidden: false,
-      keepAlive: false,
     },
   },
   {
@@ -185,7 +172,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Tickets',
       requiresAuth: true,
       hidden: false,
-      keepAlive: false,
     },
   },
   {
@@ -198,7 +184,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'Tickets',
       requiresAuth: true,
       hidden: true,
-      keepAlive: false,
       activeMenu: '/transactions',
     },
   },
@@ -212,7 +197,6 @@ export const featureRoutes: RouteRecordRaw[] = [
       icon: 'List',
       requiresAuth: true,
       hidden: false,
-      keepAlive: false,
     },
   },
 ];

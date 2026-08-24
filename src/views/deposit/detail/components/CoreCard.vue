@@ -194,6 +194,8 @@ defineProps<{
 
 @include mobile {
   .deposit-core {
+    grid-template-columns: minmax(0, 1fr);
+
     &__amount {
       align-items: flex-start;
       padding: 22px 18px;
@@ -214,6 +216,17 @@ defineProps<{
     &__meta article {
       padding: 18px;
       border-left: 0;
+    }
+
+    &__amount p {
+      flex-wrap: wrap;
+      gap: 5px 8px;
+    }
+
+    &__amount em,
+    &__meta strong,
+    &__meta p {
+      overflow-wrap: anywhere;
     }
   }
 }

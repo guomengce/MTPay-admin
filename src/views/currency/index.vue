@@ -1,8 +1,8 @@
 <template>
   <section class="admin-page currency-page">
     <AdminHero
-      title="币种管理"
-      description="维护币种网络关系、启停状态及平台收款地址"
+      title="幣種管理"
+      description="維護幣種網絡關係、啓停狀態及平台收款地址"
       :icon="Coin"
     />
 

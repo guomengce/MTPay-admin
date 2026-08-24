@@ -2,7 +2,7 @@
   <el-dialog
     :model-value="modelValue"
     :title="dialogTitle"
-    width="560px"
+    width="min(560px, calc(100vw - 24px))"
     :close-on-click-modal="false"
     align-center
     @open="resetForm"
@@ -28,12 +28,12 @@
         label-position="top"
         @submit.prevent
       >
-        <el-form-item label="拒绝原因" prop="reason">
+        <el-form-item label="拒絕原因" prop="reason">
           <el-input
             v-model="reasonForm.reason"
             type="textarea"
             :rows="3"
-            placeholder="例如：金额与链上转账记录不符"
+            placeholder="例如：金額與鏈上轉賬記錄不符"
             maxlength="1000"
             show-word-limit
           />
@@ -42,11 +42,11 @@
 
       <dl v-else class="deposit-dialog__detail">
         <div>
-          <dt>编号</dt>
+          <dt>編號</dt>
           <dd>{{ row.id }}</dd>
         </div>
         <div>
-          <dt>提交时间</dt>
+          <dt>提交時間</dt>
           <dd>{{ row.time }}</dd>
         </div>
         <div>
@@ -54,7 +54,7 @@
           <dd>{{ row.agent }}</dd>
         </div>
         <div>
-          <dt>资产 / 网络</dt>
+          <dt>資產 / 網絡</dt>
           <dd>{{ row.asset }} · {{ row.network }}</dd>
         </div>
         <div>
@@ -62,7 +62,7 @@
           <dd class="mono">{{ row.hash }}</dd>
         </div>
         <div>
-          <dt>申报金额</dt>
+          <dt>申報金額</dt>
           <dd class="strong">{{ row.amount }} {{ row.asset }}</dd>
         </div>
       </dl>
@@ -70,14 +70,14 @@
 
     <template #footer>
       <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
-      <el-button v-if="mode === 'view'" plain @click="handleViewClose">关闭</el-button>
+      <el-button v-if="mode === 'view'" plain @click="handleViewClose">關閉</el-button>
       <el-button
         v-else-if="mode === 'approve'"
         type="mt"
         :icon="CircleCheck"
         :loading="submitting"
         @click="handleSubmit"
-        >确认通过</el-button
+        >確認通過</el-button
       >
       <el-button
         v-else
@@ -85,7 +85,7 @@
         :icon="CircleClose"
         :loading="submitting"
         @click="handleSubmit"
-        >确认拒绝</el-button
+        >確認拒絕</el-button
       >
     </template>
   </el-dialog>
@@ -218,6 +218,19 @@ async function handleSubmit() {
       font-weight: 600;
       padding-bottom: 6px;
     }
+  }
+}
+
+@include mobile {
+  .deposit-dialog__detail div {
+    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .deposit-dialog__detail dd {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 }
 </style>

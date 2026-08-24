@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :model-value="modelValue"
-    width="660px"
+    width="min(660px, calc(100vw - 24px))"
     class="agent-form-dialog"
     :show-close="false"
     :close-on-click-modal="false"
@@ -18,14 +18,14 @@
             <p>{{ agent ? '更新企业联络资料与账户信息' : '创建待激活账户并发送邮件邀请' }}</p>
           </div>
         </div>
-        <el-button circle text :icon="Close" aria-label="关闭" @click="emit('update:modelValue', false)" />
+        <el-button circle text :icon="Close" aria-label="關閉" @click="emit('update:modelValue', false)" />
       </header>
     </template>
 
     <div class="agent-form__body">
 
       <div v-if="agent" class="agent-form__code">
-        <div><small>代理编号</small><strong>{{ agent.agent_code }}</strong></div>
+        <div><small>代理編號</small><strong>{{ agent.agent_code }}</strong></div>
         <span>{{ agent.status_name }}</span>
       </div>
 
@@ -38,19 +38,19 @@
         size="large"
         @submit.prevent
       >
-        <el-form-item class="agent-form__company" label="公司名称" prop="company_name">
+        <el-form-item class="agent-form__company" label="公司名稱" prop="company_name">
           <el-input
             v-model="form.company_name"
             size="large"
             maxlength="255"
             show-word-limit
-            placeholder="请输入代理企业完整名称"
+            placeholder="請輸入代理企業完整名稱"
             :prefix-icon="OfficeBuilding"
           />
         </el-form-item>
 
         <div class="agent-form__row">
-          <el-form-item label="联络 Email" prop="email">
+          <el-form-item label="聯絡 Email" prop="email">
             <el-input
               v-model="form.email"
               size="large"
@@ -60,13 +60,13 @@
               :prefix-icon="Message"
             />
           </el-form-item>
-          <el-form-item label="联系电话" prop="phone">
+          <el-form-item label="聯繫電話" prop="phone">
             <el-input
               v-model="form.phone"
               size="large"
               maxlength="50"
               autocomplete="tel"
-              placeholder="请输入国家区号和电话号码"
+              placeholder="請輸入國家區號和電話號碼"
               :prefix-icon="Phone"
             />
           </el-form-item>
@@ -76,7 +76,7 @@
 
     <template #footer>
       <footer class="agent-form__footer">
-        <span><el-icon><Lock /></el-icon>账户资料将通过加密连接提交</span>
+        <span><el-icon><Lock /></el-icon>賬户資料將通過加密連接提交</span>
         <div>
           <el-button @click="emit('update:modelValue', false)">取消</el-button>
           <el-button

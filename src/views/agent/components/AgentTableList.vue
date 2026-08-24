@@ -9,38 +9,50 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="邮箱" prop="email" min-width="240">
+      <el-table-column label="郵箱" prop="email" min-width="240">
       </el-table-column>
-      <el-table-column label="手机号" prop="phone" min-width="240">
+      <el-table-column label="手機號" prop="phone" min-width="240">
       </el-table-column>
-      <el-table-column label="状态" width="120">
+      <el-table-column label="狀態" width="120">
         <template #default="{ row }"><StatusBadge :label="row.status_name" :effect="row.status == 0 ? 'pending' : undefined" :type="statusType(row.status)" /></template>
       </el-table-column>
-      <el-table-column prop="created_at" label="创建时间" min-width="160" />
-      <el-table-column label="操作" width="280" fixed="right">
+      <el-table-column prop="created_at" label="創建時間" min-width="160" />
+      <el-table-column label="操作" width="120" fixed="right" align="center">
         <template #default="{ row }">
-          <div class="agent-actions">
-            <el-button plain type="primary" size="small" :icon="View" @click="emit('detail', row)">详情</el-button>
-            <el-button plain type="warning" size="small" :icon="Edit" @click="emit('edit', row)">修改</el-button>
-            <el-dropdown
-              v-if="statusOptions(row.status).length"
-              trigger="click"
-              @command="(status: AgentStatus) => emit('status', row, status)"
-            >
-              <el-button plain type="primary" size="small" :icon="Setting">修改状态</el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item
-                    v-for="option in statusOptions(row.status)"
-                    :key="option.value"
-                    :command="option.value"
-                  >
-                    {{ option.label }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
+          <el-dropdown trigger="click" @command="(command: AgentCommand) => handleCommand(row, command)">
+            <el-button plain  :icon="MoreFilled" size="small">
+              操作
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="detail" :icon="View">詳情</el-dropdown-item>
+                <el-dropdown-item command="edit" :icon="Edit">修改</el-dropdown-item>
+                <el-dropdown-item
+                  v-if="row.status === 0"
+                  command="invitation"
+                  :icon="Promotion"
+                  :disabled="mailLoading"
+                  divided
+                >發送激活郵件</el-dropdown-item>
+                <el-dropdown-item
+                  v-if="row.status === 1 || row.status === 2"
+                  command="password-reset"
+                  :icon="Key"
+                  :disabled="mailLoading"
+                  divided
+                >重置密碼</el-dropdown-item>
+                <el-dropdown-item
+                  v-for="(option, index) in statusOptions(row.status)"
+                  :key="option.value"
+                  :command="`status-${option.value}`"
+                  :icon="Setting"
+                  :divided="index === 0"
+                >
+                  {{ option.label }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -48,17 +60,21 @@
 </template>
 
 <script setup lang="ts">
-import { Edit, Setting, View } from '@element-plus/icons-vue';
+import { ArrowDown, Edit, Key, Promotion, Setting, View,MoreFilled } from '@element-plus/icons-vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import type { AgentAccount } from '@/api/modules/agent';
 
 export type AgentStatus = 1 | 2 | 3;
-defineProps<{ data: AgentAccount[]; loading: boolean }>();
+type AgentCommand = 'detail' | 'edit' | 'invitation' | 'password-reset' | `status-${AgentStatus}`;
+
+const props = defineProps<{ data: AgentAccount[]; loading: boolean; mailLoading?: boolean }>();
 const emit = defineEmits<{
   (event: 'detail', row: AgentAccount): void;
   (event: 'edit', row: AgentAccount): void;
   (event: 'status', row: AgentAccount, status: AgentStatus): void;
+  (event: 'send-invitation', row: AgentAccount): void;
+  (event: 'send-password-reset', row: AgentAccount): void;
 }>();
 
 function statusType(status: AgentAccount['status']): StatusBadgeType {
@@ -71,6 +87,16 @@ function statusOptions(status: AgentAccount['status']): Array<{ label: string; v
   if (status === 2) return [{ label: '恢复正常', value: 1 }, { label: '停用', value: 3 }];
   return [];
 }
+
+function handleCommand(row: AgentAccount, command: AgentCommand) {
+  if (command === 'detail') emit('detail', row);
+  else if (command === 'edit') emit('edit', row);
+  else if (command === 'invitation' && !props.mailLoading) emit('send-invitation', row);
+  else if (command === 'password-reset' && !props.mailLoading) emit('send-password-reset', row);
+  else if (command.startsWith('status-')) {
+    emit('status', row, Number(command.slice(7)) as AgentStatus);
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -78,13 +104,5 @@ function statusOptions(status: AgentAccount['status']): Array<{ label: string; v
 .agent-cell { display: flex; align-items: center; gap: 14px; }
 .agent-cell > span { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #17c4ad, #1f73f2); font-weight: 600; }
 .contact-lines { display: grid; gap: 6px; color: #52637b; }
-.agent-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 32px;
-  white-space: nowrap;
-}
-.agent-actions :deep(.el-button + .el-button) { margin-left: 0; }
-.agent-actions :deep(.el-dropdown) { display: inline-flex; align-items: center; }
+.agent-action-trigger__arrow { margin-left: 5px; }
 </style>

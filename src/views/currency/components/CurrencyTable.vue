@@ -1,7 +1,7 @@
 <template>
   <div class="currency-table-list">
     <el-table v-loading="loading" class="admin-data-table" :data="data" stripe>
-      <el-table-column label="币种" min-width="220">
+      <el-table-column label="幣種" min-width="220">
         <template #default="{ row }">
           <div class="currency-cell">
             <span class="currency-cell__avatar">{{ row.currency.code.slice(0, 1) }}</span>
@@ -12,7 +12,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="网络" min-width="160">
+      <el-table-column label="網絡" min-width="160">
         <template #default="{ row }">
           <div class="network-cell">
             <strong>{{ row.network.name }}</strong>
@@ -20,7 +20,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="当前收款地址" min-width="280">
+      <el-table-column label="當前收款地址" min-width="280">
         <template #default="{ row }">
           <el-tooltip
             v-if="row.current_receiving_address"
@@ -30,10 +30,10 @@
           >
             <span class="address-cell is-mono">{{ row.current_receiving_address.address }}</span>
           </el-tooltip>
-          <span v-else class="address-empty">暂未设置</span>
+          <span v-else class="address-empty">暫未設置</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="100">
+      <el-table-column label="狀態" width="100">
         <template #default="{ row }">
           <StatusBadge :label="row.status_name" :type="row.status === 1 ? 'success' : 'danger'" />
         </template>
@@ -46,7 +46,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" min-width="160">
+      <el-table-column label="更新時間" min-width="160">
         <template #default="{ row }">
           <span>{{ row.updated_at || '—' }}</span>
         </template>
@@ -55,7 +55,7 @@
         <template #default="{ row }">
           <div class="currency-actions">
             <el-button plain type="primary" size="small" :icon="View" @click="emit('detail', row)"
-              >详情</el-button
+              >詳情</el-button
             >
             <el-button
               plain

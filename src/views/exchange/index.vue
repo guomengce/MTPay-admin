@@ -3,6 +3,15 @@
     <AdminHero title="兑换审核" description="核对冻结资金和汇率快照后完成审核" :icon="Switch" />
 
     <AdminPanel>
+      <ReviewFilters
+        :query="query"
+        keyword-placeholder="訂單編號 / 代理編號 / 公司 / 郵箱"
+        completed-label="已完成"
+        :loading="loading"
+        @update="Object.assign(query, $event)"
+        @search="search"
+        @reset="reset"
+      />
       <ExchangeTableList
         :data="list"
         :loading="loading"
@@ -38,6 +47,7 @@ import { ElMessage } from 'element-plus';
 import { reviewExchange } from '@/api/modules/exchange';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import ReviewFilters from '@/components/admin/ReviewFilters.vue';
 import TablePager from '@/components/common/TablePager.vue';
 
 import ExchangeAddDialog from './components/ExchangeAddDialog.vue';
@@ -47,7 +57,7 @@ import type { ExchangeRow } from './composables/mapper';
 import { useExchangeList } from './composables/useExchangeList';
 
 const router = useRouter();
-const { list, loading, total, page, limit, loadList } = useExchangeList();
+const { list, loading, total, page, limit, query, loadList, search, reset } = useExchangeList();
 const dialogVisible = ref(false);
 const dialogMode = ref<'approve' | 'reject'>('approve');
 const activeRow = ref<ExchangeRow | null>(null);

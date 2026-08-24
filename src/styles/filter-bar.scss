@@ -9,6 +9,12 @@
 
 .filter-bar {
   --filter-control-height: 40px;
+  --filter-input-width: 260px;
+  --filter-keyword-width: 340px;
+  --filter-keyword-wide-width: 460px;
+  --filter-select-width: 180px;
+  --filter-date-width: 180px;
+  --filter-date-range-width: 280px;
 
   display: grid;
   align-items: center;
@@ -70,6 +76,54 @@
   }
 }
 
+/* 桌面端统一采用内容友好的固定控件宽度，按钮组占用剩余空间并靠右。 */
+@media (min-width: $desktop-min) {
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    > .el-input,
+    > .el-input-number,
+    > .el-cascader {
+      width: var(--filter-input-width);
+      flex: 0 0 var(--filter-input-width);
+    }
+
+    > .el-select {
+      width: var(--filter-select-width);
+      flex: 0 0 var(--filter-select-width);
+    }
+
+    > .el-date-editor {
+      width: var(--filter-date-width);
+      flex: 0 0 var(--filter-date-width);
+    }
+
+    > .el-date-editor--daterange {
+      width: var(--filter-date-range-width);
+      flex-basis: var(--filter-date-range-width);
+    }
+
+    > .filter-bar__keyword {
+      width: var(--filter-keyword-width);
+      flex-basis: var(--filter-keyword-width);
+    }
+
+    > .filter-bar__keyword--wide {
+      width: var(--filter-keyword-wide-width);
+      flex-basis: var(--filter-keyword-wide-width);
+    }
+
+    > .filter-bar__actions,
+    > .filter-actions {
+      width: auto;
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+  }
+}
+
 @include narrow {
   .filter-bar {
     &__actions {
@@ -95,6 +149,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     margin: 14px;
     padding: 14px;
+
+    > .el-date-editor--daterange {
+      grid-column: 1 / -1;
+    }
 
     &__actions {
       grid-column: 1 / -1;

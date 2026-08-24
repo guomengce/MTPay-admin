@@ -1,6 +1,6 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="代理帐户" description="新增、查看和管理代理帐户" :icon="UserFilled">
+    <AdminHero title="代理帳户" description="新增、查看和管理代理帳户" :icon="UserFilled">
       <template #extra>
         <el-button type="primary" :icon="Plus" @click="openCreate">新增代理</el-button>
       </template>
@@ -16,12 +16,15 @@
       <AgentTableList
         :data="agents"
         :loading="loading"
+        :mail-loading="Boolean(mailLoading)"
         @detail="openDetail"
         @edit="openEdit"
         @status="changeStatus"
+        @send-invitation="sendInvitation"
+        @send-password-reset="sendPasswordReset"
       />
       <AgentCardList :data="agents" @detail="openDetail" @edit="openEdit" @status="changeStatus" />
-      <el-empty v-if="!loading && agents.length === 0" description="暂无代理账户" />
+      <el-empty v-if="!loading && agents.length === 0" description="暫無代理賬户" />
       <TablePager v-model="page" v-model:page-size="limit" :total="total" />
     </AdminPanel>
 
@@ -65,5 +68,8 @@ const {
   submitForm,
   openDetail,
   changeStatus,
+  mailLoading,
+  sendInvitation,
+  sendPasswordReset,
 } = useAgentManagement();
 </script>

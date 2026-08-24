@@ -27,6 +27,11 @@ export const request = axios.create({
   },
 });
 
+/** 仅凭证失效才清理登录态；402/403/422 等业务状态不能误退出。 */
+const AUTH_EXPIRED_STATUS = 401;
+const PUBLIC_AUTH_PATHS = new Set(['/api/getPubKey', '/admin/adminLogin']);
+let sessionExpiredHandled = false;
+
 /* =============================================================================
  * 请求拦截：注入 token
  * ========================================================================== */
@@ -34,6 +39,7 @@ request.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore();
     if (authStore.token) {
+      sessionExpiredHandled = false;
       config.headers.set('Authorization', `Bearer ${authStore.token}`);
     }
     // FormData 上传：移除默认 JSON 头，交由浏览器生成 multipart（含 boundary）。
@@ -50,7 +56,7 @@ request.interceptors.request.use(
  * 响应拦截：解包业务信封；统一错误；401 跳登录
  * ========================================================================== */
 request.interceptors.response.use(
-  (response: AxiosResponse<any>) => {
+  async (response: AxiosResponse<any>) => {
     const refreshedToken = response.headers.authorization;
     if (refreshedToken) {
       useAuthStore().setToken(refreshedToken.replace(/^Bearer\s+/i, ''));
@@ -59,11 +65,19 @@ request.interceptors.response.use(
 
     // 约定返回 { code, message, data }：解包
     if (isApiEnvelope(body)) {
-      if (Number(body.status) === 200) {
+      const businessStatus = Number(body.status);
+      if (businessStatus === 200) {
         return body.data;
       }
+      if (
+        businessStatus === AUTH_EXPIRED_STATUS &&
+        !isPublicAuthRequest(response.config.url)
+      ) {
+        await handleSessionExpired();
+        return Promise.reject(new ApiError(body.message, businessStatus, body.data));
+      }
       ElMessage.error(body.message || '请求失败，请稍后重试');
-      return Promise.reject(new ApiError(body.message, Number(body.status), body.data));
+      return Promise.reject(new ApiError(body.message, businessStatus, body.data));
     }
 
     // 兼容非信封格式：直接返回原始 body
@@ -72,11 +86,8 @@ request.interceptors.response.use(
   async (error: AxiosError<ApiResponse<unknown>>) => {
     const status = error.response?.status;
 
-    if (status === 401) {
-      const authStore = useAuthStore();
-      authStore.clearAuth();
-      await router.replace({ name: 'Login' });
-      ElMessage.error('登录状态已失效，请重新登录');
+    if (status === AUTH_EXPIRED_STATUS && !isPublicAuthRequest(error.config?.url)) {
+      await handleSessionExpired();
       return Promise.reject(error);
     }
 
@@ -99,6 +110,29 @@ function isApiEnvelope(value: unknown): value is ApiResponse<unknown> {
     'status' in value &&
     'data' in value
   );
+}
+
+function isPublicAuthRequest(url?: string) {
+  return Boolean(url && PUBLIC_AUTH_PATHS.has(url.split('?')[0]));
+}
+
+/**
+ * 并发请求可能同时收到 401，只允许首次响应清登录态、提示并跳转。
+ * Token 失效后不要再调用退出接口，否则会造成 401 循环。
+ */
+async function handleSessionExpired() {
+  if (sessionExpiredHandled) return;
+  sessionExpiredHandled = true;
+
+  const authStore = useAuthStore();
+  const currentRoute = router.currentRoute.value;
+  const redirect = currentRoute.name === 'Login' ? undefined : currentRoute.fullPath;
+
+  authStore.clearAuth();
+  ElMessage.error('登录状态已失效，请重新登录');
+  await router
+    .replace({ name: 'Login', query: redirect ? { redirect } : undefined })
+    .catch(() => undefined);
 }
 
 export class ApiError<T = unknown> extends Error {
