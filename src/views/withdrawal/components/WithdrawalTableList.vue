@@ -10,7 +10,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="代理" min-width="230" show-overflow-tooltip>
+      <el-table-column label="代理" min-width="180" show-overflow-tooltip>
         <template #default="{ row }">
           <div class="row-title">
             <strong>{{ row.agent }}</strong>
@@ -20,7 +20,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="交易主体" min-width="380" header-align="center">
+      <el-table-column label="交易主体" min-width="350" header-align="center">
         <template #default="{ row }">
           <WithdrawalPartyFlow
             :payer-name="row.payer"
@@ -31,7 +31,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="出金金额" min-width="250">
+      <el-table-column label="出金金额" min-width="180">
         <template #default="{ row }">
           <div class="withdrawal-table-list__amount-block">
             <strong class="withdrawal-table-list__amount">{{ row.amount }} {{ row.currency }}</strong>

@@ -27,7 +27,7 @@
             :model-value="form.usdtRate"
             inputmode="decimal"
             placeholder="如 0.99"
-            @input="form.usdtRate = limitDecimalInput($event, 2)"
+            @input="form.usdtRate = limitDecimalInput($event, 4)"
           />
         </el-form-item>
 
@@ -36,7 +36,7 @@
             :model-value="form.usdcRate"
             inputmode="decimal"
             placeholder="如 0.99"
-            @input="form.usdcRate = limitDecimalInput($event, 2)"
+            @input="form.usdcRate = limitDecimalInput($event, 4)"
           />
         </el-form-item>
       </el-form>
@@ -74,7 +74,7 @@ const form = reactive({ usdtRate: '', usdcRate: '' });
 const formRef = ref<FormInstance>();
 
 function isValidRate(value: string) {
-  if (!/^\d{1,16}(\.\d{1,2})?$/.test(value)) return false;
+  if (!/^\d{1,16}(\.\d{1,4})?$/.test(value)) return false;
   return !/^0+(?:\.0+)?$/.test(value);
 }
 
@@ -85,7 +85,7 @@ const rules: FormRules = {
       validator: (_rule, value: string, cb) =>
         isValidRate(value)
           ? cb()
-          : cb(new Error('请输入大于 0 的比例（最多 2 位小数）')),
+          : cb(new Error('请输入大于 0 的比例（最多 4 位小数）')),
       trigger: 'blur',
     },
   ],
@@ -95,7 +95,7 @@ const rules: FormRules = {
       validator: (_rule, value: string, cb) =>
         isValidRate(value)
           ? cb()
-          : cb(new Error('请输入大于 0 的比例（最多 2 位小数）')),
+          : cb(new Error('请输入大于 0 的比例（最多 4 位小数）')),
       trigger: 'blur',
     },
   ],

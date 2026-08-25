@@ -2,7 +2,6 @@
   <section class="admin-page currency-page">
     <AdminHero
       title="幣種管理"
-      description="維護幣種網絡關係、啓停狀態及平台收款地址"
       :icon="Coin"
     />
 

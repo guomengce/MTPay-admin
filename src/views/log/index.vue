@@ -1,6 +1,6 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="操作记录" description="记录管理员在平台上的重要操作，仅只读" :icon="Clock" />
+    <AdminHero title="操作记录" :icon="Clock" />
 
     <AdminPanel :icon="Tickets">
       <el-timeline v-loading="loading" class="log-timeline">

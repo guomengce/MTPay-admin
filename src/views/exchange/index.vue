@@ -1,6 +1,6 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="兑换审核" description="核对冻结资金和汇率快照后完成审核" :icon="Switch" />
+    <AdminHero title="兑换审核" :icon="Switch" />
 
     <AdminPanel>
       <ReviewFilters

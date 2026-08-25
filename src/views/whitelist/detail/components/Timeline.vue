@@ -1,8 +1,8 @@
 <template>
   <AdminPanel
     v-if="timelineItems.length"
+    class="timeline-card"
     title="处理时间线"
-    subtitle="本次订单的处理流程与文件提交记录"
     :icon="Clock"
   >
     <div class="timeline-scroll">
@@ -80,6 +80,17 @@ function getFileRound(key: string) {
 </script>
 
 <style scoped lang="scss">
+.timeline-card {
+  :deep(.admin-panel__header) { padding: 16px 20px; }
+  :deep(.admin-panel__icon) {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+    border-radius: 11px;
+    font-size: 21px;
+  }
+}
+
 .timeline-panel { padding: 22px; }
 
 .timeline-scroll {

@@ -199,4 +199,16 @@ export const featureRoutes: RouteRecordRaw[] = [
       hidden: false,
     },
   },
+  {
+    path: '/reservation',
+    name: 'Reservation',
+    component: () => import('@/views/reservation/index.vue'),
+    meta: {
+      title: '官網預約',
+      description: '查看官網訪客提交的聯絡預約',
+      icon: 'Calendar',
+      requiresAuth: true,
+      hidden: false,
+    },
+  },
 ];

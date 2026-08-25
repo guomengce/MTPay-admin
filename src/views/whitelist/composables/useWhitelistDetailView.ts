@@ -111,7 +111,7 @@ export function useWhitelistDetailView(detail: Ref<WhitelistDetail | null>) {
     compact([
       field('company_name', '公司名称'),
       field('company_type', '公司类型'),
-      field('document_no', '证件编号', { mono: true }),
+      field('document_no', '公司編號', { mono: true }),
       field('registration_date', '注册日期'),
     ]),
   );

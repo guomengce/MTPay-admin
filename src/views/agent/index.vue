@@ -1,6 +1,6 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="代理帳户" description="新增、查看和管理代理帳户" :icon="UserFilled">
+    <AdminHero title="代理帳户" :icon="UserFilled">
       <template #extra>
         <el-button type="primary" :icon="Plus" @click="openCreate">新增代理</el-button>
       </template>

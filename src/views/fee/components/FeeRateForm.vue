@@ -18,7 +18,7 @@
             :model-value="usdtRate"
             inputmode="decimal"
             placeholder="如 0.99"
-            @input="usdtRate = limitDecimalInput($event, 2)"
+            @input="usdtRate = limitDecimalInput($event, 4)"
           />
           <p>每 1 USDT 可兑换的 USD 金额</p>
         </el-form-item>
@@ -34,7 +34,7 @@
             :model-value="usdcRate"
             inputmode="decimal"
             placeholder="如 0.99"
-            @input="usdcRate = limitDecimalInput($event, 2)"
+            @input="usdcRate = limitDecimalInput($event, 4)"
           />
           <p>每 1 USDC 可兑换的 USD 金额</p>
         </el-form-item>
@@ -81,7 +81,7 @@ watch(
 );
 
 function isValidRate(value: string) {
-  if (!/^\d{1,16}(\.\d{1,2})?$/.test(value)) return false;
+  if (!/^\d{1,16}(\.\d{1,4})?$/.test(value)) return false;
   return !/^0+(?:\.0+)?$/.test(value);
 }
 
@@ -89,7 +89,7 @@ function submit() {
   const usdt = usdtRate.value.trim();
   const usdc = usdcRate.value.trim();
   if (!isValidRate(usdt) || !isValidRate(usdc)) {
-    error.value = '请输入大于 0 的比例（最多 2 位小数）';
+    error.value = '请输入大于 0 的比例（最多 4 位小数）';
     return;
   }
   error.value = '';

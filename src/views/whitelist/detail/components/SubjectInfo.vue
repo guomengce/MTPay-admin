@@ -2,19 +2,20 @@
   <AdminPanel
     class="subject-info"
     title="主体信息"
-    subtitle="根据白名单角色与主体类型展示对应资料"
     :icon="OfficeBuilding"
   >
-    <div class="subject-info__tags subject-meta-tags">
-      <span class="subject-meta-tags__chip">
-        <el-icon><Postcard /></el-icon>
-        <span>{{ roleName }}</span>
-      </span>
-      <span class="subject-meta-tags__chip subject-meta-tags__chip--entity">
-        <el-icon><component :is="entityType === 1 ? OfficeBuilding : User" /></el-icon>
-        <span>{{ entityTypeName }}（{{ entityType === 1 ? 'B' : 'C' }}）</span>
-      </span>
-    </div>
+    <template #extra>
+      <div class="subject-meta-tags">
+        <span class="subject-meta-tags__chip">
+          <el-icon><Postcard /></el-icon>
+          <span>{{ roleName }}</span>
+        </span>
+        <span class="subject-meta-tags__chip subject-meta-tags__chip--entity">
+          <el-icon><component :is="entityType === 1 ? OfficeBuilding : User" /></el-icon>
+          <span>{{ entityTypeName }}（{{ entityType === 1 ? 'B' : 'C' }}）</span>
+        </span>
+      </div>
+    </template>
 
     <div class="subject-info__sections">
       <!-- 聚合层只判断主体类型，各资料组件在不同组合间复用。 -->
@@ -38,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { Lock, OfficeBuilding, Postcard, User } from '@element-plus/icons-vue';
+import { OfficeBuilding, Postcard, User } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 
@@ -74,22 +75,17 @@ defineProps<{
 <style scoped lang="scss">
 .subject-info {
   :deep(.admin-panel__header) {
-    padding: 24px 26px 18px;
-    border-bottom: 0;
+    padding: 16px 20px;
   }
 
   :deep(.admin-panel__icon) {
-    width: 52px;
-    height: 52px;
-    flex-basis: 52px;
-    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+    border-radius: 11px;
     color: #087f79;
     background: #e8f7f5;
-  }
-
-  &__tags {
-    padding: 0 26px 20px 94px;
-    border-bottom: 1px solid #e5ebf1;
+    font-size: 21px;
   }
 
   &__sections {
@@ -98,26 +94,6 @@ defineProps<{
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
-}
-
-.readonly-hint {
-  display: grid;
-  justify-items: end;
-  gap: 2px;
-  color: var(--app-text-label);
-
-  p {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-    color: var(--app-text-body);
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .el-icon { color: #126df0; font-size: 14px; }
-  small { color: var(--app-text-label); font-size: 11px; }
 }
 
 .subject-meta-tags {
@@ -155,7 +131,6 @@ defineProps<{
   margin-bottom: 14px;
 
   h3 { margin: 0; color: var(--app-text-heading); font-size: 15px; font-weight: 650; }
-  p { margin: 3px 0 0; color: var(--app-text-label); font-size: 12px; }
 }
 
 .subject-info :deep(.subject-section__icon) {
@@ -189,8 +164,13 @@ defineProps<{
 
 @include mobile {
   .subject-info {
-    :deep(.admin-panel__header) { padding: 18px 16px 12px; }
-    &__tags { padding: 0 16px 16px; }
+    :deep(.admin-panel__header) {
+      align-items: center;
+      flex-direction: row;
+      flex-wrap: wrap;
+      padding: 14px 16px;
+    }
+    :deep(.admin-panel__title) { flex: 1 1 auto; }
     &__sections { padding: 14px 16px 16px; }
 
     :deep(.subject-section) { padding: 14px; }

@@ -42,6 +42,7 @@ import DetailFundImpact, { type FundImpactNode } from '@/components/detail/Detai
 import DetailHero from '@/components/detail/DetailHero.vue';
 import DetailSummaryCard, { type SummaryItem } from '@/components/detail/DetailSummaryCard.vue';
 import DetailTimelinePanel from '@/components/detail/DetailTimelinePanel.vue';
+import { formatExchangeRate } from '@/utils/decimal';
 
 import type { FlowDetail } from './types';
 
@@ -131,7 +132,7 @@ const businessSections = computed<DetailSection[]>(() => [
     fields: [
       { label: '兑换方向：', value: detail.value.direction },
       { label: '支付数量：', value: `${detail.value.payAmount} ${detail.value.payAsset}` },
-      { label: '采用比例：', value: detail.value.rate },
+      { label: '采用比例：', value: formatExchangeRate(detail.value.rate) },
       { label: '获得金额：', value: `${detail.value.receiveAmount} ${detail.value.receiveAsset}` },
       { label: '提交时间：', value: detail.value.submittedAt },
     ],

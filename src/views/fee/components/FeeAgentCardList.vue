@@ -9,19 +9,17 @@
         <div class="fee-agent-card-list__metrics">
           <div class="fee-agent-card-list__metric">
             <span>USDT 比例</span>
-            <strong>{{ row.usdt_rate }}</strong>
-            <StatusBadge
-              :label="row.usdt_source"
-              :type="row.usdt_source === '代理专属' ? 'primary' : 'gray'"
-            />
+            <div class="fee-agent-card-list__rate-line">
+              <strong>{{ row.usdt_rate }}</strong>
+              <StatusBadge :label="row.usdt_source" :type="row.usdt_source === '代理专属' ? 'primary' : 'gray'" />
+            </div>
           </div>
           <div class="fee-agent-card-list__metric">
             <span>USDC 比例</span>
-            <strong>{{ row.usdc_rate }}</strong>
-            <StatusBadge
-              :label="row.usdc_source"
-              :type="row.usdc_source === '代理专属' ? 'primary' : 'gray'"
-            />
+            <div class="fee-agent-card-list__rate-line">
+              <strong>{{ row.usdc_rate }}</strong>
+              <StatusBadge :label="row.usdc_source" :type="row.usdc_source === '代理专属' ? 'primary' : 'gray'" />
+            </div>
           </div>
         </div>
 
@@ -137,6 +135,22 @@ const emit = defineEmits<{
       width: fit-content;
     }
 
+  }
+
+  &__rate-line {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+
+    strong { flex: 0 1 auto; }
+
+    :deep(.status-badge) {
+      width: fit-content;
+      flex: none;
+      white-space: nowrap;
+    }
   }
 
   &__actions {

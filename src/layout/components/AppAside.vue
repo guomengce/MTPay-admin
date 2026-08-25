@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import {
   Coin,
+  Calendar,
   Grid,
   List,
   Money,
@@ -67,6 +68,7 @@ const adminEmail = computed(() => authStore.userInfo?.email || '—');
 const adminInitial = computed(() => adminName.value.trim().charAt(0).toUpperCase() || 'M');
 
 const icons = {
+  Calendar,
   Coin,
   Grid,
   List,

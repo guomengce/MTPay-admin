@@ -81,35 +81,16 @@
         <section class="currency-detail__section">
           <div class="currency-detail__section-title">
             <span
-              ><el-icon><Position /></el-icon
-            ></span>
-            <div>
-              <h3>當前收款地址</h3>
-              <p>平台正在使用的地址，舊地址由後端停用並保留</p>
-            </div>
-          </div>
-          <article class="currency-detail__current">
-            <strong v-if="detail.current_receiving_address" class="is-mono">
-              {{ detail.current_receiving_address.address }}
-            </strong>
-            <span v-else class="currency-detail__empty">暫未設置</span>
-            <small v-if="detail.current_receiving_address"> 啓用時間：{{ detail.current_receiving_address.activated_at }}
-            </small>
-          </article>
-        </section>
-        <section class="currency-detail__section">
-          <div class="currency-detail__section-title">
-            <span
               ><el-icon><List /></el-icon
             ></span>
             <div>
-              <h3>歷史收款地址</h3>
-              <p>僅展示，不可刪除；新地址由後端停用舊地址</p>
+              <h3>收款地址記錄</h3>
+              <p>當前有效地址置頂；所有地址僅展示，不可刪除</p>
             </div>
           </div>
-          <ul v-if="detail.receiving_addresses?.length" class="currency-detail__history">
+          <ul v-if="sortedAddresses.length" class="currency-detail__history">
             <li
-              v-for="addr in detail.receiving_addresses"
+              v-for="addr in sortedAddresses"
               :key="addr.id"
               :class="{ 'is-effective': addr.is_effective }"
             >
@@ -138,50 +119,41 @@
     <template #footer>
       <div class="currency-detail__footer">
         <el-button @click="emit('update:modelValue', false)">關閉</el-button>
-        <div class="currency-detail__primary-actions">
-          <el-button
-            plain
-            type="warning"
-            :icon="Edit"
-            :disabled="loading"
-            @click="emit('set-address')"
-          >
-            {{ detail?.current_receiving_address ? '更换地址' : '设置地址' }}
-          </el-button>
-          <el-button
-            plain
-            :type="detail?.status === 1 ? 'info' : 'primary'"
-            :icon="detail?.status === 1 ? CircleClose : CircleCheck"
-            :disabled="loading"
-            @click="emit('toggle-status')"
-          >
-            {{ detail?.status === 1 ? '禁用' : '启用' }}
-          </el-button>
-        </div>
+        <el-button plain type="warning" :icon="Edit" :disabled="loading" @click="emit('set-address')">
+          {{ detail?.current_receiving_address ? '更換地址' : '設置地址' }}
+        </el-button>
+        <el-button plain :type="detail?.status === 1 ? 'info' : 'primary'" :icon="detail?.status === 1 ? CircleClose : CircleCheck" :disabled="loading" @click="emit('toggle-status')">
+          {{ detail?.status === 1 ? '禁用' : '啟用' }}
+        </el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import {
   CircleCheck,
   CircleClose,
-  Clock,
   Close,
   Coin,
   Edit,
   List,
-  Position,
 } from '@element-plus/icons-vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { CurrencyNetworkDetail } from '@/api/modules/currency';
 
-defineProps<{
+const props = defineProps<{
   modelValue: boolean;
   detail: CurrencyNetworkDetail | null;
   loading: boolean;
 }>();
+
+const sortedAddresses = computed(() =>
+  [...(props.detail?.receiving_addresses ?? [])].sort((left, right) =>
+    Number(right.is_effective) - Number(left.is_effective),
+  ),
+);
 
 const emit = defineEmits<{
   (event: 'update:modelValue', value: boolean): void;
@@ -435,20 +407,17 @@ const emit = defineEmits<{
   }
 
   &__footer {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     min-height: 76px;
     align-items: center;
-    justify-content: space-between;
     gap: 16px;
     padding: 16px 28px;
     border-top: 1px solid #e5eaf1;
     background: #fff;
   }
 
-  &__primary-actions {
-    display: flex;
-    gap: 10px;
-  }
+  &__footer :deep(.el-button) { width: 100%; margin-left: 0; }
 }
 
 @include mobile {
@@ -506,22 +475,20 @@ const emit = defineEmits<{
   }
 
   .currency-detail__info-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    article {
+      min-width: 0;
+    }
+
+    strong {
+      overflow-wrap: anywhere;
+    }
   }
 
   .currency-detail__footer {
-    align-items: stretch;
-    flex-direction: column;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     padding: 15px 18px;
-  }
-
-  .currency-detail__primary-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .currency-detail__primary-actions :deep(.el-button) {
-    width: 100%;
   }
 }
 </style>

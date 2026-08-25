@@ -40,6 +40,7 @@
       </el-table>
       <el-empty v-if="orders.length === 0" description="暫無最近交易" />
     </div>
+    <RecentOrderCardList :orders="orders" @view="emit('view', $event)" />
   </AdminPanel>
 </template>
 
@@ -49,6 +50,7 @@ import AdminPanel from '@/components/admin/AdminPanel.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import type { AgentRecentTransaction } from '@/api/modules/agent';
+import RecentOrderCardList from './RecentOrderCardList.vue';
 
 defineProps<{
   orders: AgentRecentTransaction[];
@@ -86,7 +88,7 @@ function transactionStatusType(group: string): StatusBadgeType {
 
 @include mobile {
   .recent-orders {
-    padding: 0 16px 16px;
+    display: none;
   }
 }
 </style>

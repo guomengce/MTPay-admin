@@ -2,7 +2,6 @@
   <section class="admin-page">
     <AdminHero
       title="USD 出金管理"
-      description="审核代理出金申请，并跟踪付款执行、失败释放和付款凭证"
       :icon="Wallet"
     />
 

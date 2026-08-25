@@ -41,7 +41,7 @@
 
         <div class="detail-hero__title">
           <h1>{{ title }}</h1>
-          <p>{{ description }}</p>
+          <p v-if="description">{{ description }}</p>
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export interface HeroStatus {
 withDefaults(
   defineProps<{
     title: string;
-    description: string;
+    description?: string;
     order: string;
     orderId: string;
     compact?: boolean;
@@ -261,7 +261,7 @@ const emit = defineEmits<{
 
     h1 {
       min-width: 0;
-      margin: 0 0 6px;
+      margin: 0;
       overflow-wrap: anywhere;
       color: var(--app-text-heading);
       font-size: 28px;
@@ -270,7 +270,7 @@ const emit = defineEmits<{
     }
 
     p {
-      margin: 0;
+      margin: 6px 0 0;
       color: var(--app-text-label);
       font-size: 14px;
       font-weight: 400;

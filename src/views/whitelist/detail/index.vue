@@ -5,7 +5,6 @@
         compact
         order="白名单编号"
         title="白名单审核"
-        :description="`${detail.user.agent_code} · ${detail.user.company_name}`"
         :order-id="detail.whitelist_no"
         :status="heroStatus"
         :actions="heroActions"

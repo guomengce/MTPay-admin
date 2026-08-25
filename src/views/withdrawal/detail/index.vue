@@ -9,6 +9,7 @@
             :key="action.emitName"
             :type="action.type"
             :icon="action.icon"
+            plain
             @click="openAction(action.emitName)"
           >{{ action.label }}</el-button>
         </div>
@@ -244,10 +245,20 @@ onMounted(() => {
     > :deep(.el-button) { width: fit-content; }
   }
   .withdrawal-detail-page__actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    flex-wrap: nowrap;
 
-    :deep(.el-button) { width: 100%; margin-left: 0; }
+    :deep(.el-button) {
+      min-width: 0;
+      flex: 1 1 0;
+      margin-left: 0;
+      padding-right: 8px;
+      padding-left: 8px;
+    }
+
+    :deep(.el-button:only-child) {
+      flex: 0 0 auto;
+    }
   }
   .withdrawal-detail-page__workspace {
     grid-template-columns: minmax(0, 1fr);

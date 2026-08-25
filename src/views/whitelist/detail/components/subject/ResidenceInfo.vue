@@ -2,7 +2,7 @@
   <section class="subject-section">
     <header class="subject-section__header">
       <span class="subject-section__icon"><el-icon><Location /></el-icon></span>
-      <div><h3>居住资料</h3><p>代理提交的居住国家、城市与详细地址</p></div>
+      <h3>居住资料</h3>
     </header>
     <dl class="subject-section__grid">
       <div v-for="field in fields" :key="field.key" :class="fieldClass(field)">

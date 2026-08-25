@@ -2,7 +2,6 @@
   <section class="admin-page">
     <AdminHero
       title="白名单审核"
-      description="核对代理提交的主体资料，处理审核、驳回与补件要求"
       :icon="Checked"
     />
 

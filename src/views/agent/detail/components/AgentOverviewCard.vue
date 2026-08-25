@@ -12,7 +12,6 @@
             <span>{{ user.agent_code }}</span>
             <span class="dot">·</span>
             <span class="email">{{ user.email }}</span>
-            <el-icon class="copy-icon" @click="emit('copy-email')"><CopyDocument /></el-icon>
           </div>
         </div>
       </div>
@@ -84,7 +83,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { CopyDocument, Key, Promotion, UserFilled } from '@element-plus/icons-vue';
+import { Key, Promotion, UserFilled } from '@element-plus/icons-vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import type { AgentAssetBalance } from '@/api/modules/agent';
@@ -104,7 +103,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (event: 'copy-email'): void;
   (event: 'send-invitation'): void;
   (event: 'send-password-reset'): void;
 }>();
@@ -209,21 +207,6 @@ function currencyTone(code: string) {
       font-weight: 500;
     }
 
-    .copy-icon {
-      display: inline-flex;
-      width: 28px;
-      height: 28px;
-      align-items: center;
-      justify-content: center;
-      border-radius: 7px;
-      color: #1f73f2;
-      background: #eaf2ff;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.15s ease;
-
-      &:hover { background: #d6e8ff; }
-    }
   }
 
 }
@@ -434,22 +417,61 @@ function currencyTone(code: string) {
 
 @include mobile {
   .agent-overview-card {
-    padding: 18px;
+    padding: 16px;
+
+    &__top {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
   }
   .identity-card {
-    gap: 16px;
-    &__name { font-size: 28px; }
+    align-items: center;
+    flex-direction: row;
+    gap: 14px;
+
+    &__avatar {
+      width: 72px;
+      height: 72px;
+      font-size: 34px;
+    }
+
+    &__body { width: auto; flex: 1; gap: 8px; }
+    &__name {
+      max-width: 100%;
+      overflow: hidden;
+      font-size: 22px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    &__meta {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 5px;
+      max-width: 100%;
+      font-size: 13px;
+
+      .dot { display: none; }
+      > span,
+      .email {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
   }
   .agent-overview-card__assets {
     grid-template-columns: 1fr;
   }
   .identity-stats {
-    width: auto;
+    width: 100%;
+    min-width: 0;
     justify-self: stretch;
     align-items: stretch;
     flex-direction: column;
     &__status { justify-content: space-between; }
-    &__action { width: 100%; }
+    &__action { width: 100%; min-width: 0; white-space: normal; }
   }
 }
 </style>

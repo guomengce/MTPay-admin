@@ -6,7 +6,6 @@
       </span>
       <div>
         <h1>{{ title }}</h1>
-        <p>{{ description }}</p>
       </div>
     </div>
     <slot name="extra" />
@@ -16,7 +15,6 @@
 <script setup lang="ts">
 defineProps<{
   title: string;
-  description: string;
   icon: unknown;
 }>();
 </script>
@@ -53,18 +51,11 @@ defineProps<{
   }
 
   h1 {
-    margin: 0 0 8px;
+    margin: 0;
     color: var(--app-text-heading);
     font-size: 30px;
     font-weight: 700;
     line-height: 1.15;
-  }
-
-  p {
-    margin: 0;
-    color: var(--app-text-label);
-    font-size: 14px;
-    font-weight: 400;
   }
 
   @include mobile {
@@ -86,15 +77,11 @@ defineProps<{
     }
 
     h1 {
-      margin-bottom: 6px;
+      margin-bottom: 0;
       font-size: 24px;
       line-height: 1.18;
     }
 
-    p {
-      font-size: 13px;
-      line-height: 1.45;
-    }
   }
 }
 </style>

@@ -2,7 +2,6 @@
   <section class="admin-page">
     <AdminHero
       title="资金流水"
-      description="记录收付款交易详情，资金全链路清晰可追溯"
       :icon="Tickets"
     >
       <template #extra>

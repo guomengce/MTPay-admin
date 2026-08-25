@@ -2,7 +2,6 @@
   <section class="admin-page">
     <AdminHero
       title="交易记录"
-      description="统一查看入金、兑换与 USD 出金订单，本页仅只读"
       :icon="Tickets"
     />
 

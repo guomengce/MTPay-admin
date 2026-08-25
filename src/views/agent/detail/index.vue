@@ -10,7 +10,6 @@
         :user="overview.user"
         :assets="overview.assets"
         :mail-loading="mailLoading !== null"
-        @copy-email="copyEmail"
         @send-invitation="sendInvitation(overview.user)"
         @send-password-reset="sendPasswordReset(overview.user)"
       />
@@ -63,7 +62,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ElMessage } from 'element-plus';
 import { Back, Setting } from '@element-plus/icons-vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import { usePageLoading } from '@/composables/usePageLoading';
@@ -89,21 +87,12 @@ const {
   goBack,
 } = useAgentOverview();
 usePageLoading(loading);
-usePageLoading(loading);
 
 const exchangeDirection = computed(() => {
   if (!overview.value) return '—';
   return `${overview.value.capabilities.exchange_source_currencies.join(' / ') || '—'} → ${overview.value.capabilities.exchange_target_currency || '—'}`;
 });
 
-function copyEmail() {
-  const email = overview.value?.user.email;
-  if (!email) return;
-  navigator.clipboard?.writeText(email).then(
-    () => ElMessage.success('邮箱已复制'),
-    () => ElMessage.error('复制失败，请手动选择'),
-  );
-}
 </script>
 
 <style scoped lang="scss">

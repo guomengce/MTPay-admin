@@ -2,7 +2,7 @@
   <section class="subject-section">
     <header class="subject-section__header">
       <span class="subject-section__icon"><el-icon><OfficeBuilding /></el-icon></span>
-      <div><h3>公司资料</h3><p>代理提交的公司基础与登记信息</p></div>
+      <h3>公司资料</h3>
     </header>
     <dl class="subject-section__grid">
       <div v-for="field in fields" :key="field.key" :class="fieldClass(field)">

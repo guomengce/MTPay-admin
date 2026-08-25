@@ -1,6 +1,6 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="入金审核" description="核对链上入金并处理代理余额" :icon="Checked" />
+    <AdminHero title="入金审核" :icon="Checked" />
 
     <AdminPanel>
       <ReviewFilters
