@@ -45,8 +45,12 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="view" :icon="View">详情</el-dropdown-item>
+                <el-dropdown-item
+                  v-if="row.statusCode === 0 || row.statusCode === 1"
+                  command="approve"
+                  :icon="CircleCheck"
+                >通过</el-dropdown-item>
                 <template v-if="row.statusCode === 0">
-                  <el-dropdown-item command="approve" :icon="CircleCheck">通过</el-dropdown-item>
                   <el-dropdown-item command="supplement" :icon="DocumentAdd"
                     >要求补件</el-dropdown-item
                   >
@@ -71,6 +75,7 @@ import { CircleCheck, CircleClose, DocumentAdd, MoreFilled, View } from '@elemen
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
+import { getIdentityBadgeType } from '@/utils/identityBadge';
 import type { WhitelistRow } from '../composables/mapper';
 export type { WhitelistRow } from '../composables/mapper';
 
@@ -91,10 +96,7 @@ function handleCommand(command: string | number | object, row: WhitelistRow) {
 }
 
 function identityBadgeType(row: WhitelistRow): StatusBadgeType {
-  if (row.role === '付款人' && row.entityType === '公司') return 'primary';
-  if (row.role === '付款人' && row.entityType === '个人') return 'warning';
-  if (row.role === '收款人' && row.entityType === '公司') return 'mt';
-  return 'success';
+  return getIdentityBadgeType(row.role, row.entityType);
 }
 </script>
 

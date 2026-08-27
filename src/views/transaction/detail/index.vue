@@ -2,12 +2,17 @@
   <section class="admin-page transaction-detail-page">
     <template v-if="info">
       <template v-if="depositDetail">
-        <DetailHero compact order="订单号" title="入金审核" description="核对链上凭证与申报金额后完成审核" :order-id="depositDetail.order_no" :status="heroStatus" @back="goBack" />
+        <DetailHero compact order="訂單號" title="入金詳情" :order-id="depositDetail.order_no" :status="heroStatus" @back="goBack" />
         <DepositCoreCard :amount="depositDetail.amount" :currency="depositDetail.currency" :network="depositDetail.network" :user="depositDetail.user" :submitted-at="depositDetail.submitted_at" />
         <div class="transaction-detail-page__split is-deposit">
           <div class="transaction-detail-page__split-col">
-            <DepositChainVerification :txid="depositDetail.txid" :receiving-address="depositDetail.receiving_address_snapshot" @copy="copyValue" />
-            <DepositReviewResult :items="depositView?.reviewFields ?? []" />
+            <DepositChainVerification
+              :txid="depositDetail.txid"
+              :platform-transaction-no="depositDetail.safeheron_tx_key"
+              :source-address="depositDetail.source_address_snapshot"
+              :receiving-address="depositDetail.receiving_address_snapshot"
+              @copy="copyValue"
+            />
           </div>
           <DepositTimeline :items="timeline" />
         </div>
@@ -36,21 +41,21 @@
         <WithdrawalOrderHeader :detail="withdrawalDetail" />
         <div class="transaction-detail-page__withdrawal-workspace">
           <main class="transaction-detail-page__main">
-            <WithdrawalSettlementCard :detail="withdrawalDetail" />
             <WithdrawalPartyPanel
+              :detail="withdrawalDetail"
               :payer="withdrawalDetail.payer" :payee="withdrawalDetail.payee"
               :payer-bank-fields="payerBankFields" :payer-subject-fields="payerSubjectFields"
               :payee-bank-fields="payeeBankFields" :payee-subject-fields="payeeSubjectFields"
               :party-type="partyType"
             />
+            <WithdrawalResultPanel :review-fields="withdrawalReviewFields" :payment-fields="withdrawalPaymentFields" />
+          </main>
+          <aside class="transaction-detail-page__aside">
             <WithdrawalAgentCard
               :agent-company="withdrawalDetail.user.company_name"
               :agent-code="withdrawalDetail.user.agent_code"
               :agent-email="withdrawalDetail.user.email"
             />
-            <WithdrawalResultPanel :review-fields="withdrawalReviewFields" :payment-fields="withdrawalPaymentFields" />
-          </main>
-          <aside class="transaction-detail-page__aside">
             <WithdrawalTimeline :timeline-items="withdrawalTimelineItems" :file-rounds="withdrawalFileRounds" />
           </aside>
         </div>
@@ -78,7 +83,6 @@ import DetailHero from '@/components/detail/DetailHero.vue';
 import { usePageLoading } from '@/composables/usePageLoading';
 import DepositChainVerification from '@/views/deposit/detail/components/ChainVerification.vue';
 import DepositCoreCard from '@/views/deposit/detail/components/CoreCard.vue';
-import DepositReviewResult from '@/views/deposit/detail/components/ReviewResult.vue';
 import DepositTimeline from '@/views/deposit/detail/components/Timeline.vue';
 import ExchangeOverviewCard from '@/views/exchange/detail/components/ExchangeOverviewCard.vue';
 import ExchangeReviewResult from '@/views/exchange/detail/components/ReviewResult.vue';
@@ -87,7 +91,6 @@ import WithdrawalAgentCard from '@/views/withdrawal/detail/components/AgentCard.
 import WithdrawalOrderHeader from '@/views/withdrawal/detail/components/OrderHeader.vue';
 import WithdrawalPartyPanel from '@/views/withdrawal/detail/components/PartyPanel.vue';
 import WithdrawalResultPanel from '@/views/withdrawal/detail/components/ResultPanel.vue';
-import WithdrawalSettlementCard from '@/views/withdrawal/detail/components/SettlementCard.vue';
 import WithdrawalTimeline from '@/views/withdrawal/detail/components/Timeline.vue';
 import { useWithdrawalDetailView } from '@/views/withdrawal/composables/useWithdrawalDetailView';
 import { useTransactionDetail } from './composables/useTransactionDetail';
@@ -99,7 +102,7 @@ const businessTypeRef = toRef(() => route.params.businessType as TransactionBusi
 const businessIdRef = toRef(() => (route.params.businessId ?? '') as string);
 const { loading, info, invalid } = useTransactionDetail(businessTypeRef, businessIdRef);
 usePageLoading(loading);
-const { depositView, exchangeView, timeline } = useTransactionDetailView(info);
+const { exchangeView, timeline } = useTransactionDetailView(info);
 
 const depositDetail = computed(() => info.value?.transaction.business_type === 'deposit' ? info.value.detail as DepositOrderDetail : null);
 const exchangeDetail = computed(() => info.value?.transaction.business_type === 'exchange' ? info.value.detail as ExchangeOrderDetail : null);
@@ -143,9 +146,15 @@ async function copyValue(label: string, value: string) {
   &__toolbar { display: flex; align-items: center; }
   &__withdrawal-workspace {
     display: grid; min-width: 0; align-items: start;
-    grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.95fr); gap: 20px;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 360px); gap: 20px;
   }
-  &__aside { position: sticky; top: 20px; }
+  &__aside {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100dvh - 40px);
+    overflow: hidden;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
 }
 
 @include narrow {
@@ -153,7 +162,7 @@ async function copyValue(label: string, value: string) {
   .transaction-detail-page__split.is-deposit,
   .transaction-detail-page__split.is-exchange,
   .transaction-detail-page__withdrawal-workspace { grid-template-columns: 1fr; }
-  .transaction-detail-page__aside { position: static; }
+  .transaction-detail-page__aside { position: static; max-height: none; overflow: visible; grid-template-rows: none; }
 }
 
 @include mobile {
@@ -176,6 +185,9 @@ async function copyValue(label: string, value: string) {
 
     &__aside {
       position: static;
+      max-height: none;
+      overflow: visible;
+      grid-template-rows: none;
     }
   }
 }

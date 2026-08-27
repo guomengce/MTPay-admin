@@ -4,7 +4,7 @@
  * - 纯函数 / computed 集合，不发起任何网络请求；
  * - 将接口数据转换成页面需要的结构化展示模型；
  * - 过滤空值字段，避免在模板里出现 "—" 风暴；
- * - 构造审核字段、金额关系、付款关系、时间线、附件分组。
+ * - 构造金额关系、付款关系、时间线、附件分组。
  */
 import { computed, type Ref } from 'vue';
 import { formatExchangeRate, formatFixedFee } from '@/utils/decimal';
@@ -215,18 +215,6 @@ export interface TransactionViewModel {
     reviewFields: DetailField[];
     paymentFields: DetailField[];
   } | null;
-  deposit: {
-    amount: string;
-    currencyCode: string;
-    currencyName: string;
-    networkCode: string;
-    networkName: string;
-    txid: string;
-    receivingAddress: string;
-    creditedAt: string | null;
-    reviewFields: DetailField[];
-    timeline: AdminTimelineItem[];
-  } | null;
   exchange: {
     sourceAmount: string;
     sourceCode: string;
@@ -284,41 +272,6 @@ export function useTransactionDetailView(
       companyName: value.transaction.user.company_name,
       agentCode: value.transaction.user.agent_code,
       email: value.transaction.user.email,
-    };
-  });
-
-  const depositView = computed<TransactionViewModel['deposit']>(() => {
-    const value = state.value;
-    if (!value || !isDepositDetail(value.detail)) return null;
-    const detail = value.detail;
-    const review = detail.review;
-    const reviewFields: DetailField[] = [];
-    const reviewAdmin = buildField('review_admin', '审核管理员', review?.admin_name);
-    if (reviewAdmin) reviewFields.push(reviewAdmin);
-    const reviewedAt = buildField('reviewed_at', '审核时间', review?.reviewed_at);
-    if (reviewedAt) reviewFields.push(reviewedAt);
-    const note = buildField(
-      'review_note',
-      detail.status === 2 ? '驳回原因' : '审核备注',
-      review?.note,
-      { wide: true },
-    );
-    if (note) reviewFields.push(note);
-    const credited = buildField('credited_at', '入账时间', detail.credited_at, {
-      accent: detail.status === 1,
-    });
-    if (credited) reviewFields.push(credited);
-    return {
-      amount: detail.amount,
-      currencyCode: detail.currency.code,
-      currencyName: detail.currency.name,
-      networkCode: detail.network.code,
-      networkName: detail.network.name,
-      txid: detail.txid,
-      receivingAddress: detail.receiving_address_snapshot,
-      creditedAt: detail.credited_at,
-      reviewFields,
-      timeline: buildTimelineFromRows(detail.timeline ?? []),
     };
   });
 
@@ -477,7 +430,6 @@ export function useTransactionDetailView(
     isDeposit,
     isExchange,
     isWithdrawal,
-    depositView,
     exchangeView,
     withdrawalView,
     payer,

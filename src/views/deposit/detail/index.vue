@@ -3,15 +3,11 @@
     <template v-if="detail">
       <DetailHero
         compact
-        order="订单号"
-        title="入金审核"
-        description="核对链上凭证与申报金额后完成审核"
+        order="訂單號"
+        title="入金詳情"
         :order-id="detail.order_no"
         :status="heroStatus"
-        :actions="heroActions"
         @back="goBack"
-        @approve="openReviewDialog('approve')"
-        @reject="openReviewDialog('reject')"
       />
 
       <!-- 核心信息（金额 + 代理 + 提交时间） -->
@@ -28,53 +24,38 @@
         <div class="deposit-detail-page__split-col">
           <ChainVerification
             :txid="detail.txid"
+            :platform-transaction-no="detail.safeheron_tx_key"
+            :source-address="detail.source_address_snapshot"
             :receiving-address="detail.receiving_address_snapshot"
             @copy="copyValue"
           />
-          <!-- 审核结果 -->
-          <ReviewResult :items="resultItems" />
         </div>
         <Timeline :items="timelineItems" />
       </div>
-
-      <!-- 审核弹框（通过 / 驳回） -->
-      <DepositAddDialog
-        v-model="dialogVisible"
-        :row="reviewRow"
-        :mode="dialogMode"
-        :submitting="reviewing"
-        @submit="handleSubmit"
-      />
     </template>
     <el-empty v-else-if="!loading" description="未找到入金订单" />
   </section>
 </template>
 
 <script setup lang="ts">
-/** 管理端入金审核详情：组合 4 个区块组件 + 审核弹框，所有展示模型来自详情接口。 */
-import { computed, onMounted, ref } from 'vue';
+/** 管理端入金详情：展示订单、链上资料与处理时间线。 */
+import { computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { CircleCheck, CircleClose } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import DetailHero, { type HeroAction } from '@/components/detail/DetailHero.vue';
+import DetailHero from '@/components/detail/DetailHero.vue';
 import { usePageLoading } from '@/composables/usePageLoading';
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 
-import DepositAddDialog from '../components/DepositAddDialog.vue';
 import ChainVerification from './components/ChainVerification.vue';
 import CoreCard from './components/CoreCard.vue';
-import ReviewResult, {
-  type ReviewResultItem,
-} from './components/ReviewResult.vue';
 import Timeline from './components/Timeline.vue';
-import type { DepositRow } from '../composables/mapper';
 import { useDepositDetail } from '../composables/useDepositDetail';
 
 const route = useRoute();
 const router = useRouter();
-const { detail, loading, reviewing, loadDetail, submitReview } = useDepositDetail();
+const { detail, loading, loadDetail } = useDepositDetail();
 usePageLoading(loading);
 
 const statusType = computed<StatusBadgeType>(() => {
@@ -89,15 +70,6 @@ const heroStatus = computed(() => ({
   effect: detail.value?.status === 0 ? ('pending' as const) : undefined,
 }));
 
-const heroActions = computed<HeroAction[]>(() =>
-  detail.value?.status === 0
-    ? [
-        { label: '通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
-        { label: '拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' },
-      ]
-    : [],
-);
-
 const timelineItems = computed<AdminTimelineItem[]>(() => {
   const source = detail.value?.timeline ?? [];
   const activeIndex = source.findIndex((item) => !item.time);
@@ -109,72 +81,8 @@ const timelineItems = computed<AdminTimelineItem[]>(() => {
   }));
 });
 
-const resultItems = computed<ReviewResultItem[]>(() => {
-  if (!detail.value || detail.value.status === 0) return [];
-
-  const items: ReviewResultItem[] = [];
-  if (detail.value.status === 1 && detail.value.credited_at) {
-    items.push({ label: '资金入账时间', value: detail.value.credited_at, accent: true });
-  }
-  if (detail.value.review?.admin_name) {
-    items.push({ label: '审核人', value: detail.value.review.admin_name });
-  }
-  if (detail.value.review?.reviewed_at) {
-    items.push({ label: '审核时间', value: detail.value.review.reviewed_at });
-  }
-  if (detail.value.review?.note) {
-    items.push({
-      label: detail.value.status === 2 ? '驳回原因' : '审核备注',
-      value: detail.value.review.note,
-      wide: true,
-    });
-  }
-  return items;
-});
-
-const reviewRow = computed<DepositRow | null>(() => {
-  if (!detail.value) return null;
-  return {
-    businessId: detail.value.id,
-    id: detail.value.order_no,
-    time: detail.value.submitted_at || '—',
-    agent: detail.value.user.company_name,
-    agentCode: detail.value.user.agent_code,
-    asset: detail.value.currency.code,
-    network: detail.value.network.code,
-    hash: detail.value.txid,
-    amount: detail.value.amount,
-    status: detail.value.status_name,
-    statusCode: detail.value.status,
-    statusType: statusType.value,
-    statusEffect: detail.value.status === 0 ? 'pending' : undefined,
-  };
-});
-
-const dialogVisible = ref(false);
-const dialogMode = ref<'approve' | 'reject'>('approve');
-
 function goBack() {
   void router.push('/deposit');
-}
-
-function openReviewDialog(mode: 'approve' | 'reject') {
-  dialogMode.value = mode;
-  dialogVisible.value = true;
-}
-
-async function handleSubmit(payload: {
-  row: DepositRow;
-  mode: 'approve' | 'reject';
-  reason?: string;
-}) {
-  await submitReview({
-    id: payload.row.businessId,
-    decision: payload.mode,
-    review_note: payload.mode === 'reject' ? payload.reason?.trim() : undefined,
-  });
-  ElMessage.success(payload.mode === 'approve' ? '入金审核已通过' : '入金申请已拒绝');
-  dialogVisible.value = false;
 }
 
 async function copyValue(label: string, value: string) {

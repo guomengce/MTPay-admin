@@ -18,7 +18,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="hash" show-overflow-tooltip label="交易哈希" min-width="190" />
+      <el-table-column label="交易哈希" min-width="230"><template #default="{row}"><span class="hash-cell">{{formatLongIdentifier(row.hash)}}</span></template></el-table-column>
       <el-table-column label="申報金額" min-width="150">
         <template #default="{ row }">
           <div class="asset">
@@ -34,22 +34,9 @@
       </el-table-column>
       <el-table-column label="操作" width="110" fixed="right">
         <template #default="{ row }">
-          <el-dropdown trigger="click" @command="handleCommand($event, row)">
-            <el-button plain size="small" :icon="MoreFilled">操作</el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="view" :icon="View">詳情</el-dropdown-item>
-                <template v-if="row.statusEffect === 'pending'">
-                  <el-dropdown-item command="approve" :icon="CircleCheck">
-                    <span class="review-command review-command--success">通過</span>
-                  </el-dropdown-item>
-                  <el-dropdown-item command="reject" :icon="CircleClose">
-                    <span class="review-command review-command--danger">拒絕</span>
-                  </el-dropdown-item>
-                </template>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <div class="fee-agent-table__actions">
+            <el-button plain type="primary" size="small" :icon="View" @click="emit('view', row)">查看詳情</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -57,9 +44,10 @@
 </template>
 
 <script setup lang="ts">
-import { CircleCheck, CircleClose, MoreFilled, View } from '@element-plus/icons-vue';
+import { View } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import { formatLongIdentifier } from '@/utils/text';
 
 import type { DepositRow } from '../composables/mapper';
 export type { DepositRow } from '../composables/mapper';
@@ -67,15 +55,7 @@ export type { DepositRow } from '../composables/mapper';
 defineProps<{ data: DepositRow[]; loading?: boolean }>();
 const emit = defineEmits<{
   (e: 'view', row: DepositRow): void;
-  (e: 'approve', row: DepositRow): void;
-  (e: 'reject', row: DepositRow): void;
 }>();
-
-function handleCommand(command: string | number | object, row: DepositRow) {
-  if (command === 'view') emit('view', row);
-  if (command === 'approve') emit('approve', row);
-  if (command === 'reject') emit('reject', row);
-}
 </script>
 
 <style scoped lang="scss">
@@ -104,15 +84,5 @@ function handleCommand(command: string | number | object, row: DepositRow) {
   }
 }
 
-.review-command {
-  font-weight: 600;
-
-  &--success {
-    color: #16a34a;
-  }
-
-  &--danger {
-    color: #dc2626;
-  }
-}
+.hash-cell { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
 </style>

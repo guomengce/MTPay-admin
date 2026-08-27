@@ -12,40 +12,21 @@
         :mail-loading="mailLoading !== null"
         @send-invitation="sendInvitation(overview.user)"
         @send-password-reset="sendPasswordReset(overview.user)"
+        @adjust-asset="openAssetAdjustment"
       />
 
-      <!-- 业务能力 -->
-      <div v-if="capabilitiesAvailable" class="agent-overview-page__config-grid">
-        <AdminPanel
-          title="業務能力"
-          subtitle="當前代理可使用的通道和費用配置"
-          :icon="Setting"
-        >
-          <div class="capability-list">
-            <article>
-              <small>入金通道</small
-              ><strong>{{ overview.capabilities.deposit_channel_count }} 個</strong>
-            </article>
-            <article>
-              <small>兑換方向</small><strong>{{ exchangeDirection }}</strong>
-            </article>
-            <article>
-              <small>出金幣種</small
-              ><strong>{{ overview.capabilities.withdrawal_currency }}</strong>
-            </article>
-            <article>
-              <small>出金手續費</small
-              ><strong
-                >{{ formatFixedFee(overview.capabilities.withdrawal_fee_amount) }}
-                {{ overview.capabilities.withdrawal_currency }}</strong
-              >
-            </article>
-          </div>
-        </AdminPanel>
-      </div>
+      <AgentWalletInfo
+        :wallet-account-address="overview.wallet_account_address"
+        :addresses="overview.crypto_receiving_addresses"
+      />
 
       <!-- 最近交易 -->
-      <RecentOrders :orders="overview.recent_orders" @refresh="loadOverview" @view="openTransaction" />
+      <RecentOrders
+        :orders="recentTransactions"
+        :loading="recentTransactionsLoading"
+        @refresh="loadRecentTransactions()"
+        @view="openTransaction"
+      />
     </template>
 
     <el-empty v-else-if="!loading" description="未讀取到代理資產概覽">
@@ -57,17 +38,25 @@
       :loading="transactionLoading"
       :info="transactionInfo"
     />
+    <AssetAdjustmentDialog
+      v-model="adjustmentVisible"
+      :asset="adjustmentAsset"
+      :mode="adjustmentMode"
+      :submitting="adjustmentSubmitting"
+      @submit="handleAssetAdjustment"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Back, Setting } from '@element-plus/icons-vue';
-import AdminPanel from '@/components/admin/AdminPanel.vue';
+import { ref } from 'vue';
+import { Back } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 import { usePageLoading } from '@/composables/usePageLoading';
-import { formatFixedFee } from '@/utils/decimal';
-import type { AgentRecentTransaction } from '@/api/modules/agent';
+import { adjustAgentBalance, type AgentAssetBalance } from '@/api/modules/agent';
 import AgentOverviewCard from './components/AgentOverviewCard.vue';
+import AssetAdjustmentDialog from './components/AssetAdjustmentDialog.vue';
+import AgentWalletInfo from './components/AgentWalletInfo.vue';
 import RecentOrders from './components/RecentOrders.vue';
 import AgentTransactionDialog from '../components/AgentTransactionDialog.vue';
 import { useAgentOverview } from '../composables/useAgentOverview';
@@ -75,10 +64,12 @@ import { useAgentOverview } from '../composables/useAgentOverview';
 const {
   loading,
   overview,
-  capabilitiesAvailable,
   transactionVisible,
   transactionLoading,
   transactionInfo,
+  recentTransactions,
+  recentTransactionsLoading,
+  loadRecentTransactions,
   mailLoading,
   loadOverview,
   openTransaction,
@@ -88,10 +79,35 @@ const {
 } = useAgentOverview();
 usePageLoading(loading);
 
-const exchangeDirection = computed(() => {
-  if (!overview.value) return '—';
-  return `${overview.value.capabilities.exchange_source_currencies.join(' / ') || '—'} → ${overview.value.capabilities.exchange_target_currency || '—'}`;
-});
+const adjustmentVisible = ref(false);
+const adjustmentAsset = ref<AgentAssetBalance | null>(null);
+const adjustmentMode = ref<'increase' | 'decrease'>('increase');
+const adjustmentSubmitting = ref(false);
+
+function openAssetAdjustment(asset: AgentAssetBalance, mode: 'increase' | 'decrease') {
+  adjustmentAsset.value = asset;
+  adjustmentMode.value = mode;
+  adjustmentVisible.value = true;
+}
+
+async function handleAssetAdjustment(payload: { asset: AgentAssetBalance; mode: 'increase' | 'decrease'; amount: string; remark: string }) {
+  if (!overview.value) return;
+  adjustmentSubmitting.value = true;
+  try {
+    await adjustAgentBalance({
+      user_id: overview.value.user.id,
+      currency_code: payload.asset.currency.code,
+      direction: payload.mode,
+      amount: payload.amount,
+      reason: payload.remark || undefined,
+    });
+    ElMessage.success(payload.mode === 'increase' ? '資產增加成功' : '資產減少成功');
+    adjustmentVisible.value = false;
+    await loadOverview();
+  } finally {
+    adjustmentSubmitting.value = false;
+  }
+}
 
 </script>
 
@@ -108,35 +124,6 @@ const exchangeDirection = computed(() => {
   &__hero-actions :deep(.el-button + .el-button) {
     margin-left: 0;
   }
-  &__config-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
-  }
-}
-
-.capability-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  padding: 20px;
-}
-.capability-list article {
-  display: grid;
-  gap: 6px;
-  padding: 14px;
-  border-radius: 12px;
-  background: #f6f9fc;
-}
-.capability-list small {
-  color: var(--app-text-label);
-  font-size: 12px;
-}
-.capability-list strong {
-  overflow-wrap: anywhere;
-  color: var(--app-text-body);
-  font-size: 14px;
-  font-weight: 600;
 }
 
 @include mobile {
@@ -146,10 +133,6 @@ const exchangeDirection = computed(() => {
   }
   .agent-overview-page__hero-actions :deep(.el-button) {
     width: 100%;
-  }
-  .capability-list {
-    grid-template-columns: 1fr;
-    padding: 16px;
   }
 }
 </style>

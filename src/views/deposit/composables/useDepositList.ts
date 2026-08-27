@@ -1,10 +1,9 @@
 import { onMounted, reactive, ref, watch } from 'vue';
 import { fetchDepositList } from '@/api/modules/deposit';
-import type { DepositStatus } from '@/api/modules/deposit';
 import type { DepositRow } from './mapper';
 import { toDepositRow } from './mapper';
 
-/** 入金审核列表：真实后端分页，不做前端假分页。 */
+/** 入金记录列表：真实后端分页，不做前端假分页。 */
 export function useDepositList() {
   const loading = ref(false);
   const list = ref<DepositRow[]>([]);
@@ -12,7 +11,6 @@ export function useDepositList() {
   const page = ref(1);
   const limit = ref(15);
   const query = reactive({
-    status: undefined as DepositStatus | undefined,
     keyword: '',
     started_at: '',
     ended_at: '',
@@ -24,7 +22,6 @@ export function useDepositList() {
       const result = await fetchDepositList({
         page: page.value,
         limit: limit.value,
-        status: query.status,
         keyword: query.keyword.trim() || undefined,
         started_at: query.started_at || undefined,
         ended_at: query.ended_at || undefined,
@@ -49,7 +46,7 @@ export function useDepositList() {
   }
 
   function reset() {
-    Object.assign(query, { status: undefined, keyword: '', started_at: '', ended_at: '' });
+    Object.assign(query, { keyword: '', started_at: '', ended_at: '' });
     search();
   }
 

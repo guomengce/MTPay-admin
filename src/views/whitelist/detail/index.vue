@@ -113,7 +113,10 @@ const heroActions = computed<HeroAction[]>(() => {
     ];
   }
   if (detail.value?.status === 1) {
-    return [{ label: '驳回', icon: CircleClose, type: 'danger', emitName: 'reject' }];
+    return [
+      { label: '通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
+      { label: '驳回', icon: CircleClose, type: 'danger', emitName: 'reject' },
+    ];
   }
   return [];
 });

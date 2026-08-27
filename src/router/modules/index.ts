@@ -43,8 +43,8 @@ export const featureRoutes: RouteRecordRaw[] = [
     name: 'Currency',
     component: () => import('@/views/currency/index.vue'),
     meta: {
-      title: '币种管理',
-      description: '维护币种网络关系、启停状态及平台收款地址',
+      title: '幣種管理',
+      description: '維護幣種基礎資料與啓停狀態',
       icon: 'Coin',
       requiresAuth: true,
       hidden: false,
@@ -55,7 +55,7 @@ export const featureRoutes: RouteRecordRaw[] = [
     name: 'Deposit',
     component: () => import('@/views/deposit/index.vue'),
     meta: {
-      title: '入金审核',
+      title: '入金記錄',
       description: '确认平台已收到USDT或USDC后，审核通过并增加代理余额',
       icon: 'Wallet',
       requiresAuth: true,
@@ -185,6 +185,18 @@ export const featureRoutes: RouteRecordRaw[] = [
       requiresAuth: true,
       hidden: true,
       activeMenu: '/transactions',
+    },
+  },
+  {
+    path: '/permission',
+    name: 'Permission',
+    component: () => import('@/views/permission/index.vue'),
+    meta: {
+      title: '權限管理',
+      description: '管理可登入後台的管理員帳戶',
+      icon: 'Lock',
+      requiresAuth: true,
+      hidden: false,
     },
   },
   {

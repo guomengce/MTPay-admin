@@ -4,10 +4,6 @@
       <span class="trend-panel__count"><i />共 {{ total }} 筆</span>
     </template>
     <div ref="chartRef" class="trend-panel__chart" role="img" aria-label="近七日交易趨勢柱狀圖" />
-    <footer class="trend-panel__footer">
-      <span>懸停柱狀圖可查看每日明細</span>
-      <span>僅統計筆數，不混算不同幣種金額</span>
-    </footer>
   </AdminPanel>
 </template>
 
@@ -201,7 +197,7 @@ onBeforeUnmount(() => {
 
   &__chart {
     width: calc(100% - 32px);
-    height: 216px;
+    height: 266px;
     margin: 16px 16px 0;
     overflow: hidden;
     //border: 1px solid #e0e8ed;

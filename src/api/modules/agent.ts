@@ -58,6 +58,17 @@ export interface AgentAssetBalance {
   total_balance: string;
 }
 
+/** 代理数字货币收款地址。字段与资产概览接口新增返回保持一致。 */
+export interface AgentCryptoReceivingAddress {
+  currency_code: string;
+  network_code: string;
+  network_name?: string | null;
+  coin_key: string;
+  address: string;
+  status: number;
+  status_name: string;
+}
+
 /** 当前代理实际生效的兑换比例。 */
 export interface AgentEffectiveRate {
   source_currency: { id: number; code: string; name: string };
@@ -68,34 +79,8 @@ export interface AgentEffectiveRate {
 }
 
 /** 资产概览最近交易统一列表项。查看详情必须使用 detail_type 和 detail_id。 */
-export interface AgentRecentTransaction {
-  transaction_key: string;
-  business_type: 'deposit' | 'exchange' | 'withdrawal';
-  business_name: string;
-  id: number;
-  business_id: number;
-  order_no: string;
-  user: Pick<AgentAccount, 'id' | 'agent_code' | 'company_name' | 'email'>;
-  currency_code: string;
-  network_code: string | null;
-  amount: string;
-  target_currency_code: string | null;
-  target_amount: string | null;
-  exchange_rate: string | null;
-  fee_amount: string | null;
-  total_amount: string | null;
-  payer_name: string | null;
-  payee_name: string | null;
-  status: number;
-  status_name: string;
-  status_group: string;
-  status_group_name: string;
-  submitted_at: string;
-  completed_at: string | null;
-  finished_at: string | null;
-  detail_type: 'deposit' | 'exchange' | 'withdrawal';
-  detail_id: number;
-}
+/** 代理详情近期交易直接复用统一交易记录的数据结构。 */
+export type AgentRecentTransaction = import('./transaction').TransactionItem;
 
 export interface AgentAssetOverview {
   user: Pick<
@@ -103,17 +88,10 @@ export interface AgentAssetOverview {
     'id' | 'agent_code' | 'company_name' | 'email' | 'status' | 'status_name'
   >;
   assets: AgentAssetBalance[];
+  wallet_account_address: string;
+  crypto_receiving_addresses: AgentCryptoReceivingAddress[];
   effective_exchange_rates: Partial<Record<'USDT' | 'USDC', AgentEffectiveRate>>;
   pending_counts: { deposit: number; exchange: number; withdrawal: number; total: number };
-  capabilities: {
-    deposit_channel_count: number;
-    exchange_source_currencies: string[];
-    exchange_target_currency: string;
-    withdrawal_currency: string;
-    withdrawal_fee_amount: string;
-  };
-  recent_orders: AgentRecentTransaction[];
-  recent_fund_flows: unknown[];
 }
 
 /** UAT 会按代理实际配置省略部分概览区块，读取层需对这些字段做默认值归一化。 */
@@ -122,7 +100,16 @@ export type AgentAssetOverviewResponse = Pick<AgentAssetOverview, 'user'> &
 
 export interface AgentTransactionInfo {
   transaction: AgentRecentTransaction;
+  /** 旧版近期交易弹框按动态业务字段展示，保留字典形态。 */
   detail: Record<string, unknown>;
+}
+
+export interface AdjustAgentBalancePayload {
+  user_id: number;
+  currency_code: 'USDT' | 'USDC' | 'USD' | string;
+  direction: 'increase' | 'decrease';
+  amount: string;
+  reason?: string;
 }
 
 /** 获取代理账户分页列表，可按编号/公司/邮箱/电话及状态筛选。 */
@@ -140,6 +127,17 @@ export function fetchAgentAssetOverview(userId: number) {
   return request.get<unknown, AgentAssetOverviewResponse>('/admin/getAgentAssetOverview', {
     params: { user_id: userId },
   });
+}
+
+/** 管理员人工增加或减少代理币种资产。POST /admin/adjustAgentBalance */
+export function adjustAgentBalance(payload: AdjustAgentBalancePayload) {
+  const form = new FormData();
+  form.append('user_id', String(payload.user_id));
+  form.append('currency_code', payload.currency_code);
+  form.append('direction', payload.direction);
+  form.append('amount', payload.amount);
+  if (payload.reason) form.append('reason', payload.reason);
+  return request.post('/admin/adjustAgentBalance', form);
 }
 
 /** 获取最近交易的业务详情，参数严格取自列表返回的 detail_type/detail_id。 */

@@ -1,6 +1,6 @@
 <template>
   <AdminPanel title="近期交易" :icon="Tickets">
-    <template #extra><RouterLink class="text-link" to="/transactions">查看全部 →</RouterLink></template>
+    <template #extra><RouterLink class="text-link" to="/transactions">查看全部</RouterLink></template>
     <TransactionTable :data="transactions" @view="openDetail" />
     <TransactionCardList :data="transactions" @view="openDetail" />
   </AdminPanel>

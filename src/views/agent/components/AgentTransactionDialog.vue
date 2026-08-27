@@ -154,6 +154,7 @@ import AdminTimeline from '@/components/admin/AdminTimeline.vue';
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
 import type { AgentTransactionInfo } from '@/api/modules/agent';
 import { formatExchangeRate, formatFixedFee } from '@/utils/decimal';
+import { formatLongIdentifier } from '@/utils/text';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -208,7 +209,7 @@ const detailGroups = computed<DetailGroup[]>(() => {
         icon: '链',
         tone: 'blue',
         fields: [
-          { label: '交易哈希', value: detailText('txid'), wide: true },
+          { label: '交易哈希', value: formatLongIdentifier(detailText('txid')), wide: true },
           { label: '平台收款地址', value: detailText('receiving_address_snapshot'), wide: true },
         ],
       },

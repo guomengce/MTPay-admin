@@ -51,19 +51,19 @@ const form = reactive({ email: '', password: '' });
 const submitting = ref(false);
 
 async function handleSubmit() {
-  if (!form.email.trim() || !form.password) {
-    ElMessage.warning('请输入管理员 Email 和密码');
-    return;
-  }
+  const email = form.email.trim();
+  if (!email) { showLoginMessage('請輸入管理員 Email'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showLoginMessage('請輸入有效的 Email 地址'); return; }
+  if (!form.password) { showLoginMessage('請輸入密碼'); return; }
   submitting.value = true;
   try {
-    const result = await fetchLogin({ email: form.email.trim(), password: form.password });
+    const result = await fetchLogin({ email, password: form.password });
     authStore.login({
       token: result.token,
       userInfo: {
         id: String(result.id),
         name: String(result.name || result.username || result.email || 'MTPay 管理员'),
-        email: String(result.email || form.email.trim()),
+        email: String(result.email || email),
         role: 'admin',
       },
     });
@@ -71,6 +71,10 @@ async function handleSubmit() {
   } finally {
     submitting.value = false;
   }
+}
+
+function showLoginMessage(message: string) {
+  ElMessage({ message, type: 'warning', customClass: 'login-message--dark' });
 }
 </script>
 

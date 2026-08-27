@@ -11,6 +11,7 @@ import { CircleCheck, CircleClose, DocumentAdd, View } from '@element-plus/icons
 import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
+import { getIdentityBadgeType } from '@/utils/identityBadge';
 import type { WhitelistRow } from '../composables/mapper';
 
 const props = defineProps<{ data: WhitelistRow[] }>();
@@ -48,7 +49,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
         icon: CircleCheck,
         type: 'primary',
         plain: true,
-        visible: row.statusCode === 0,
+        visible: row.statusCode === 0 || row.statusCode === 1,
       },
       {
         key: 'supplement',
@@ -71,10 +72,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
 );
 
 function identityBadgeType(row: WhitelistRow): StatusBadgeType {
-  if (row.role === '付款人' && row.entityType === '公司') return 'primary';
-  if (row.role === '付款人' && row.entityType === '个人') return 'warning';
-  if (row.role === '收款人' && row.entityType === '公司') return 'mt';
-  return 'success';
+  return getIdentityBadgeType(row.role, row.entityType);
 }
 
 function handleCardAction(actionKey: string, itemKey: string) {

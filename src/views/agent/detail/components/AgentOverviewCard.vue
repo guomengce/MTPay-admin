@@ -75,6 +75,10 @@
             <strong>{{ asset.frozen_balance }}</strong>
           </div>
         </footer>
+        <div class="asset-card__actions">
+          <el-button type="primary" plain size="small" :icon="Plus" @click="emit('adjust-asset', asset, 'increase')">增加資產</el-button>
+          <el-button type="danger" plain size="small" :icon="Minus" @click="emit('adjust-asset', asset, 'decrease')">減少資產</el-button>
+        </div>
       </article>
       <el-empty v-if="!assets.length" description="暫無資產餘額" />
     </div>
@@ -83,7 +87,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Key, Promotion, UserFilled } from '@element-plus/icons-vue';
+import { Key, Minus, Plus, Promotion, UserFilled } from '@element-plus/icons-vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import type { AgentAssetBalance } from '@/api/modules/agent';
@@ -105,6 +109,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: 'send-invitation'): void;
   (event: 'send-password-reset'): void;
+  (event: 'adjust-asset', asset: AgentAssetBalance, mode: 'increase' | 'decrease'): void;
 }>();
 
 const accountStatusType = computed<StatusBadgeType>(() => {
@@ -404,6 +409,17 @@ function currencyTone(code: string) {
       font-weight: 600;
     }
   }
+
+  &__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+
+    .el-button {
+      width: 100%;
+      margin-left: 0;
+    }
+  }
 }
 
 @include narrow {
@@ -473,5 +489,7 @@ function currencyTone(code: string) {
     &__status { justify-content: space-between; }
     &__action { width: 100%; min-width: 0; white-space: normal; }
   }
+
+  .asset-card__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 </style>

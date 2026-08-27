@@ -82,9 +82,8 @@ function statusType(status: AgentAccount['status']): StatusBadgeType {
 }
 
 function statusOptions(status: AgentAccount['status']): Array<{ label: string; value: AgentStatus }> {
-  if (status === 0) return [{ label: '停用', value: 3 }];
-  if (status === 1) return [{ label: '暂停', value: 2 }, { label: '停用', value: 3 }];
-  if (status === 2) return [{ label: '恢复正常', value: 1 }, { label: '停用', value: 3 }];
+  if (status === 1) return [{ label: '冻结', value: 2 }];
+  if (status === 2) return [{ label: '恢复正常', value: 1 }];
   return [];
 }
 

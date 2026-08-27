@@ -5,10 +5,7 @@
         <span v-if="icon" class="admin-panel__icon">
           <el-icon><component :is="icon" /></el-icon>
         </span>
-        <div>
-          <h2 v-if="title">{{ title }}</h2>
-          <p v-if="subtitle">{{ subtitle }}</p>
-        </div>
+        <h2 v-if="title">{{ title }}</h2>
       </div>
       <slot name="extra" />
     </header>
@@ -39,7 +36,7 @@ defineProps<{
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 20px;
+    padding: 20px 24px;
     border-bottom: 1px solid #e2e9f2;
   }
 
@@ -52,9 +49,9 @@ defineProps<{
 
   &__icon {
     display: inline-flex;
-    width: 52px;
-    height: 52px;
-    flex: 0 0 52px;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
     align-items: center;
     justify-content: center;
     border-radius: 12px;
@@ -68,12 +65,6 @@ defineProps<{
     color: var(--app-text-heading);
     font-size: 20px;
     font-weight: 700;
-  }
-
-  p {
-    margin: 5px 0 0;
-    color: var(--app-text-label);
-    font-weight: 500;
   }
 
   @include mobile {

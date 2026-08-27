@@ -10,9 +10,9 @@
           <strong>{{ amount }}</strong
           ><span>{{ currency.code }}</span>
         </p>
-        <em
+        <!-- <em
           >{{ currency.name }} · {{ network.name }}（{{ network.code }}）</em
-        >
+        > -->
       </div>
     </div>
     <div class="deposit-core__meta">
@@ -22,7 +22,7 @@
         </span>
         <div>
           <small>申请代理</small><strong>{{ user.company_name }}</strong>
-          <p>{{ user.agent_code }} · {{ user.email }}</p>
+          <p> {{ user.email }}</p>
         </div>
       </article>
       <article>

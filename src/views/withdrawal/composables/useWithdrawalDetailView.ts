@@ -3,6 +3,7 @@ import { computed, type Ref } from 'vue';
 
 import type { WithdrawalFile, WithdrawalOrderDetail, WithdrawalParty } from '@/api/modules/withdrawal';
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
+import { getRemittancePurposeLabel } from '@/constants/remittancePurposes';
 
 export interface DetailField {
   key: string;
@@ -23,25 +24,30 @@ export interface WithdrawalFileRound {
 }
 
 const FIELD_LABELS: Record<string, string> = {
-  company_name: '公司名称',
+  company_name: '公司名稱',
   given_name: '名',
   surname: '姓',
-  company_type: '公司类型',
-  registration_date: '注册日期',
-  registration_country: '注册国家／地区',
-  operating_country: '经营国家／地区',
-  nationality: '国籍',
-  residence_country: '居住国家／地区',
-  city: '城市',
-  address: '详细地址',
-  document_type: '证件类型',
-  document_no: '证件编号',
-  bank_name: '银行名称',
-  bank_account: '银行账号',
+  company_type: '公司類型',
+  registration_date: '註冊日期',
+  registration_country: '註冊國家／地區',
+  operating_country: '經營國家／地區',
+  nationality: '國籍',
+  residence_country: '居住國家／地區',
+  city: '所在城市',
+  address: '詳細地址',
+  birth_date: '出生日期',
+  document_type: '證件類型',
+  document_no: '證件編號',
+  bank_name: '銀行名稱',
+  bank_address: '銀行地址',
+  bank_account: '銀行賬號',
+  account_no: '銀行賬號',
+  iban: 'IBAN',
   swift: 'SWIFT',
-  intermediary_swift: '中间行 SWIFT',
-  remittance_purpose: '汇款目的',
-  remark: '备注',
+  swift_code: 'SWIFT Code',
+  intermediary_swift: '中間行 SWIFT（可選）',
+  remittance_purpose: '匯款目的',
+  remark: '備註（可選）',
 };
 
 const HIDDEN_PARTY_FIELDS = new Set([
@@ -54,44 +60,108 @@ const HIDDEN_PARTY_FIELDS = new Set([
   'role_name',
   'entity_type',
   'entity_type_name',
-  // KYC 字段：出金审核场景价值低，不展示
-  'document_type',
-  'document_no',
-  'registration_date',
-  'registration_country',
-  'operating_country',
-  'nationality',
-  'residence_country',
+  'account_no',
+  'swift_code',
 ]);
 
 /** 出金场景最关心的银行收款信息，排在主体信息之前。 */
-const BANK_FIELDS = new Set(['bank_name', 'bank_account', 'swift', 'intermediary_swift']);
+const BANK_FIELDS = new Set([
+  'bank_name',
+  'bank_address',
+  'bank_account',
+  'account_no',
+  'iban',
+  'swift',
+  'swift_code',
+  'intermediary_swift',
+  'remittance_purpose',
+  'remark',
+]);
 
-function displayValue(raw: unknown) {
+const PAYER_COMPANY_FIELDS = [
+  'company_name',
+  'company_type',
+  'registration_country',
+  'operating_country',
+  'city',
+  'address',
+  'registration_date',
+  'document_no',
+];
+const PAYEE_COMPANY_FIELDS = ['company_name', 'operating_country', 'city', 'address'];
+const PAYER_PERSON_FIELDS = [
+  'given_name',
+  'surname',
+  'nationality',
+  'residence_country',
+  'city',
+  'address',
+  'birth_date',
+  'document_type',
+  'document_no',
+];
+const PAYEE_PERSON_FIELDS = [
+  'given_name',
+  'surname',
+  'nationality',
+  'residence_country',
+  'city',
+  'address',
+];
+const PAYEE_BANK_FIELDS = [
+  'bank_name',
+  'bank_account',
+  'swift',
+  'intermediary_swift',
+  'remittance_purpose',
+  'remark',
+];
+
+const COMPANY_TYPES: Record<number, string> = { 1: '非金融機構', 2: '金融機構' };
+const DOCUMENT_TYPES: Record<number, string> = { 1: '身份證件', 2: '護照' };
+
+function displayValue(key: string, raw: unknown) {
   if (raw === null || raw === undefined || raw === '') return '';
+  if (key === 'company_type') return COMPANY_TYPES[Number(raw)] || String(raw);
+  if (key === 'document_type') return DOCUMENT_TYPES[Number(raw)] || String(raw);
+  if (key === 'remittance_purpose') return getRemittancePurposeLabel(raw);
   if (typeof raw === 'boolean') return raw ? '是' : '否';
   if (typeof raw === 'object') return JSON.stringify(raw);
   return String(raw);
 }
 
-function collectSnapshot(snapshot: Record<string, unknown> | undefined) {
-  if (!snapshot) return [];
-  const merged: Record<string, unknown> = { ...snapshot };
-  const businessData = snapshot.business_data;
+function collectSnapshot(party: WithdrawalParty | undefined, includeBank: boolean) {
+  const source = party?.data ?? party?.snapshot;
+  const merged: Record<string, unknown> = source ? { ...source } : {};
+  const businessData = source?.business_data;
   delete merged.business_data;
   if (businessData && typeof businessData === 'object' && !Array.isArray(businessData)) {
     Object.assign(merged, businessData);
   }
+  if (!merged.bank_account && merged.account_no) merged.bank_account = merged.account_no;
+  if (!merged.swift && merged.swift_code) merged.swift = merged.swift_code;
+  if (!merged.company_name && party?.entity_type === 1) merged.company_name = party.name;
 
-  const entries = Object.entries(merged)
-    .filter(([key, value]) => !HIDDEN_PARTY_FIELDS.has(key) && displayValue(value))
-    .map(([key, value]) => ({
+  const subjectKeys = party?.entity_type === 2
+    ? (includeBank ? PAYEE_PERSON_FIELDS : PAYER_PERSON_FIELDS)
+    : (includeBank ? PAYEE_COMPANY_FIELDS : PAYER_COMPANY_FIELDS);
+  const expectedKeys = [...subjectKeys, ...(includeBank ? PAYEE_BANK_FIELDS : [])];
+  const extraKeys = Object.keys(merged).filter(
+    (key) => !HIDDEN_PARTY_FIELDS.has(key) && !expectedKeys.includes(key),
+  );
+
+  const entries = [...expectedKeys, ...extraKeys].map((key) => {
+    const value = merged[key];
+    return {
       key,
-      label: FIELD_LABELS[key] || key.split('_').join(' '),
-      value: displayValue(value),
-      wide: key === 'address' || key === 'remark' || key === 'remittance_purpose',
-      mono: ['document_no', 'bank_account', 'swift', 'intermediary_swift'].includes(key),
-    }));
+      label: key === 'document_no'
+        ? (party?.entity_type === 1 ? '公司編號' : '證件編號')
+        : (FIELD_LABELS[key] || key.split('_').join(' ')),
+      value: displayValue(key, value) || '—',
+      wide: ['address', 'bank_address', 'remark', 'remittance_purpose'].includes(key),
+      mono: ['document_no', 'bank_account', 'account_no', 'iban', 'swift', 'swift_code', 'intermediary_swift'].includes(key),
+    };
+  });
 
   const bank = entries.filter((item) => BANK_FIELDS.has(item.key));
   const subject = entries.filter((item) => !BANK_FIELDS.has(item.key));
@@ -106,8 +176,8 @@ export function formatFileSize(size: number) {
 }
 
 export function useWithdrawalDetailView(detail: Ref<WithdrawalOrderDetail | null>) {
-  const payerFields = computed(() => collectSnapshot(detail.value?.payer?.snapshot));
-  const payeeFields = computed(() => collectSnapshot(detail.value?.payee?.snapshot));
+  const payerFields = computed(() => collectSnapshot(detail.value?.payer, false));
+  const payeeFields = computed(() => collectSnapshot(detail.value?.payee, true));
 
   const payerBankFields = computed(() => payerFields.value.filter((f) => BANK_FIELDS.has(f.key)));
   const payeeBankFields = computed(() => payeeFields.value.filter((f) => BANK_FIELDS.has(f.key)));
@@ -187,6 +257,7 @@ export function useWithdrawalDetailView(detail: Ref<WithdrawalOrderDetail | null
       })),
   );
 
+  /** 交易记录详情仍依赖该兼容方法；出金审核详情已改用四种独立卡片。 */
   function partyType(party: WithdrawalParty | undefined) {
     if (!party) return '—';
     return party.entity_type === 1 ? '公司' : '个人';

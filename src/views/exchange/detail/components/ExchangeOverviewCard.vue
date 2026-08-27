@@ -9,11 +9,8 @@
             <strong>{{ sourceAmount }}</strong>
             <span>{{ sourceCurrency.code }}</span>
           </p>
-          <em>{{ sourceCurrency.name }}</em>
         </div>
-        <span :class="['currency-glyph', `currency-glyph--${sourceTone}`]">
-          {{ sourceSymbol }}
-        </span>
+        
       </article>
 
       <!-- 提交时汇率 -->
@@ -31,16 +28,12 @@
 
       <!-- 预计到账 -->
       <article class="exchange-asset is-target">
-        <span :class="['currency-glyph', `currency-glyph--${targetTone}`]">
-          {{ targetSymbol }}
-        </span>
         <div class="exchange-asset__body">
           <small>预计到账</small>
           <p>
             <strong>{{ targetAmount }}</strong>
             <span>{{ targetCurrency.code }}</span>
           </p>
-          <em>{{ targetCurrency.name }}</em>
         </div>
       </article>
     </div>
@@ -53,7 +46,7 @@
         <div>
           <small>申请代理</small>
           <strong>{{ user.company_name }}</strong>
-          <p>{{ user.agent_code }} · {{ user.email }}</p>
+          <p>{{ user.email }}</p>
         </div>
       </article>
       <article>

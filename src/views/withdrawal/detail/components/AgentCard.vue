@@ -1,14 +1,9 @@
 <template>
-  <AdminPanel title="申请代理" subtitle="本次出金订单所属的代理账户" :icon="UserFilled">
+  <AdminPanel title="申請代理" :icon="UserFilled">
     <div class="order-info">
-      <article class="order-info__cell is-agent">
-        <span class="order-info__icon"><el-icon><UserFilled /></el-icon></span>
-        <div class="order-info__body">
-          <small>申请代理</small>
-          <strong>{{ agentCompany }}</strong>
-          <p>{{ agentCode }} · {{ agentEmail }}</p>
-        </div>
-      </article>
+      <div><small>代理名稱</small><strong>{{ agentCompany }}</strong></div>
+      <div><small>代理編號</small><strong>{{ agentCode }}</strong></div>
+      <div><small>聯絡郵箱</small><strong>{{ agentEmail }}</strong></div>
     </div>
   </AdminPanel>
 </template>
@@ -28,61 +23,34 @@ defineProps<{
 <style scoped lang="scss">
 .order-info {
   display: grid;
+  padding: 10px 18px 16px;
   grid-template-columns: 1fr;
-  gap: 14px;
-  padding: 20px 24px 24px;
 
-  &__cell {
-    display: flex;
+  > div {
+    display: grid;
     min-width: 0;
-    align-items: flex-start;
-    gap: 12px;
-    align-items: center;
-    padding: 14px 16px;
-    border: 1px solid #e0e8f0;
-    border-radius: 14px;
-    background: #fbfcfe;
+    gap: 5px;
+    padding: 9px 2px;
+    border-bottom: 1px solid #e1e8ef;
   }
-
-  &__icon {
-    display: inline-flex;
-    width: 40px;
-    height: 40px;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    border-radius: 11px;
-    font-size: 19px;
-    color: #7457e8;
-    background: #f0edff;
-
-  }
-
-  &__body { min-width: 0; }
+  > div:last-child { border-bottom: 0; }
 
   small { color: var(--app-text-label); font-size: 12px; }
 
   strong {
-    display: block;
-    margin-top: 6px;
     color: var(--app-text-body);
     font-size: 15px;
     overflow-wrap: anywhere;
   }
 
-  p {
-    margin: 5px 0 0;
-    color: var(--app-text-label);
-    font-size: 12px;
-    overflow-wrap: anywhere;
-  }
 }
 
 @include mobile {
   .order-info {
     grid-template-columns: 1fr;
     padding: 16px;
-
+    > div { padding: 10px 0; border-bottom: 1px solid #e1e8ef; }
+    > div:last-child { border-bottom: 0; }
   }
 }
 </style>

@@ -4,44 +4,37 @@
       <span class="chain-verification__icon">
         <el-icon><Link /></el-icon>
       </span>
-      <div class="chain-verification__heading">
-        <h3>链上核验</h3>
-        <p>确认交易哈希与平台收款地址一致</p>
-      </div>
+      <h3>鏈上交易資料</h3>
     </header>
 
-    <ul class="chain-verification__list">
-      <li class="chain-verification__row">
-        <span class="chain-verification__label">交易哈希 Txid</span>
-        <code class="chain-verification__value">{{ txid }}</code>
-        <el-button
-          class="chain-verification__copy"
-          :icon="DocumentCopy"
-          @click="emit('copy', '交易哈希', txid)"
-        >
-          复制
-        </el-button>
-      </li>
-      <li class="chain-verification__row">
-        <span class="chain-verification__label">平台收款地址</span>
-        <code class="chain-verification__value">{{ receivingAddress }}</code>
-        <el-button
-          class="chain-verification__copy"
-          :icon="DocumentCopy"
-          @click="emit('copy', '平台收款地址', receivingAddress)"
-        >
-          复制
-        </el-button>
-      </li>
-    </ul>
+    <div class="chain-verification__body">
+      <div class="chain-verification__flow">
+        <article class="chain-verification__address">
+          <span class="chain-verification__eyebrow">從</span><strong>轉出地址</strong>
+          <div class="chain-verification__address-value"><code>{{ sourceAddress || '—' }}</code><el-button v-if="sourceAddress" text circle :icon="DocumentCopy" aria-label="複製轉出地址" @click="emit('copy', '轉出地址', sourceAddress)" /></div>
+        </article>
+        <span class="chain-verification__direction" aria-hidden="true"><el-icon><Right /></el-icon></span>
+        <article class="chain-verification__address">
+          <span class="chain-verification__eyebrow">到</span><strong>代理专属地址</strong>
+          <div class="chain-verification__address-value"><code>{{ receivingAddress || '—' }}</code><el-button v-if="receivingAddress" text circle :icon="DocumentCopy" aria-label="複製平台收款地址" @click="emit('copy', '平台收款地址', receivingAddress)" /></div>
+        </article>
+      </div>
+      <dl class="chain-verification__meta">
+        <div><dt>平台交易號</dt><dd><code>{{ formatLongIdentifier(platformTransactionNo) }}</code><el-button v-if="platformTransactionNo" text circle :icon="DocumentCopy" aria-label="複製平台交易號" @click="emit('copy', '平台交易號', platformTransactionNo)" /></dd></div>
+        <div><dt>交易哈希 Txid</dt><dd><code>{{ formatLongIdentifier(txid) }}</code><el-button v-if="txid" text circle :icon="DocumentCopy" aria-label="複製交易雜湊" @click="emit('copy', '交易雜湊', txid)" /></dd></div>
+      </dl>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { DocumentCopy, Link } from '@element-plus/icons-vue';
+import { DocumentCopy, Link, Right } from '@element-plus/icons-vue';
+import { formatLongIdentifier } from '@/utils/text';
 
 defineProps<{
   txid: string;
+  platformTransactionNo: string;
+  sourceAddress: string;
   receivingAddress: string;
 }>();
 
@@ -64,6 +57,8 @@ const emit = defineEmits<{
     gap: 12px;
     padding: 20px 24px;
     border-bottom: 1px solid #e4eaf2;
+
+    h3 { margin: 0; color: var(--app-text-heading); font-size: 18px; font-weight: 700; }
   }
 
   &__icon {
@@ -79,77 +74,77 @@ const emit = defineEmits<{
     font-size: 20px;
   }
 
-  &__heading {
+  &__body { display: grid; gap: 18px; padding: 20px 24px 24px; }
+
+  &__flow {
     display: grid;
-    gap: 4px;
-    min-width: 0;
-
-    h3 {
-      margin: 0;
-      color: var(--app-text-heading);
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    p {
-      margin: 0;
-      color: var(--app-text-label);
-      font-size: 13px;
-    }
-  }
-
-  &__list {
-    margin: 0;
-    padding: 0 24px 12px;
-    list-style: none;
-  }
-
-  &__row {
-    display: grid;
-    grid-template-columns: minmax(120px, auto) minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) 38px minmax(0, 1fr);
     align-items: center;
-    gap: 16px;
-    padding: 18px 0;
-    border-bottom: 1px dashed #dde6f0;
-
-    &:last-child {
-      border-bottom: 0;
-    }
+    gap: 14px;
+    padding: 18px;
+    border-radius: 14px;
+    background: #f5f8fc;
   }
 
-  &__label {
-    color: var(--app-text-label);
-    font-size: 16px;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  &__value {
+  &__address {
+    display: grid;
     min-width: 0;
-    color: var(--app-text-body);
-    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    font-size: 16px;
-    line-height: 1.65;
-    overflow-wrap: anywhere;
-    white-space: normal;
-    word-break: break-all;
+    gap: 8px;
+
+    strong { color: var(--app-text-heading); font-size: 14px; }
   }
 
-  &__copy {
-    height: 32px;
-    padding: 0 14px;
-    border: none;
-    border-radius: 8px;
-    color: #1f73f2;
-    background: #eaf3ff;
-    font-size: 13px;
-    font-weight: 500;
-    transition: background 0.15s ease;
+  &__eyebrow { color: var(--app-text-label); font-size: 13px; }
 
-    &:hover,
-    &:focus {
-      color: #1f73f2;
-      background: #d6e8ff;
+  &__address-value,
+  &__meta dd {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 6px;
+
+    code { min-width: 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; word-break: break-all; }
+    .el-button { flex: 0 0 auto; color: #079b92; }
+  }
+
+  &__direction {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #a9ded9;
+    border-radius: 50%;
+    color: #099e95;
+    background: #fff;
+  }
+
+  &__meta {
+    display: grid;
+    margin: 0;
+    gap: 0;
+
+    > div {
+      display: grid;
+      min-width: 0;
+      grid-template-columns: 150px minmax(0, 1fr);
+      align-items: center;
+      gap: 16px;
+      padding: 15px 4px;
+      border-bottom: 1px solid #e8edf3;
+
+      &:last-child { border-bottom: 0; }
+    }
+
+    dt { color: var(--app-text-label); font-size: 13px; }
+    dd {
+      justify-content: space-between;
+      margin: 0;
+      color: var(--app-text-body);
+      font-size: 14px;
+      font-weight: 600;
+
+      .el-button { margin-left: auto; }
     }
   }
 }
@@ -157,19 +152,15 @@ const emit = defineEmits<{
 @include mobile {
   .chain-verification {
     &__header,
-    &__list {
+    &__body {
       padding-right: 18px;
       padding-left: 18px;
     }
 
-    &__row {
-      grid-template-columns: 1fr;
-      gap: 8px;
-    }
+    &__flow { grid-template-columns: 1fr; }
 
-    &__copy {
-      justify-self: flex-end;
-    }
+    &__direction { transform: rotate(90deg); justify-self: center; }
+    &__meta > div { grid-template-columns: 1fr; gap: 8px; }
   }
 }
 </style>

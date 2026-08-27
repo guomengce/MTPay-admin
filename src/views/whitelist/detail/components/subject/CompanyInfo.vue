@@ -23,6 +23,9 @@ defineProps<{
 }>();
 
 function fieldClass(field: WhitelistDetailField) {
-  return { 'is-wide': field.wide, 'is-missing': field.missing };
+  return {
+    'is-wide': field.key === 'company_name' || field.wide,
+    'is-missing': field.missing,
+  };
 }
 </script>

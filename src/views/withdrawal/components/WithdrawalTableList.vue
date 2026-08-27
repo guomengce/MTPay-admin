@@ -50,7 +50,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="状态" min-width="90">
+      <el-table-column label="状态" min-width="120">
         <template #default="{ row }">
           <StatusBadge :label="row.status" :type="row.statusType" :effect="row.statusEffect" />
         </template>

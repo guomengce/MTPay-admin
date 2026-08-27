@@ -5,31 +5,24 @@
     :icon="OfficeBuilding"
   >
     <template #extra>
-      <div class="subject-meta-tags">
-        <span class="subject-meta-tags__chip">
-          <el-icon><Postcard /></el-icon>
-          <span>{{ roleName }}</span>
-        </span>
-        <span class="subject-meta-tags__chip subject-meta-tags__chip--entity">
-          <el-icon><component :is="entityType === 1 ? OfficeBuilding : User" /></el-icon>
-          <span>{{ entityTypeName }}（{{ entityType === 1 ? 'B' : 'C' }}）</span>
-        </span>
-      </div>
+      <IdentityBadge :role="role" :entity-type="entityType" />
     </template>
 
     <div class="subject-info__sections">
       <!-- 聚合层只判断主体类型，各资料组件在不同组合间复用。 -->
       <template v-if="entityType === 1">
-        <CompanyInfo :fields="role === 1 ? companyIdentityFields : payeeCompanyFields" />
-        <CompanyAddress :fields="role === 1 ? registrationFields : payeeCompanyLocationFields" />
+        <CompanyInfo
+          :fields="role === 1
+            ? [...companyIdentityFields, ...registrationFields]
+            : [...payeeCompanyFields, ...payeeCompanyLocationFields]"
+        />
       </template>
 
       <template v-else-if="entityType === 2">
         <PersonalInfo
-          :fields="role === 1 ? payerIndividualIdentityFields : payeeIndividualIdentityFields"
-        />
-        <ResidenceInfo
-          :fields="role === 1 ? payerIndividualResidenceFields : payeeIndividualResidenceFields"
+          :fields="role === 1
+            ? [...payerIndividualIdentityFields, ...payerIndividualResidenceFields]
+            : [...payeeIndividualIdentityFields, ...payeeIndividualResidenceFields]"
         />
       </template>
 
@@ -39,15 +32,14 @@
 </template>
 
 <script setup lang="ts">
-import { OfficeBuilding, Postcard, User } from '@element-plus/icons-vue';
+import { OfficeBuilding } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import IdentityBadge from '@/components/admin/IdentityBadge.vue';
 
 import BankInfo from './subject/BankInfo.vue';
-import CompanyAddress from './subject/CompanyAddress.vue';
 import CompanyInfo from './subject/CompanyInfo.vue';
 import PersonalInfo from './subject/PersonalInfo.vue';
-import ResidenceInfo from './subject/ResidenceInfo.vue';
 import type { WhitelistDetailField } from '../../composables/useWhitelistDetailView';
 
 defineProps<{
@@ -93,27 +85,6 @@ defineProps<{
     padding: 18px 26px 26px;
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
-  }
-}
-
-.subject-meta-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-
-  &__chip {
-    display: inline-flex;
-    height: 30px;
-    align-items: center;
-    gap: 6px;
-    padding: 0 13px;
-    border-radius: 9px;
-    color: #087f79;
-    background: #e6f7f4;
-    font-size: 13px;
-    font-weight: 600;
-
-    &--entity { color: #235f9d; background: #edf4fb; }
   }
 }
 

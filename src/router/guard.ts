@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/modules/auth';
 import { usePageLoadingStore } from '@/stores/modules/pageLoading';
 
 router.beforeEach((to) => {
-  usePageLoadingStore().start();
+  usePageLoadingStore().startRoute();
   const authStore = useAuthStore();
   const title = to.meta?.title ? `${String(to.meta.title)} - ${appConfig.title}` : appConfig.title;
   document.title = title;
@@ -26,5 +26,5 @@ router.beforeEach((to) => {
   return true;
 });
 
-router.afterEach(() => usePageLoadingStore().finish());
-router.onError(() => usePageLoadingStore().finish());
+router.afterEach(() => usePageLoadingStore().finishRoute());
+router.onError(() => usePageLoadingStore().finishRoute());

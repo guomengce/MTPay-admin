@@ -8,25 +8,13 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="USDT 比例" min-width="170">
-        <template #default="{ row }">
-          <div class="fee-agent-table__rate">
-            <strong>{{ row.usdt_rate }}</strong>
-            <span :class="{ 'is-custom': row.usdt_source === '代理专属' }">{{ row.usdt_source }}</span>
-          </div>
-        </template>
+      <el-table-column prop="usdt_rate" label="USDT 比例" min-width="170">
       </el-table-column>
-      <el-table-column label="USDC 比例" min-width="170">
-        <template #default="{ row }">
-          <div class="fee-agent-table__rate">
-            <strong>{{ row.usdc_rate }}</strong>
-            <span :class="{ 'is-custom': row.usdc_source === '代理专属' }">{{ row.usdc_source }}</span>
-          </div>
-        </template>
+      <el-table-column prop="usdc_rate" label="USDC 比例" min-width="170">
       </el-table-column>
       <el-table-column label="状态" min-width="90">
         <template #default="{ row }">
-          <StatusBadge :label="row.status_name" :type="row.status === 1 ? 'success' : 'warning'" />
+          <StatusBadge :label="row.status_name" :effect="row.status == 0 ? 'pending': undefined" :type="row.status === 1 ? 'success' : 'warning'" />
         </template>
       </el-table-column>
       <el-table-column label="操作" min-width="180" fixed="right" align="center">

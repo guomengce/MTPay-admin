@@ -8,6 +8,7 @@ import { computed, type Ref } from 'vue';
 
 import type { WhitelistDetail, WhitelistFile } from '@/api/modules/whitelist';
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
+import { getRemittancePurposeLabel } from '@/constants/remittancePurposes';
 
 export interface WhitelistDetailField {
   key: string;
@@ -31,48 +32,10 @@ export interface WhitelistFileRound {
 const COMPANY_TYPES: Record<number, string> = { 1: '非金融机构', 2: '金融机构' };
 const DOCUMENT_TYPES: Record<number, string> = { 1: '身份证件', 2: '护照' };
 
-const REMITTANCE_PURPOSES = [
-  'Salary (Compensation of employees)',
-  'Purchase of real estate abroad from residents',
-  'Allowance',
-  'Agency Commissions',
-  'Advance Payment against EOS',
-  'Bonus',
-  'Commission',
-  'Compensation',
-  'End of Service/ Final Settlement',
-  'Leave Salary',
-  'Own Account Transfer',
-  'Overtime',
-  'Pension',
-  'Personal Investment',
-  'Salary Advance',
-  'Transfer of Funds between persons Normal and Judicial',
-  'Educational Support',
-  'Equity other than investment fund shares in not related companies abroad',
-  'Investment fund shares foreign',
-  'Tickets',
-  'Leasing abroad',
-  'Repos on foreign securities',
-  'Trade credits and advances receivable',
-  'Loan Interest Payments',
-  'Loan Charges',
-  'Monetary Claim Reimbursements',
-  'Equated Monthly Installments',
-  'Trade credits and advances payable',
-  'Rent Payments',
-  'Utility Bill Payments',
-  'Goods sold',
-  'Goods bought',
-];
-
 function presentValue(key: string, raw: unknown) {
   if (key === 'company_type') return COMPANY_TYPES[Number(raw)] || String(raw);
   if (key === 'document_type') return DOCUMENT_TYPES[Number(raw)] || String(raw);
-  if (key === 'remittance_purpose') {
-    const number = Number(raw);
-    return REMITTANCE_PURPOSES[number - 1] || String(raw);
-  }
+  if (key === 'remittance_purpose') return getRemittancePurposeLabel(raw);
   return String(raw);
 }
 

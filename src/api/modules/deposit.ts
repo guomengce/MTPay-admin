@@ -1,7 +1,8 @@
-/** 管理端入金审核 API：列表、详情、审核。 */
+/** 管理端入金记录 API：列表与详情。 */
 import request from '../request';
 
 export type DepositStatus = 0 | 1 | 2;
+/** 兑换、出金等仍需审核的模块共用类型；入金流程不再使用。 */
 export type ReviewDecision = 'approve' | 'reject';
 
 export interface BusinessUser {
@@ -24,6 +25,7 @@ export interface NetworkRef {
   name: string;
 }
 
+/** 兑换、出金等仍需审核的模块共用审核信息。 */
 export interface ReviewInfo {
   admin_id: number | null;
   admin_name: string | null;
@@ -45,6 +47,9 @@ export interface DepositOrder {
   network: NetworkRef;
   amount: string;
   txid: string;
+  safeheron_tx_key: string;
+  coin_key: string;
+  source_address_snapshot: string;
   receiving_address_snapshot: string;
   status: DepositStatus;
   status_name: string;
@@ -53,7 +58,6 @@ export interface DepositOrder {
 }
 
 export interface DepositOrderDetail extends DepositOrder {
-  review: ReviewInfo;
   credited_at: string | null;
   timeline: TimelineItem[];
 }
@@ -80,12 +84,6 @@ export interface DepositListParams {
   limit: number;
 }
 
-export interface ReviewDepositPayload {
-  id: number;
-  decision: ReviewDecision;
-  review_note?: string;
-}
-
 /** 获取入金分页列表。GET /admin/getDepositList */
 export function fetchDepositList(params: DepositListParams) {
   return request.get<unknown, DepositPageResult>('/admin/getDepositList', { params });
@@ -94,9 +92,4 @@ export function fetchDepositList(params: DepositListParams) {
 /** 获取入金详情。GET /admin/getDepositInfo?id=... */
 export function fetchDepositDetail(id: number) {
   return request.get<unknown, DepositOrderDetail>('/admin/getDepositInfo', { params: { id } });
-}
-
-/** 审核入金；仅待审核订单允许操作。POST /admin/reviewDeposit */
-export function reviewDeposit(payload: ReviewDepositPayload) {
-  return request.post<unknown, DepositOrderDetail>('/admin/reviewDeposit', payload);
 }

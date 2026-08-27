@@ -7,7 +7,7 @@
     <template #extra>
       <el-button :icon="Refresh" @click="emit('refresh')">刷新</el-button>
     </template>
-    <div class="recent-orders">
+    <div v-loading="loading" class="recent-orders">
       <el-table :data="orders" class="admin-data-table" stripe>
         <el-table-column prop="order_no" label="訂單號" min-width="190" />
         <el-table-column prop="business_name" label="業務類型" width="110" />
@@ -54,6 +54,7 @@ import RecentOrderCardList from './RecentOrderCardList.vue';
 
 defineProps<{
   orders: AgentRecentTransaction[];
+  loading?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -79,7 +80,6 @@ function transactionStatusType(group: string): StatusBadgeType {
 .recent-orders {
   min-width: 0;
   overflow-x: auto;
-  padding: 0 20px 20px;
 }
 .amount-cell {
   color: var(--app-text-body);

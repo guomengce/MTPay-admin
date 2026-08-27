@@ -27,8 +27,8 @@ export const request = axios.create({
   },
 });
 
-/** 仅凭证失效才清理登录态；402/403/422 等业务状态不能误退出。 */
-const AUTH_EXPIRED_STATUS = 401;
+/** 仅凭证失效才清理登录态；兼容 HTTP 401 与后端业务失效状态。 */
+const AUTH_EXPIRED_STATUSES = new Set([401, 50013, 50039]);
 const PUBLIC_AUTH_PATHS = new Set(['/api/getPubKey', '/admin/adminLogin']);
 let sessionExpiredHandled = false;
 
@@ -70,7 +70,7 @@ request.interceptors.response.use(
         return body.data;
       }
       if (
-        businessStatus === AUTH_EXPIRED_STATUS &&
+        AUTH_EXPIRED_STATUSES.has(businessStatus) &&
         !isPublicAuthRequest(response.config.url)
       ) {
         await handleSessionExpired();
@@ -86,7 +86,7 @@ request.interceptors.response.use(
   async (error: AxiosError<ApiResponse<unknown>>) => {
     const status = error.response?.status;
 
-    if (status === AUTH_EXPIRED_STATUS && !isPublicAuthRequest(error.config?.url)) {
+    if (status && AUTH_EXPIRED_STATUSES.has(status) && !isPublicAuthRequest(error.config?.url)) {
       await handleSessionExpired();
       return Promise.reject(error);
     }
@@ -129,7 +129,7 @@ async function handleSessionExpired() {
   const redirect = currentRoute.name === 'Login' ? undefined : currentRoute.fullPath;
 
   authStore.clearAuth();
-  ElMessage.error('登录状态已失效，请重新登录');
+  ElMessage.error('登錄狀態已失效，請重新登錄');
   await router
     .replace({ name: 'Login', query: redirect ? { redirect } : undefined })
     .catch(() => undefined);

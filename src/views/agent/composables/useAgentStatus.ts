@@ -6,7 +6,7 @@ export type AgentTargetStatus = 1 | 2 | 3;
 /** 代理状态：负责合法目标状态的二次确认、提交及列表刷新。 */
 export function useAgentStatus(refreshList: () => Promise<void>) {
   async function changeStatus(row: AgentAccount, targetStatus: AgentTargetStatus) {
-    const targetName = ({ 1: '正常', 2: '暂停', 3: '停用' } as const)[targetStatus];
+    const targetName = ({ 1: '正常', 2: '冻结', 3: '停用' } as const)[targetStatus];
     try {
       await ElMessageBox.confirm(
         `确认将“${row.company_name}”的状态修改为“${targetName}”吗？`,

@@ -11,6 +11,8 @@ export interface WithdrawalParty {
   whitelist_no: string;
   entity_type: 1 | 2;
   name: string;
+  data?: Record<string, unknown>;
+  /** 兼容旧版详情响应，新接口以 data 为准。 */
   snapshot?: Record<string, unknown>;
 }
 

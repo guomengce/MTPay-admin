@@ -26,34 +26,34 @@ defineProps<{
   min-width: 0;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 18px;
   overflow: hidden;
 
   &__main {
     display: flex;
     min-width: 0;
     align-items: center;
-    gap: 22px;
+    gap: 14px;
   }
 
   &__icon {
     display: inline-flex;
-    width: 62px;
-    height: 62px;
-    flex: 0 0 62px;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
     align-items: center;
     justify-content: center;
-    border-radius: 18px;
+    border-radius: 14px;
     color: #126df0;
     background: linear-gradient(135deg, #dff3ff, #eef0ff);
     // box-shadow: 0 20px 38px rgb(27 98 198 / 12%);
-    font-size: 36px;
+    font-size: 26px;
   }
 
   h1 {
     margin: 0;
     color: var(--app-text-heading);
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 700;
     line-height: 1.15;
   }
@@ -61,24 +61,24 @@ defineProps<{
   @include mobile {
     align-items: flex-start;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
 
     &__main {
       align-items: flex-start;
-      gap: 14px;
+      gap: 11px;
     }
 
     &__icon {
-      width: 52px;
-      height: 52px;
-      flex-basis: 52px;
-      border-radius: 15px;
-      font-size: 27px;
+      width: 42px;
+      height: 42px;
+      flex-basis: 42px;
+      border-radius: 12px;
+      font-size: 22px;
     }
 
     h1 {
       margin-bottom: 0;
-      font-size: 24px;
+      font-size: 22px;
       line-height: 1.18;
     }
 

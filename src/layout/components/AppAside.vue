@@ -111,8 +111,8 @@ async function handleLogout() {
     min-height: 52px;
     align-items: center;
     gap: 12px;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
     border-bottom: 1px solid rgb(125 163 214 / 20%);
   }
 
@@ -165,7 +165,7 @@ async function handleLogout() {
 
   :deep(.el-menu-item) {
     height: 50px;
-    margin: 14px 0;
+    margin: 10px 0;
     padding: 0 10px !important;
     color: #d8e4f6;
     border-radius: 8px;
@@ -209,9 +209,9 @@ async function handleLogout() {
   &__icon {
     position: relative;
     display: inline-flex;
-    width: 46px;
-    height: 46px;
-    flex: 0 0 46px;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
     align-items: center;
     justify-content: center;
     margin-right: 12px;

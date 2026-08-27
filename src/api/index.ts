@@ -21,3 +21,4 @@ export * as TransactionApi from './modules/transaction';
 export * as FeeApi from './modules/fee';
 export * as LogApi from './modules/log';
 export * as ReservationApi from './modules/reservation';
+export * as AdminAccountApi from './modules/adminAccount';

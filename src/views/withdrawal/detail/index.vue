@@ -18,34 +18,29 @@
       <OrderHeader :detail="detail" />
 
       <div class="withdrawal-detail-page__workspace">
-        <main class="withdrawal-detail-page__main">
-          <SettlementCard :detail="detail" />
+        <PartyPanel
+          :detail="detail"
+          :payer="detail.payer"
+          :payee="detail.payee"
+          :payer-subject-fields="payerSubjectFields"
+          :payee-bank-fields="payeeBankFields"
+          :payee-subject-fields="payeeSubjectFields"
+        />
 
-          <PartyPanel
-            :payer="detail.payer"
-            :payee="detail.payee"
-            :payer-bank-fields="payerBankFields"
-            :payer-subject-fields="payerSubjectFields"
-            :payee-bank-fields="payeeBankFields"
-            :payee-subject-fields="payeeSubjectFields"
-            :party-type="partyType"
-          />
-
-          <AgentCard
-            :agent-company="detail.user.company_name"
-            :agent-code="detail.user.agent_code"
-            :agent-email="detail.user.email"
-          />
-
-          <ResultPanel
-            :review-fields="reviewFields"
-            :payment-fields="paymentFields"
-          />
-        </main>
-
-        <aside class="withdrawal-detail-page__aside">
+        <div class="withdrawal-detail-page__supporting">
+          <div class="withdrawal-detail-page__supporting-left">
+            <AgentCard
+              :agent-company="detail.user.company_name"
+              :agent-code="detail.user.agent_code"
+              :agent-email="detail.user.email"
+            />
+            <ResultPanel
+              :review-fields="reviewFields"
+              :payment-fields="paymentFields"
+            />
+          </div>
           <Timeline :timeline-items="timelineItems" :file-rounds="fileRounds" />
-        </aside>
+        </div>
       </div>
 
       <WithdrawalActionDialog
@@ -78,7 +73,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { usePageLoading } from '@/composables/usePageLoading';
 
 import OrderHeader from './components/OrderHeader.vue';
-import SettlementCard from './components/SettlementCard.vue';
 import AgentCard from './components/AgentCard.vue';
 import PartyPanel from './components/PartyPanel.vue';
 import ResultPanel from './components/ResultPanel.vue';
@@ -93,7 +87,7 @@ const route = useRoute();
 const router = useRouter();
 const { detail, loading, submitting, uploading, loadDetail, requestSupplement, submitReview, submitPayment, appendPaymentFiles, uploadFile } = useWithdrawalDetail();
 usePageLoading(loading);
-const { payerBankFields, payeeBankFields, payerSubjectFields, payeeSubjectFields, reviewFields, paymentFields, timelineItems, fileRounds, partyType } = useWithdrawalDetailView(detail);
+const { payeeBankFields, payerSubjectFields, payeeSubjectFields, reviewFields, paymentFields, timelineItems, fileRounds } = useWithdrawalDetailView(detail);
 
 interface DetailAction {
   label: string;
@@ -184,20 +178,22 @@ onMounted(() => {
     display: grid;
     min-width: 0;
     align-items: start;
-    grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.95fr);
     gap: 20px;
   }
 
-  &__main,
-  &__aside {
+  &__supporting {
     display: grid;
     min-width: 0;
+    align-items: start;
+    grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
     gap: 20px;
   }
 
-  &__aside {
-    position: sticky;
-    top: 20px;
+  &__supporting-left {
+    display: grid;
+    min-width: 0;
+    align-content: start;
+    gap: 20px;
   }
 
   :deep(.admin-panel) {
@@ -232,8 +228,7 @@ onMounted(() => {
 }
 
 @include narrow {
-  .withdrawal-detail-page__workspace { grid-template-columns: 1fr; }
-  .withdrawal-detail-page__aside { position: static; }
+  .withdrawal-detail-page__supporting { grid-template-columns: 1fr; }
 }
 
 @include mobile {
@@ -260,10 +255,8 @@ onMounted(() => {
       flex: 0 0 auto;
     }
   }
-  .withdrawal-detail-page__workspace {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-  }
-  .withdrawal-detail-page__aside { position: static; }
+  .withdrawal-detail-page__workspace,
+  .withdrawal-detail-page__supporting,
+  .withdrawal-detail-page__supporting-left { gap: 14px; }
 }
 </style>

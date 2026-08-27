@@ -8,6 +8,7 @@ import {
   type AgentRecentTransaction,
   type AgentTransactionInfo,
 } from '@/api/modules/agent';
+import { fetchTransactionList, type TransactionItem } from '@/api/modules/transaction';
 import { useAgentMail } from './useAgentMail';
 
 /**
@@ -19,10 +20,11 @@ export function useAgentOverview() {
   const router = useRouter();
   const loading = ref(false);
   const overview = ref<AgentAssetOverview | null>(null);
-  const capabilitiesAvailable = ref(false);
   const transactionVisible = ref(false);
   const transactionLoading = ref(false);
   const transactionInfo = ref<AgentTransactionInfo | null>(null);
+  const recentTransactions = ref<TransactionItem[]>([]);
+  const recentTransactionsLoading = ref(false);
   const { mailLoading, sendInvitation, sendPasswordReset } = useAgentMail();
 
   async function loadOverview() {
@@ -34,18 +36,18 @@ export function useAgentOverview() {
     }
 
     loading.value = true;
-    capabilitiesAvailable.value = false;
     try {
       const response = await fetchAgentAssetOverview(userId);
-      capabilitiesAvailable.value = Boolean(response.capabilities);
 
       /**
        * UAT 接口会按实际配置省略部分概览区块，统一补齐展示默认值，
-       * 避免 capabilities 等可选字段缺失时中断 Vue 渲染并留下 Loading 遮罩。
+       * 避免可选字段缺失时中断 Vue 渲染并留下 Loading 遮罩。
        */
       overview.value = {
         ...response,
         assets: response.assets ?? [],
+        wallet_account_address: response.wallet_account_address ?? '',
+        crypto_receiving_addresses: response.crypto_receiving_addresses ?? [],
         effective_exchange_rates: response.effective_exchange_rates ?? {},
         pending_counts: {
           deposit: response.pending_counts?.deposit ?? 0,
@@ -53,18 +55,21 @@ export function useAgentOverview() {
           withdrawal: response.pending_counts?.withdrawal ?? 0,
           total: response.pending_counts?.total ?? 0,
         },
-        capabilities: {
-          deposit_channel_count: response.capabilities?.deposit_channel_count ?? 0,
-          exchange_source_currencies: response.capabilities?.exchange_source_currencies ?? [],
-          exchange_target_currency: response.capabilities?.exchange_target_currency ?? '',
-          withdrawal_currency: response.capabilities?.withdrawal_currency ?? '',
-          withdrawal_fee_amount: response.capabilities?.withdrawal_fee_amount ?? '',
-        },
-        recent_orders: response.recent_orders ?? [],
-        recent_fund_flows: response.recent_fund_flows ?? [],
       };
+      await loadRecentTransactions(userId);
     } finally {
       loading.value = false;
+    }
+  }
+
+  async function loadRecentTransactions(userId = Number(route.params.id)) {
+    if (!Number.isInteger(userId) || userId <= 0) return;
+    recentTransactionsLoading.value = true;
+    try {
+      const result = await fetchTransactionList({ user_id: userId, page: 1, limit: 5 });
+      recentTransactions.value = result.data ?? [];
+    } finally {
+      recentTransactionsLoading.value = false;
     }
   }
 
@@ -89,10 +94,12 @@ export function useAgentOverview() {
   return {
     loading,
     overview,
-    capabilitiesAvailable,
     transactionVisible,
     transactionLoading,
     transactionInfo,
+    recentTransactions,
+    recentTransactionsLoading,
+    loadRecentTransactions,
     mailLoading,
     loadOverview,
     openTransaction,

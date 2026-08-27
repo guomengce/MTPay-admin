@@ -16,6 +16,11 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/two-factor', name: 'TwoFactor',
+    component: () => import('@/views/login/two-factor.vue'),
+    meta: { title: '雙重認證', icon: '', requiresAuth: false, hidden: true },
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',

@@ -1,6 +1,10 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="兑换审核" :icon="Switch" />
+    <AdminHero title="兑换审核" :icon="Switch">
+      <template #extra>
+        <el-button type="primary" plain :icon="Download" :loading="exporting" @click="exportOrders">匯出 CSV</el-button>
+      </template>
+    </AdminHero>
 
     <AdminPanel>
       <ReviewFilters
@@ -41,10 +45,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Switch } from '@element-plus/icons-vue';
+import { Download, Switch } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 
-import { reviewExchange } from '@/api/modules/exchange';
+import { fetchExchangeList, reviewExchange } from '@/api/modules/exchange';
+import { useCsvExport } from '@/composables/useCsvExport';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import ReviewFilters from '@/components/admin/ReviewFilters.vue';
@@ -54,6 +59,7 @@ import ExchangeAddDialog from './components/ExchangeAddDialog.vue';
 import ExchangeCardList from './components/ExchangeCardList.vue';
 import ExchangeTableList from './components/ExchangeTableList.vue';
 import type { ExchangeRow } from './composables/mapper';
+import { toExchangeRow } from './composables/mapper';
 import { useExchangeList } from './composables/useExchangeList';
 
 const router = useRouter();
@@ -62,6 +68,25 @@ const dialogVisible = ref(false);
 const dialogMode = ref<'approve' | 'reject'>('approve');
 const activeRow = ref<ExchangeRow | null>(null);
 const reviewing = ref(false);
+const { exporting, exportPagedCsv } = useCsvExport();
+
+function exportOrders() {
+  void exportPagedCsv<ExchangeRow>({
+    filename: '兌換訂單',
+    columns: [
+      { label: '訂單編號', value: 'id' }, { label: '提交時間', value: 'time' },
+      { label: '代理公司', value: 'agent' }, { label: '代理編號', value: 'code' },
+      { label: '支付金額', value: 'amount' }, { label: '支付資產', value: 'asset' },
+      { label: '兌換比例', value: 'rate' }, { label: '比例來源', value: 'rateSource' },
+      { label: '到賬金額', value: 'usd' }, { label: '到賬資產', value: 'toSymbol' },
+      { label: '狀態', value: 'status' },
+    ],
+    fetchPage: async (page, limit) => {
+      const result = await fetchExchangeList({ page, limit, status: query.status, keyword: query.keyword.trim() || undefined, started_at: query.started_at || undefined, ended_at: query.ended_at || undefined });
+      return { ...result, data: result.data.map(toExchangeRow) };
+    },
+  });
+}
 
 function openDetail(row: ExchangeRow) {
   void router.push({ name: 'ExchangeDetail', params: { id: row.businessId } });

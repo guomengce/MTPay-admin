@@ -79,10 +79,20 @@ function getFileRound(key: string) {
 </script>
 
 <style scoped lang="scss">
+:deep(.admin-panel) {
+  display: flex;
+  height: 500px;
+  min-height: 0;
+  flex-direction: column;
+}
+
 .timeline-panel { padding: 22px; }
 
 .timeline-scroll {
-  min-height: 300px;
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .timeline-files {
@@ -142,6 +152,8 @@ function getFileRound(key: string) {
 }
 
 @include mobile {
+  :deep(.admin-panel) { display: block; }
+  .timeline-scroll { overflow: visible; }
   .timeline-panel { padding: 18px 16px; }
 
   .file-list { padding: 6px; }

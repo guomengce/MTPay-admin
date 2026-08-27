@@ -15,7 +15,6 @@
           <span><el-icon><UserFilled /></el-icon></span>
           <div>
             <h2>{{ agent ? '修改代理资料' : '新增代理账户' }}</h2>
-            <p>{{ agent ? '更新企业联络资料与账户信息' : '创建待激活账户并发送邮件邀请' }}</p>
           </div>
         </div>
         <el-button circle text :icon="Close" aria-label="關閉" @click="emit('update:modelValue', false)" />
@@ -76,7 +75,6 @@
 
     <template #footer>
       <footer class="agent-form__footer">
-        <span><el-icon><Lock /></el-icon>賬户資料將通過加密連接提交</span>
         <div>
           <el-button @click="emit('update:modelValue', false)">取消</el-button>
           <el-button
@@ -162,10 +160,10 @@ async function handleSubmit() {
 .agent-form {
   &__header {
     display: flex;
-    min-height: 108px;
+    min-height: 90px;
     align-items: center;
     justify-content: space-between;
-    padding: 23px 28px;
+    padding: 15px 28px;
     color: #ffffff;
     background:
       radial-gradient(circle at 84% 0, rgb(47 224 211 / 25%), transparent 40%),
@@ -200,7 +198,7 @@ async function handleSubmit() {
   &__code > span { padding: 5px 11px; border-radius: 999px; color: #087e77; background: #e5f7f4; font-size: 12px; font-weight: 600; }
   &__row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   &__footer {
-    display: flex; min-height: 82px; align-items: center; justify-content: space-between; gap: 16px;
+    display: flex; min-height: 82px; align-items: center; justify-content: flex-end; gap: 16px;
     padding: 16px 28px; border-top: 1px solid #e3e9f0; background: #ffffff;
   }
   &__footer > span { display: flex; align-items: center; gap: 6px; color: #8190a3; font-size: 12px; }

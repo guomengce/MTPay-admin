@@ -16,6 +16,7 @@ import { Document } from '@element-plus/icons-vue';
 import type { TransactionBusinessType } from '@/api/modules/transaction';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import { formatExchangeRate, formatFixedFee } from '@/utils/decimal';
+import { formatLongIdentifier } from '@/utils/text';
 
 interface FieldItem {
   label: string;
@@ -55,7 +56,7 @@ const fields = computed<FieldItem[]>(() => {
     return [
       ...pick(d, ['currency', 'network']),
       { label: '入金金额', value: text(d.amount), mono: true },
-      { label: '交易哈希', value: text(d.txid), wide: true, mono: true },
+      { label: '交易哈希', value: formatLongIdentifier(d.txid), wide: true, mono: true },
       { label: '平台收款地址', value: text(d.receiving_address_snapshot), wide: true, mono: true },
       { label: '审核人', value: text(review.admin_name) },
       { label: '审核时间', value: text(review.reviewed_at) },

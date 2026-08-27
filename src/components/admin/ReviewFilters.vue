@@ -9,7 +9,7 @@
       @update:model-value="updateKeyword"
       @keyup.enter="emit('search')"
     />
-    <el-select :model-value="query.status" placeholder="訂單狀態" clearable @update:model-value="updateStatus">
+    <el-select v-if="showStatus" :model-value="query.status" placeholder="訂單狀態" clearable @update:model-value="updateStatus">
       <el-option label="待審核" :value="0" />
       <el-option :label="completedLabel" :value="1" />
       <el-option label="已駁回" :value="2" />
@@ -42,13 +42,14 @@ export interface ReviewFilterQuery {
   ended_at: string;
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   query: ReviewFilterQuery;
   keywordPlaceholder: string;
   completedLabel: string;
   wideKeyword?: boolean;
   loading?: boolean;
-}>();
+  showStatus?: boolean;
+}>(), { showStatus: true });
 
 const emit = defineEmits<{
   (event: 'update', patch: Partial<ReviewFilterQuery>): void;
