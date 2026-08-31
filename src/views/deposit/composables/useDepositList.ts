@@ -1,3 +1,6 @@
+import type { CsvFilters } from '@/api/modules/csvExport';
+import { useListQueryState } from '@/composables/useListQueryState';
+import { toRefs } from 'vue';
 import { onMounted, reactive, ref, watch } from 'vue';
 import { fetchDepositList } from '@/api/modules/deposit';
 import type { DepositRow } from './mapper';
@@ -6,6 +9,7 @@ import { toDepositRow } from './mapper';
 /** 入金记录列表：真实后端分页，不做前端假分页。 */
 export function useDepositList() {
   const loading = ref(false);
+  const exportFilters = ref<CsvFilters | null>(null);
   const list = ref<DepositRow[]>([]);
   const total = ref(0);
   const page = ref(1);
@@ -16,18 +20,23 @@ export function useDepositList() {
     ended_at: '',
   });
 
+  const saveListQuery = useListQueryState({ ...toRefs(query), page, limit }, ["status","role","entity_type"]);
+
   async function loadList() {
+    const filters = { ...query };
+    await saveListQuery();
     loading.value = true;
     try {
       const result = await fetchDepositList({
         page: page.value,
         limit: limit.value,
-        keyword: query.keyword.trim() || undefined,
-        started_at: query.started_at || undefined,
-        ended_at: query.ended_at || undefined,
+        keyword: filters.keyword.trim() || undefined,
+        started_at: filters.started_at || undefined,
+        ended_at: filters.ended_at || undefined,
       });
       list.value = result.data.map(toDepositRow);
       total.value = result.total;
+      exportFilters.value = filters;
     } finally {
       loading.value = false;
     }
@@ -50,5 +59,5 @@ export function useDepositList() {
     search();
   }
 
-  return { loading, list, total, page, limit, query, loadList, search, reset };
+  return { exportFilters, loading, list, total, page, limit, query, loadList, search, reset };
 }

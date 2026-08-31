@@ -13,7 +13,7 @@
         <template #default="{ row }">
           <div class="row-title">
             <strong>{{ row.agent }}</strong
-            ><span>{{ row.agentCode }}</span>
+            ><span>{{ row.agentEmail }}</span>
           </div>
         </template>
       </el-table-column>

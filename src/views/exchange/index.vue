@@ -2,14 +2,14 @@
   <section class="admin-page">
     <AdminHero title="兑换审核" :icon="Switch">
       <template #extra>
-        <el-button type="primary" plain :icon="Download" :loading="exporting" @click="exportOrders">匯出 CSV</el-button>
+        <el-button type="primary" plain :icon="Download" :loading="exporting" :disabled="loading || !exportFilters" @click="exportOrders">匯出 CSV</el-button>
       </template>
     </AdminHero>
 
     <AdminPanel>
       <ReviewFilters
         :query="query"
-        keyword-placeholder="訂單編號 / 代理編號 / 公司 / 郵箱"
+        keyword-placeholder="訂單編號 / 公司 / 郵箱"
         completed-label="已完成"
         :loading="loading"
         @update="Object.assign(query, $event)"
@@ -48,8 +48,8 @@ import { useRouter } from 'vue-router';
 import { Download, Switch } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 
-import { fetchExchangeList, reviewExchange } from '@/api/modules/exchange';
-import { useCsvExport } from '@/composables/useCsvExport';
+import { reviewExchange } from '@/api/modules/exchange';
+import { useBusinessCsvExport } from '@/composables/useBusinessCsvExport';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import ReviewFilters from '@/components/admin/ReviewFilters.vue';
@@ -59,34 +59,17 @@ import ExchangeAddDialog from './components/ExchangeAddDialog.vue';
 import ExchangeCardList from './components/ExchangeCardList.vue';
 import ExchangeTableList from './components/ExchangeTableList.vue';
 import type { ExchangeRow } from './composables/mapper';
-import { toExchangeRow } from './composables/mapper';
 import { useExchangeList } from './composables/useExchangeList';
 
 const router = useRouter();
-const { list, loading, total, page, limit, query, loadList, search, reset } = useExchangeList();
+const { exportFilters, list, loading, total, page, limit, query, loadList, search, reset } = useExchangeList();
 const dialogVisible = ref(false);
 const dialogMode = ref<'approve' | 'reject'>('approve');
 const activeRow = ref<ExchangeRow | null>(null);
 const reviewing = ref(false);
-const { exporting, exportPagedCsv } = useCsvExport();
+const { exporting, downloadCsv } = useBusinessCsvExport('exchange', () => exportFilters.value);
 
-function exportOrders() {
-  void exportPagedCsv<ExchangeRow>({
-    filename: '兌換訂單',
-    columns: [
-      { label: '訂單編號', value: 'id' }, { label: '提交時間', value: 'time' },
-      { label: '代理公司', value: 'agent' }, { label: '代理編號', value: 'code' },
-      { label: '支付金額', value: 'amount' }, { label: '支付資產', value: 'asset' },
-      { label: '兌換比例', value: 'rate' }, { label: '比例來源', value: 'rateSource' },
-      { label: '到賬金額', value: 'usd' }, { label: '到賬資產', value: 'toSymbol' },
-      { label: '狀態', value: 'status' },
-    ],
-    fetchPage: async (page, limit) => {
-      const result = await fetchExchangeList({ page, limit, status: query.status, keyword: query.keyword.trim() || undefined, started_at: query.started_at || undefined, ended_at: query.ended_at || undefined });
-      return { ...result, data: result.data.map(toExchangeRow) };
-    },
-  });
-}
+function exportOrders() { void downloadCsv(); }
 
 function openDetail(row: ExchangeRow) {
   void router.push({ name: 'ExchangeDetail', params: { id: row.businessId } });

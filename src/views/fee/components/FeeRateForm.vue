@@ -20,7 +20,6 @@
             placeholder="如 0.99"
             @input="usdtRate = limitDecimalInput($event, 4)"
           />
-          <p>每 1 USDT 可兑换的 USD 金额</p>
         </el-form-item>
 
         <el-form-item class="rate-item rate-item--usdc">
@@ -36,7 +35,6 @@
             placeholder="如 0.99"
             @input="usdcRate = limitDecimalInput($event, 4)"
           />
-          <p>每 1 USDC 可兑换的 USD 金额</p>
         </el-form-item>
       </div>
       <p v-if="error" class="rate-form__error">{{ error }}</p>
@@ -133,18 +131,19 @@ function submit() {
 .rate-grid {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 38px;
+  grid-template-columns: 1fr;
+  gap: 34px;
   padding: 16px 28px 24px;
 
   &::before {
     position: absolute;
-    top: 18px;
-    bottom: 34px;
-    left: 50%;
-    width: 1px;
+    top: 50%;
+    right: 28px;
+    left: 28px;
+    height: 1px;
     background: #d9e3ef;
     content: '';
+    transform: translateY(-50%);
   }
 }
 
@@ -193,14 +192,6 @@ function submit() {
     }
   }
 
-  p {
-    margin: 10px 0 0;
-    color: var(--app-text-subtle);
-    font-size: 12px;
-    font-weight: 500;
-    text-align: center;
-  }
-
   :deep(.el-input) {
     width: 100%;
   }
@@ -241,7 +232,7 @@ function submit() {
 
   .rate-grid {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 34px;
     padding: 14px 18px 22px;
 
     &::before {

@@ -9,8 +9,6 @@
         <div class="identity-card__body">
           <h3 class="identity-card__name">{{ user.company_name }}</h3>
           <div class="identity-card__meta">
-            <span>{{ user.agent_code }}</span>
-            <span class="dot">·</span>
             <span class="email">{{ user.email }}</span>
           </div>
         </div>
@@ -63,16 +61,16 @@
         </header>
         <div class="asset-card__total">
           <small>總餘額</small>
-          <strong>{{ asset.total_balance }}</strong>
+          <strong>{{ formatMoney(asset.total_balance) }}</strong>
         </div>
         <footer>
           <div>
             <small>可用餘額</small>
-            <strong>{{ asset.available_balance }}</strong>
+            <strong>{{ formatMoney(asset.available_balance) }}</strong>
           </div>
           <div>
             <small>凍結餘額</small>
-            <strong>{{ asset.frozen_balance }}</strong>
+            <strong>{{ formatMoney(asset.frozen_balance) }}</strong>
           </div>
         </footer>
         <div class="asset-card__actions">
@@ -86,6 +84,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { computed } from 'vue';
 import { Key, Minus, Plus, Promotion, UserFilled } from '@element-plus/icons-vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';

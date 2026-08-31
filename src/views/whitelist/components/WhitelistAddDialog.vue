@@ -2,14 +2,14 @@
   <el-dialog
     :model-value="modelValue"
     :title="dialogTitle"
-    width="min(560px, calc(100vw - 24px))"
+    width="min(440px, calc(100vw - 24px))"
     :close-on-click-modal="false"
     align-center
     @open="resetForm"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <template v-if="row">
-      <el-alert type="warning" class="whitelist-dialog__hint">{{ dialogHint }}</el-alert>
+      <p v-if="mode === 'approve'">确认通过此白名单申请？</p>
 
       <el-form
         v-if="mode !== 'approve'"
@@ -23,8 +23,8 @@
           <el-input
             v-model="formState.message"
             type="textarea"
-            :rows="4"
-            :placeholder="mode === 'reject' ? '请说明驳回原因' : '请明确说明需要代理补充的文件'"
+            :rows="3"
+            :placeholder="mode === 'reject' ? '请说明驳回原因' : '请输入补件要求'"
             maxlength="1000"
             show-word-limit
           />
@@ -69,13 +69,6 @@ const emit = defineEmits<{
 const dialogTitle = computed(() =>
   props.mode === 'approve' ? '审核通过' : props.mode === 'reject' ? '驳回白名单' : '要求补件',
 );
-const dialogHint = computed(() =>
-  props.mode === 'approve'
-    ? '通过后该主体将立即进入代理可用白名单，请确认资料完整且一致。'
-    : props.mode === 'reject'
-      ? '驳回后本次申请结束，请填写清晰、可追溯的原因。'
-      : '提交后状态变为待补充文件，请明确告知代理需要提供的材料。',
-);
 const submitLabel = computed(() =>
   props.mode === 'approve' ? '确认通过' : props.mode === 'reject' ? '确认驳回' : '发送补件要求',
 );
@@ -103,17 +96,3 @@ async function handleSubmit() {
   });
 }
 </script>
-
-<style scoped lang="scss">
-.whitelist-dialog {
-  &__hint {
-    margin: 0 0 18px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-size: 13px;
-    line-height: 1.6;
-  }
-}
-
-
-</style>

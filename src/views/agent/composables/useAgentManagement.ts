@@ -1,3 +1,4 @@
+import { useDisableAccountTwoFactor } from '@/composables/useDisableAccountTwoFactor';
 import { useAgentDetail } from './useAgentDetail';
 import { useAgentForm } from './useAgentForm';
 import { useAgentList } from './useAgentList';
@@ -15,5 +16,6 @@ export function useAgentManagement() {
   const mail = useAgentMail();
   const status = useAgentStatus(list.loadAgents);
 
-  return { ...list, ...form, ...detail, ...mail, ...status };
+  const security = useDisableAccountTwoFactor('agent', list.loadAgents);
+  return { ...security, ...list, ...form, ...detail, ...mail, ...status };
 }

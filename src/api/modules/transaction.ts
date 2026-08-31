@@ -1,14 +1,21 @@
 /**
  * 管理端统一交易记录
  * -----------------------------------------------------------------------------
- * 聚合入金、兑换、出金三类订单；列表与详情均只读。
+ * 聚合入金、兑换、出金与人工资产调整；列表与详情均只读。
  */
 import request from '../request';
 import type { DepositOrderDetail, ReviewInfo } from './deposit';
 import type { ExchangeOrderDetail } from './exchange';
 import type { WithdrawalFile, WithdrawalParty, WithdrawalRecord } from './withdrawal';
 
-export type TransactionBusinessType = 'deposit' | 'exchange' | 'withdrawal';
+export type TransactionBusinessType =
+  | 'deposit'
+  | 'fiat_deposit'
+  | 'fiat_deposit'
+  | 'exchange'
+  | 'withdrawal'
+  | 'manual_increase'
+  | 'manual_decrease';
 
 export interface TransactionUserRef {
   id: number;
@@ -108,11 +115,24 @@ export interface TransactionWithdrawalDetail {
   records: WithdrawalRecord[];
 }
 
-/** 三类业务详情的联合类型；通过 `transaction.business_type` 区分。 */
+export interface ManualBalanceAdjustmentDetail {
+  id?: number;
+  user_id?: number;
+  currency_code?: string;
+  direction?: 'increase' | 'decrease';
+  amount?: string;
+  reason?: string | null;
+  admin_name?: string | null;
+  created_at?: string | null;
+  [key: string]: unknown;
+}
+
+/** 业务详情联合类型；通过 `transaction.business_type` 区分。 */
 export type TransactionDetail =
   | DepositOrderDetail
   | ExchangeOrderDetail
-  | TransactionWithdrawalDetail;
+  | TransactionWithdrawalDetail
+  | ManualBalanceAdjustmentDetail;
 
 export interface TransactionInfoResult {
   transaction: TransactionItem;

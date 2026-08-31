@@ -14,6 +14,7 @@ const STATUS_META: Record<WithdrawalStatus, WithdrawalStatusMeta> = {
   3: { type: 'success' },
   4: { type: 'danger' },
   5: { type: 'gray' },
+  6: { type: 'gray' },
 };
 
 export function getWithdrawalStatusMeta(status: WithdrawalStatus): WithdrawalStatusMeta {

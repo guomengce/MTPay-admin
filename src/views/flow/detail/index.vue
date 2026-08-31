@@ -147,9 +147,7 @@ const fundResultNode = computed<FundImpactNode>(() => ({
   suffix: detail.value.payAsset,
 }));
 
-function goBack() {
-  router.push('/flow');
-}
+function goBack() { router.go(-1); }
 </script>
 
 <style scoped lang="scss">

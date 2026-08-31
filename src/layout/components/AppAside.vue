@@ -7,30 +7,24 @@
         <span>ADMIN CONSOLE</span>
       </div>
     </div>
-    <el-menu class="app-aside__menu" :default-active="activeMenuPath" :collapse="isCollapsed" router>
-      <el-menu-item v-for="menu in routeStore.menus" :key="menu.path" :index="menu.path">
-        <span class="app-aside__icon">
-          <el-icon><component :is="resolveIcon(menu.icon)" /></el-icon>
-        </span>
-        <template #title>
-          <span>{{ menu.title }}</span>
-        </template>
-      </el-menu-item>
+    <el-menu class="app-aside__menu" :default-active="activeMenuPath" :default-openeds="openedMenus" :collapse="isCollapsed" router>
+      <template v-for="menu in routeStore.menus" :key="menu.path">
+        <el-sub-menu v-if="menu.children?.length" :index="menu.path">
+          <template #title>
+            <span class="app-aside__icon"><el-icon><component :is="resolveIcon(menu.icon)" /></el-icon></span>
+            <span>{{ menu.title }}</span>
+          </template>
+          <el-menu-item v-for="child in menu.children" :key="child.path" :index="child.path" class="app-aside__submenu-item">
+            <span class="app-aside__child-icon"><el-icon><component :is="resolveIcon(child.icon)" /></el-icon></span>
+            <template #title><span>{{ child.title }}</span></template>
+          </el-menu-item>
+        </el-sub-menu>
+        <el-menu-item v-else :index="menu.path">
+          <span class="app-aside__icon"><el-icon><component :is="resolveIcon(menu.icon)" /></el-icon></span>
+          <template #title><span>{{ menu.title }}</span></template>
+        </el-menu-item>
+      </template>
     </el-menu>
-
-    <div class="app-aside__profile">
-      <div class="app-aside__profile-main">
-        <span class="app-aside__avatar">{{ adminInitial }}</span>
-        <div v-if="!isCollapsed">
-          <strong>{{ adminName }}</strong>
-          <span>{{ adminEmail }}</span>
-        </div>
-      </div>
-      <el-button class="app-aside__logout" text @click="handleLogout">
-        <el-icon><SwitchButton /></el-icon>
-        <span v-if="!isCollapsed">登出</span>
-      </el-button>
-    </div>
   </aside>
 </template>
 
@@ -40,38 +34,36 @@ import {
   Calendar,
   Grid,
   List,
+  Lock,
+  Key,
   Money,
   Postcard,
   Switch,
-  SwitchButton,
   Tickets,
   Upload,
   User,
   Wallet,
 } from '@element-plus/icons-vue';
 import { computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 import { useAppStore } from '@/stores/modules/app';
-import { useAuthStore } from '@/stores/modules/auth';
 import { useRouteStore } from '@/stores/modules/route';
 
 const route = useRoute();
-const router = useRouter();
 const appStore = useAppStore();
-const authStore = useAuthStore();
 const routeStore = useRouteStore();
 const isCollapsed = computed(() => appStore.sidebarCollapsed && appStore.device !== 'mobile');
 const activeMenuPath = computed(() => String(route.meta.activeMenu || route.path));
-const adminName = computed(() => authStore.userInfo?.name || 'MTPay 管理员');
-const adminEmail = computed(() => authStore.userInfo?.email || '—');
-const adminInitial = computed(() => adminName.value.trim().charAt(0).toUpperCase() || 'M');
+const openedMenus = computed(() => routeStore.menus.filter((menu) => menu.children?.some((child) => child.path === activeMenuPath.value)).map((menu) => menu.path));
 
 const icons = {
   Calendar,
   Coin,
   Grid,
   List,
+  Lock,
+  Key,
   Money,
   Postcard,
   Switch,
@@ -85,10 +77,6 @@ function resolveIcon(name: string) {
   return icons[name as keyof typeof icons] || Grid;
 }
 
-async function handleLogout() {
-  authStore.logout();
-  await router.replace({ name: 'Login' });
-}
 </script>
 
 <style scoped lang="scss">
@@ -116,8 +104,7 @@ async function handleLogout() {
     border-bottom: 1px solid rgb(125 163 214 / 20%);
   }
 
-  &__mark,
-  &__avatar {
+  &__mark {
     display: inline-flex;
     width: 42px;
     height: 42px;
@@ -163,7 +150,8 @@ async function handleLogout() {
     }
   }
 
-  :deep(.el-menu-item) {
+  :deep(.el-menu-item),
+  :deep(.el-sub-menu__title) {
     height: 50px;
     margin: 10px 0;
     padding: 0 10px !important;
@@ -171,6 +159,12 @@ async function handleLogout() {
     border-radius: 8px;
     font-weight: 600;
   }
+
+  :deep(.el-sub-menu__title:hover) { background: rgb(255 255 255 / 8%); }
+  :deep(.el-sub-menu .el-menu) { background: transparent; }
+  :deep(.el-sub-menu.is-active > .el-sub-menu__title) { color: #8eece7; }
+  :deep(.app-aside__submenu-item) { height: 42px; margin: 4px 0 4px 18px; color: #bfd0e5; }
+  :deep(.app-aside__submenu-item.is-active) { color: #39f5ec; }
 
   :deep(.el-menu-item .el-icon) {
     width: 22px;
@@ -231,6 +225,15 @@ async function handleLogout() {
     content: '';
   }
 
+  &__child-icon {
+    display: inline-flex;
+    width: 30px;
+    align-items: center;
+    justify-content: center;
+    margin-right: 9px;
+    font-size: 17px;
+  }
+
   &__badge {
     display: inline-flex;
     min-width: 20px;
@@ -247,47 +250,5 @@ async function handleLogout() {
     line-height: 20px;
   }
 
-  &__profile {
-    overflow: hidden;
-    border: 1px solid rgb(125 163 214 / 20%);
-    border-radius: 8px;
-    background: rgb(17 50 94 / 36%);
-  }
-
-  &__profile-main {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 12px;
-    border-bottom: 1px solid rgb(125 163 214 / 14%);
-
-    div {
-      display: grid;
-      min-width: 0;
-      flex: 1;
-      gap: 4px;
-    }
-
-    strong,
-    span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    span {
-      color: #b2c0d5;
-      font-size: 12px;
-    }
-  }
-
-  &__logout {
-    width: 100%;
-    justify-content: center;
-    padding: 18px 14px;
-    color: #d8e4f6;
-    font-weight: 600;
-    // border: 1px solid #15c4b9;
-  }
 }
 </style>

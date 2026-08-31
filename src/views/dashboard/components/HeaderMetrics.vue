@@ -74,6 +74,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { UserFilled } from '@element-plus/icons-vue';
 import { computed } from 'vue';
 
@@ -91,9 +93,9 @@ const assets = computed(() =>
     symbol: item.currency.code === 'USDT' ? '₮' : '$',
     name: item.currency.name,
     kind: item.currency.type_name,
-    total: formatAmount(item.total_balance),
-    available: formatAmount(item.available_balance),
-    frozen: formatAmount(item.frozen_balance),
+    total: formatMoney(item.total_balance),
+    available: formatMoney(item.available_balance),
+    frozen: formatMoney(item.frozen_balance),
     frozenPercentage: clampPercentage(item.frozen_percentage),
     frozenRate: `${clampPercentage(item.frozen_percentage)}%`,
     tone: index === 1 ? 'blue' : index === 2 ? 'mint' : 'teal',
@@ -106,11 +108,7 @@ function clampPercentage(value: string) {
   return Math.min(100, Math.max(0, percentage));
 }
 
-function formatAmount(value: string) {
-  const [integer = '0', decimal] = String(value).split('.');
-  const formattedInteger = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return decimal === undefined ? formattedInteger : `${formattedInteger}.${decimal}`;
-}
+
 </script>
 
 <style scoped lang="scss">

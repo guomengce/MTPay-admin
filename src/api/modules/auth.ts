@@ -1,3 +1,4 @@
+import type { LoginChallenge } from '@/utils/loginChallenge';
 import request from '../request';
 import { createLoginEnvelope } from '@/utils/loginCrypto';
 
@@ -19,9 +20,14 @@ async function fetchPublicKey(): Promise<string> {
 export async function fetchLogin(credentials: { email: string; password: string }) {
   const publicKey = await fetchPublicKey();
   const envelope = createLoginEnvelope(publicKey, credentials);
-  return request.post<unknown, AdminLoginResult>('/admin/adminLogin', envelope);
+  return request.post<unknown, AdminLoginResult | LoginChallenge>('/admin/adminLogin', envelope);
 }
 
 export function fetchLogout() {
   return request.post<unknown, void>('/admin/adminLogout');
+}
+
+/** Public second login step; only this success grants a session after a challenge. */
+export function verifyTwoFactorLogin(payload: { login_challenge: string; code: string }) {
+  return request.post<unknown, AdminLoginResult>('/admin/verifyTwoFactorLogin', payload);
 }

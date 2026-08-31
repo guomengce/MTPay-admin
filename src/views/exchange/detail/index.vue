@@ -137,7 +137,7 @@ const reviewRow = computed<ExchangeRow | null>(() => {
     id: detail.value.order_no,
     time: detail.value.submitted_at || '—',
     agent: detail.value.user.company_name,
-    code: detail.value.user.agent_code,
+    code: detail.value.user.email,
     amount: detail.value.source_amount,
     asset: detail.value.source_currency.code,
     rate: detail.value.exchange_rate,
@@ -154,9 +154,7 @@ const reviewRow = computed<ExchangeRow | null>(() => {
 const dialogVisible = ref(false);
 const dialogMode = ref<'approve' | 'reject'>('approve');
 
-function goBack() {
-  void router.push('/exchange');
-}
+function goBack() { router.go(-1); }
 
 function openReviewDialog(mode: 'approve' | 'reject') {
   dialogMode.value = mode;

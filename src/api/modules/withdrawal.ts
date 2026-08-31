@@ -3,7 +3,14 @@ import request from '../request';
 
 import type { BusinessUser, CurrencyRef, ReviewDecision, ReviewInfo } from './deposit';
 
-export type WithdrawalStatus = 0 | 1 | 2 | 3 | 4 | 5;
+export type WithdrawalStatus = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export function cancelCompletedWithdrawal(id: number, reason?: string) {
+  const form = new FormData();
+  form.append('id', String(id));
+  if (reason?.trim()) form.append('reason', reason.trim());
+  return request.post<unknown, unknown>('/admin/cancelCompletedWithdrawal', form);
+}
 export type WithdrawalPaymentResult = 'complete' | 'fail';
 
 export interface WithdrawalParty {

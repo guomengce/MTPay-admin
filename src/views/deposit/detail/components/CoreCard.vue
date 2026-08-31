@@ -7,7 +7,7 @@
       <div>
         <small>申报入金金额</small>
         <p>
-          <strong>{{ amount }}</strong
+          <strong>{{ formatMoney(amount) }}</strong
           ><span>{{ currency.code }}</span>
         </p>
         <!-- <em
@@ -38,6 +38,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { Calendar, UserFilled, Wallet } from '@element-plus/icons-vue';
 import type { CurrencyRef, NetworkRef, BusinessUser } from '@/api/modules/deposit';
 

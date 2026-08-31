@@ -20,7 +20,7 @@
       <el-table-column label="支付资产" min-width="160">
         <template #default="{ row }">
           <div class="asset">
-            <span>{{ row.amount }}</span>
+            <span>{{ formatMoney(row.amount) }}</span>
             <small>{{ row.asset }}</small>
           </div>
         </template>
@@ -29,7 +29,7 @@
       <el-table-column label="获得USD" min-width="160">
         <template #default="{ row }">
           <div class="asset">
-            <strong>{{ row.usd }}</strong>
+            <strong>{{ formatMoney(row.usd) }}</strong>
             <small>{{ row.toSymbol }}</small>
           </div>
         </template>
@@ -64,6 +64,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { CircleCheck, CircleClose, MoreFilled, View } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';

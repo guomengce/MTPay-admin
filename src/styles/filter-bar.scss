@@ -55,6 +55,11 @@
     }
   }
 
+  .el-input-group__append,
+  .el-input-group__prepend {
+    min-height: var(--filter-control-height);
+  }
+
   .el-input__inner,
   .el-select__selected-item {
     color: #13243c;

@@ -8,6 +8,7 @@
 <script setup lang="ts">
 import { Tickets } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
+import { businessDetailRoute } from '@/views/transaction/businessDetailRoute';
 import type { OperationTransactionItem } from '@/api/modules/dashboard';
 import type { TransactionItem } from '@/api/modules/transaction';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
@@ -15,5 +16,5 @@ import TransactionTable from '@/views/transaction/components/TransactionTable.vu
 import TransactionCardList from '@/views/transaction/components/TransactionCardList.vue';
 defineProps<{ transactions: OperationTransactionItem[] }>();
 const router=useRouter();
-function openDetail(row:TransactionItem){void router.push({name:'TransactionDetail',params:{businessType:row.detail_type,businessId:row.detail_id}})}
+function openDetail(row: TransactionItem) { const target = businessDetailRoute(row); if (target) void router.push(target); }
 </script>

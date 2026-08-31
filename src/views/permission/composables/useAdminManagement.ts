@@ -1,8 +1,9 @@
+import { useListQueryState } from '@/composables/useListQueryState';
+import { useDisableAccountTwoFactor } from '@/composables/useDisableAccountTwoFactor';
 import { onMounted, ref, watch } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import {
   createAdminAccount,
-  deleteAdminAccount,
   fetchAdminAccountInfo,
   fetchAdminAccountList,
   updateAdminAccount,
@@ -23,7 +24,10 @@ export function useAdminManagement() {
   const dialogVisible = ref(false);
   const editing = ref<AdminAccount | null>(null);
 
+  const saveListQuery = useListQueryState({ keyword, status, page, limit }, ["status"]);
+
   async function loadList() {
+    await saveListQuery();
     loading.value = true;
     try {
       const result = await fetchAdminAccountList({ page: page.value, limit: limit.value, keyword: keyword.value.trim() || undefined, status: status.value });
@@ -56,15 +60,10 @@ export function useAdminManagement() {
     ElMessage.success(next ? '管理員已啟用' : '管理員已停用');
     await loadList();
   }
-  async function remove(row: AdminAccount) {
-    await ElMessageBox.confirm(`確定刪除管理員「${row.name}」？此操作無法復原。`, '刪除管理員', { type: 'warning', confirmButtonText: '確認刪除', cancelButtonText: '取消' });
-    await deleteAdminAccount(row.id);
-    ElMessage.success('管理員已刪除');
-    await loadList();
-  }
+  const { twoFactorBusy, disableTwoFactor } = useDisableAccountTwoFactor('admin', loadList);
 
   watch(page, () => void loadList());
   watch(limit, () => { if (page.value !== 1) page.value = 1; else void loadList(); });
   onMounted(loadList);
-  return { list, loading, submitting, page, limit, total, keyword, status, dialogVisible, editing, search, reset, openCreate, openEdit, submit, toggleStatus, remove };
+  return { list, loading, submitting, page, limit, total, keyword, status, dialogVisible, editing, search, reset, openCreate, openEdit, submit, toggleStatus, twoFactorBusy, disableTwoFactor };
 }

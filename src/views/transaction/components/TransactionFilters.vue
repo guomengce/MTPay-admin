@@ -3,14 +3,18 @@
     <el-input
       v-model="keyword"
       class="filter-bar__keyword"
-      placeholder="訂單編號 / 代理編號 / 公司 / 郵箱"
+      placeholder="訂單編號 / 公司 / 郵箱"
       clearable
       @keyup.enter="emit('search')"
     />
     <el-select v-model="businessType" placeholder="业务类型" clearable>
       <el-option label="入金" value="deposit" />
+      <el-option label="法币入金" value="fiat_deposit" />
+      <el-option label="法币入金" value="fiat_deposit" />
       <el-option label="兑换" value="exchange" />
       <el-option label="出金" value="withdrawal" />
+      <el-option label="人工增加" value="manual_increase" />
+      <el-option label="人工扣減" value="manual_decrease" />
     </el-select>
     <el-select v-model="statusGroup" placeholder="状态组" clearable>
       <el-option label="待审核" value="pending" />

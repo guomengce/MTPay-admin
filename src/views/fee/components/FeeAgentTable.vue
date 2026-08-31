@@ -4,7 +4,7 @@
         <template #default="{ row }">
           <div class="row-title">
             <strong>{{ row.company_name }}</strong>
-            <span>{{ row.agent_code }} · {{ row.email }}</span>
+            <span>{{ row.email }}</span>
           </div>
         </template>
       </el-table-column>

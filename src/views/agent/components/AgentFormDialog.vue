@@ -24,7 +24,7 @@
     <div class="agent-form__body">
 
       <div v-if="agent" class="agent-form__code">
-        <div><small>代理編號</small><strong>{{ agent.agent_code }}</strong></div>
+        <div><small>代理郵箱</small><strong>{{ agent.email }}</strong></div>
         <span>{{ agent.status_name }}</span>
       </div>
 

@@ -8,6 +8,7 @@ export interface AppRouteMeta {
   requiresAuth: boolean;
   hidden: boolean;
   showPageHeader?: boolean;
+  menuGroup?: { path: string; title: string; icon: string };
 }
 
 export type AppRouteRecordRaw = RouteRecordRaw & {
@@ -18,4 +19,5 @@ export interface MenuItem {
   path: string;
   title: string;
   icon: string;
+  children?: MenuItem[];
 }

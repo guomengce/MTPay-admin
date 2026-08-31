@@ -2,65 +2,163 @@
   <AdminPanel
     class="fee-setting-panel withdrawal-fee-panel"
     title="固定出金手续费"
-    subtitle="设定每笔 USD 出金的固定手续费"
+    subtitle="按币种设定每笔出金的固定手续费"
     :icon="Money"
   >
-    <el-form class="settings-form" label-position="top">
-      <el-form-item class="fee-input-item" label="USD / 笔">
-        <div class="fee-input-shell">
-          <span class="fee-input-shell__prefix">$</span>
-          <el-input v-model="feeAmount" placeholder="如 10.00" />
+    <div v-if="items.length" class="fee-currency-grid" v-loading="loading">
+      <article
+        v-for="(item, index) in items"
+        :key="item.currency.id"
+        class="fee-currency-grid__item"
+        :class="{ 'is-editing': isEditing(item.currency.id) }"
+      >
+        <header class="fee-currency-grid__head">
+          <span
+            class="fee-currency-grid__coin"
+            :class="`fee-currency-grid__coin--${coinVariant(item.currency.code, index)}`"
+          >
+            {{ item.currency.code.slice(0, 1) }}
+          </span>
+          <span class="fee-currency-grid__identity">
+            <strong>{{ item.currency.code }}</strong>
+            <small>{{ item.currency.name }}</small>
+          </span>
+        </header>
+
+        <div class="fee-currency-grid__field">
+          <template v-if="!isEditing(item.currency.id)">
+            <div class="fee-currency-grid__display">
+              <strong v-if="item.fee">{{ item.fee }}</strong>
+              <span v-if="item.fee" class="fee-currency-grid__unit">{{ item.currency.code }}</span>
+              <span v-else class="fee-currency-grid__placeholder">未配置手续费</span>
+            </div>
+          </template>
+          <template v-else>
+            <div class="fee-currency-grid__editor">
+              <el-input
+                v-model="item.fee"
+                placeholder="如 10.00"
+                inputmode="decimal"
+                @input="item.fee = limitDecimalInput($event, 8)"
+              ><template #append>{{ item.currency.code }}</template></el-input>
+            </div>
+            <p v-if="item.error" class="fee-currency-grid__error">{{ item.error }}</p>
+          </template>
         </div>
-      </el-form-item>
-      <p v-if="error" class="fee-form__error">{{ error }}</p>
-    </el-form>
 
-    <div class="fee-hint">
-      <el-icon><WarningFilled /></el-icon>
-      手续费将从代理利润中扣除，请合理设定以确保利润空间。
+        <footer class="fee-currency-grid__foot">
+          <el-tooltip v-if="!isEditing(item.currency.id)" content="修改手续费" placement="top">
+            <el-button
+              circle
+              size="small"
+              type="primary"
+              plain
+              :icon="Edit"
+              aria-label="修改手续费"
+              :loading="saving && pendingCurrencyId === item.currency.id"
+              @click="enterEdit(item.currency.id)"
+            />
+          </el-tooltip>
+          <template v-else>
+            <el-tooltip content="取消" placement="top">
+              <el-button circle size="small" :icon="Close" aria-label="取消修改" @click="cancelEdit(item.currency.id)" />
+            </el-tooltip>
+            <el-tooltip content="保存" placement="top">
+              <el-button circle size="small" type="primary" :icon="Check" aria-label="保存手续费" :loading="saving && pendingCurrencyId === item.currency.id" @click="submitItem(item)" />
+            </el-tooltip>
+          </template>
+        </footer>
+      </article>
     </div>
-
-    <el-button
-      class="save-button"
-      size="large"
-      type="primary"
-      :icon="DocumentChecked"
-      :loading="saving"
-      @click="submit"
-    >
-      储存手续费
-    </el-button>
+    <p v-else-if="!loading" class="fee-currency-grid__empty">暂无可配置币种</p>
   </AdminPanel>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { DocumentChecked, Money, WarningFilled } from '@element-plus/icons-vue';
+import { reactive, ref, watch } from 'vue';
+import { Check, Close, Edit, Money } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
-import { formatFixedFee } from '@/utils/decimal';
+import { formatFixedFee, limitDecimalInput } from '@/utils/decimal';
+import type { WithdrawalFee } from '@/api/modules/fee';
 
-const props = defineProps<{ feeAmount?: string; saving?: boolean }>();
-const emit = defineEmits<{ (e: 'save', payload: { fee_amount: string }): void }>();
+interface WithdrawalFeeItem {
+  currency: WithdrawalFee['currency'];
+  fee: string;
+  originalFee: string;
+  error: string;
+}
 
-const feeAmount = ref(formatFixedFee(props.feeAmount));
-const error = ref('');
+const props = defineProps<{
+  fees?: WithdrawalFee[];
+  loading?: boolean;
+  saving?: boolean;
+}>();
+const emit = defineEmits<{
+  (e: 'save', payload: { currency_id: number | string; fee_amount: string }): void;
+}>();
+
+const items = reactive<WithdrawalFeeItem[]>([]);
+const editingIds = reactive(new Set<number | string>());
+const pendingCurrencyId = ref<number | string | null>(null);
+
+function syncItems(list: WithdrawalFee[] | undefined) {
+  editingIds.clear();
+  items.splice(0, items.length);
+  if (!list) return;
+  list.forEach((entry) => {
+    items.push({
+      currency: entry.currency,
+      fee: formatFixedFee(entry.fee_amount),
+      originalFee: formatFixedFee(entry.fee_amount),
+      error: '',
+    });
+  });
+}
 
 watch(
-  () => props.feeAmount,
-  (value) => {
-    if (value !== undefined) feeAmount.value = formatFixedFee(value);
-  },
+  () => props.fees,
+  (value) => syncItems(value),
+  { immediate: true, deep: true },
 );
 
-function submit() {
-  const fee = feeAmount.value.trim();
-  if (!/^\d{1,20}(\.\d{1,8})?$/.test(fee)) {
-    error.value = '请输入合法手续费（整数最多 20 位、小数最多 8 位）';
+const COIN_VARIANTS = ['blue', 'teal', 'violet', 'amber', 'rose'] as const;
+function coinVariant(code: string, index: number) {
+  if (!code) return COIN_VARIANTS[index % COIN_VARIANTS.length];
+  const seed = code.charCodeAt(0) + (code.charCodeAt(1) || 0);
+  return COIN_VARIANTS[seed % COIN_VARIANTS.length];
+}
+
+function isEditing(id: number | string) {
+  return editingIds.has(id);
+}
+
+function enterEdit(id: number | string) {
+  editingIds.add(id);
+}
+
+function cancelEdit(id: number | string) {
+  const item = items.find((entry) => entry.currency.id === id);
+  if (item) {
+    item.fee = item.originalFee;
+    item.error = '';
+  }
+  editingIds.delete(id);
+}
+
+function submitItem(item: WithdrawalFeeItem) {
+  const fee = item.fee.trim();
+  if (!fee) {
+    item.error = '请填写手续费';
     return;
   }
-  error.value = '';
-  emit('save', { fee_amount: fee });
+  if (!/^\d{1,20}(\.\d{1,8})?$/.test(fee)) {
+    item.error = '手续费格式不合法（整数最多 20 位、小数最多 8 位）';
+    return;
+  }
+  item.error = '';
+  pendingCurrencyId.value = item.currency.id;
+  emit('save', { currency_id: item.currency.id, fee_amount: fee });
 }
 </script>
 
@@ -69,7 +167,7 @@ function submit() {
   height: 100%;
 
   :deep(.admin-panel__header) {
-    padding: 24px 28px 12px;
+    padding: 24px 28px 16px;
     border-bottom: 0;
   }
 
@@ -97,110 +195,83 @@ function submit() {
   }
 }
 
-.settings-form {
-  padding: 16px 28px 0;
+/* 轻量纵向费用列表：适合展示不断增加的币种，不使用传统表格。 */
+.fee-currency-grid {
+  display: grid;
+  min-width: 0;
+  padding: 4px 28px 24px;
+  gap: 10px;
 
-  :deep(.el-form-item__label) {
-    color: #263854;
-    font-size: 14px;
-    font-weight: 600;
-  }
-}
+  &__item {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: minmax(145px, .68fr) minmax(145px, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid #dce6f0;
+    border-radius: 14px;
+    background: linear-gradient(100deg, #f8fbff 0%, #fff 52%);
+    box-shadow: 0 7px 18px rgb(16 42 80 / 5%);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 
-.fee-input-item {
-  margin-bottom: 0;
-}
+    &:hover {
+      border-color: #b8cde2;
+      box-shadow: 0 10px 24px rgb(16 42 80 / 8%);
+      transform: translateY(-1px);
+    }
 
-.fee-input-shell {
-  position: relative;
-  width: 100%;
-
-  &__prefix {
-    position: absolute;
-    z-index: 2;
-    top: 50%;
-    left: 24px;
-    color: #1f73f2;
-    font-size: 22px;
-    font-weight: 600;
-    transform: translateY(-50%);
-  }
-
-  :deep(.el-input-number) {
-    width: 100%;
-  }
-
-  :deep(.el-input__wrapper) {
-    height: 58px;
-    border: 1px solid #8db9ff;
-    border-radius: 10px;
-    background: linear-gradient(180deg, #ffffff, #fbfdff);
-    box-shadow:
-      0 0 0 3px rgb(31 115 242 / 8%),
-      0 8px 18px rgb(16 42 80 / 8%);
-  }
-
-  :deep(.el-input__inner) {
-    padding-left: 46px;
-    color: #1f73f2;
-    font-size: 28px;
-    font-weight: 600;
-    text-align: left;
-  }
-}
-
-.fee-hint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 14px 28px;
-  padding: 12px 14px;
-  border: 1px solid #f9d79b;
-  border-radius: 8px;
-  color: #b36b00;
-  background: #fff7e8;
-  font-size: 13px;
-  font-weight: 600;
-
-  .el-icon {
-    flex: 0 0 auto;
-    color: #f59e0b;
-    font-size: 16px;
-  }
-}
-
-.fee-form__error {
-  margin: 10px 0 0;
-  color: #e23a43;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.save-button {
-  display: flex;
-  width: fit-content;
-  margin: 0 auto 24px;
-}
-
-@include mobile {
-  .fee-setting-panel {
-    :deep(.admin-panel__header) {
-      padding: 18px 18px 8px;
+    &.is-editing {
+      border-color: #7db2f8;
+      background: linear-gradient(100deg, #eef6ff 0%, #fff 65%);
+      box-shadow: 0 0 0 3px rgb(31 115 242 / 8%);
     }
   }
 
-  .settings-form {
-    padding: 14px 18px 0;
+  &__head { display: flex; min-width: 0; align-items: center; gap: 12px; }
+  &__coin {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    box-shadow: 0 7px 14px rgb(16 42 80 / 12%);
+    &--blue { background: linear-gradient(135deg, #60a5fa, #1d4ed8); }
+    &--teal { background: linear-gradient(135deg, #2dd4bf, #0d9488); }
+    &--violet { background: linear-gradient(135deg, #a78bfa, #6d28d9); }
+    &--amber { background: linear-gradient(135deg, #fbbf24, #d97706); }
+    &--rose { background: linear-gradient(135deg, #fb7185, #be123c); }
   }
+  &__identity { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+  &__identity strong { color: #14233a; font-family: ui-monospace, Consolas, monospace; font-size: 15px; }
+  &__identity small { overflow: hidden; color: #7b8da5; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  &__field { min-width: 0; }
+  &__display { display: flex; min-height: 42px; align-items: center; justify-content: center; gap: 7px; padding: 0 14px; border-radius: 10px; background: #f2f7fb; }
+  &__display strong { overflow: hidden; color: #079b97; font-family: ui-monospace, Consolas, monospace; font-size: 21px; text-overflow: ellipsis; white-space: nowrap; }
+  &__unit { color: #60758f; font-size: 12px; font-weight: 700; }
+  &__placeholder { color: #9aa9bb; font-size: 13px; }
+  &__editor :deep(.el-input__wrapper) { min-height: 42px; }
+  &__editor :deep(.el-input__inner) { color: #079b97; font-family: ui-monospace, Consolas, monospace; font-size: 18px; font-weight: 700; }
+  &__error { margin: 5px 2px 0; color: #e23a43; font-size: 12px; }
+  &__foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+  &__foot :deep(.el-button) { width: 30px; height: 30px; padding: 0; }
+  &__empty { margin: 18px 28px 24px; color: var(--app-text-label); font-size: 13px; }
+}
 
-  .fee-hint {
-    align-items: flex-start;
-    margin: 12px 18px;
-  }
+@include narrow {
+  .fee-currency-grid__item { grid-template-columns: minmax(130px, .62fr) minmax(135px, 1fr) auto; gap: 10px; }
+}
 
-  .save-button {
-    width: calc(100% - 36px);
-    margin: 0 18px 20px;
-  }
+@include mobile {
+  .fee-setting-panel :deep(.admin-panel__header) { padding: 18px 18px 12px; }
+  .fee-currency-grid { padding: 4px 18px 18px; }
+  .fee-currency-grid__item { grid-template-columns: 1fr auto; gap: 12px; padding: 13px; }
+  .fee-currency-grid__field { grid-column: 1 / -1; grid-row: 2; }
+  .fee-currency-grid__foot { grid-column: 2; grid-row: 1; }
 }
 </style>

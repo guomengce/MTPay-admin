@@ -37,20 +37,23 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, onBeforeUnmount } from 'vue';
 import { Lock, User } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { useRoute, useRouter } from 'vue-router';
 import { fetchLogin } from '@/api/modules/auth';
-import { useAuthStore } from '@/stores/modules/auth';
+import { completeLogin } from '@/utils/completeLogin';
+import { requiresTwoFactor, beginLoginChallenge, safeLoginRedirect } from '@/utils/loginChallenge';
 
 const route = useRoute();
 const router = useRouter();
-const authStore = useAuthStore();
+let active = true;
+onBeforeUnmount(() => { active = false; form.password = ''; });
 const form = reactive({ email: '', password: '' });
 const submitting = ref(false);
 
 async function handleSubmit() {
+  if (submitting.value) return;
   const email = form.email.trim();
   if (!email) { showLoginMessage('請輸入管理員 Email'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showLoginMessage('請輸入有效的 Email 地址'); return; }
@@ -58,16 +61,17 @@ async function handleSubmit() {
   submitting.value = true;
   try {
     const result = await fetchLogin({ email, password: form.password });
-    authStore.login({
-      token: result.token,
-      userInfo: {
-        id: String(result.id),
-        name: String(result.name || result.username || result.email || 'MTPay 管理员'),
-        email: String(result.email || email),
-        role: 'admin',
-      },
-    });
-    await router.replace(String(route.query.redirect || '/dashboard'));
+    if (!active) return;
+    if (requiresTwoFactor(result)) {
+      beginLoginChallenge(result, route.query.redirect);
+      form.password = '';
+      await router.replace({ name: 'TwoFactor' });
+      return;
+    }
+    completeLogin(result);
+    await router.replace(safeLoginRedirect(route.query.redirect));
+  } catch {
+    // Request failures are displayed by the request layer.
   } finally {
     submitting.value = false;
   }

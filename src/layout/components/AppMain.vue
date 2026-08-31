@@ -1,7 +1,7 @@
 <template>
   <main class="app-main">
     <router-view v-slot="{ Component, route }">
-      <component :is="Component" :key="route.fullPath" />
+      <component :is="Component" :key="route.path" />
     </router-view>
   </main>
 </template>

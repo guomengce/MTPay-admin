@@ -36,7 +36,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
     fields: [
       { label: '编号', value: row.id, strong: true },
       { label: '时间', value: row.time },
-      { label: '代理', value: row.agent, subValue: row.agentCode, strong: true },
+      { label: '代理', value: row.agent, subValue: row.agentEmail, strong: true },
       { label: '类型', badge: { label: row.type, type: identityBadgeType(row) } },
       { label: '主体', value: row.subject, subValue: row.country, strong: true },
       { label: '附件', value: `${row.fileCount} 个` },

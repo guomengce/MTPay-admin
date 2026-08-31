@@ -35,6 +35,7 @@
 /** 交易记录列表：真实筛选、后端分页，详情只读跳转。 */
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { businessDetailRoute } from '@/views/transaction/businessDetailRoute';
 import { Download, Tickets } from '@element-plus/icons-vue';
 
 import AdminHero from '@/components/admin/AdminHero.vue';
@@ -60,7 +61,6 @@ function exportOrders() {
       { label: '訂單編號', value: 'order_no' }, { label: '業務類型', value: 'business_name' },
       { label: '提交時間', value: 'submitted_at' }, { label: '完成時間', value: 'completed_at' },
       { label: '代理公司', value: (row) => row.user.company_name },
-      { label: '代理編號', value: (row) => row.user.agent_code },
       { label: '代理郵箱', value: (row) => row.user.email },
       { label: '付款方', value: 'payer_name' }, { label: '收款方', value: 'payee_name' },
       { label: '金額', value: 'amount' }, { label: '幣種', value: 'currency_code' },
@@ -73,10 +73,8 @@ function exportOrders() {
 }
 
 function openDetail(row: TransactionItem) {
-  void router.push({
-    name: 'TransactionDetail',
-    params: { businessType: row.detail_type, businessId: row.detail_id },
-  });
+  const target = businessDetailRoute(row);
+  if (target) void router.push(target);
 }
 
 onMounted(loadList);

@@ -1,3 +1,4 @@
+import { useListQueryState } from '@/composables/useListQueryState';
 import { onMounted, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {
@@ -20,7 +21,10 @@ export function useCurrencyManagement() {
   const keyword = ref('');
   const status = ref<CurrencyStatus>();
 
+  const saveListQuery = useListQueryState({ keyword, status, page, limit }, ["status"]);
+
   async function loadList() {
+    await saveListQuery();
     loading.value = true;
     try {
       const params: CurrencyListParams = { page: page.value, limit: limit.value };

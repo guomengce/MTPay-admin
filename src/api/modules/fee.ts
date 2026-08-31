@@ -82,12 +82,34 @@ export function setDefaultExchangeRates(payload: { usdt_rate: string; usdc_rate:
   return request.post<unknown, RateFeeConfig>('/admin/setDefaultExchangeRates', payload);
 }
 
-/** 保存 USD 固定出金手续费。 */
-export function setUsdWithdrawalFee(payload: { fee_amount: string }) {
-  return request.post<unknown, RateFeeConfig['usd_withdrawal_fee']>(
-    '/admin/setUsdWithdrawalFee',
-    payload,
-  );
+/** 单币种出金手续费条目。 */
+export interface WithdrawalFee {
+  id: number;
+  currency: RateCurrencyRef;
+  fee_amount: string;
+  updated_at: string | null;
+}
+
+/** 单币种出金手续费提交项。 */
+export interface WithdrawalFeeUpdate {
+  currency_id: number | string;
+  fee_amount: string;
+}
+
+/** 获取各币种固定出金手续费列表。 */
+export function fetchWithdrawalFeeList() {
+  return request.get<unknown, WithdrawalFee[]>('/admin/getWithdrawalFeeList');
+}
+
+/**
+ * 设置单个币种的固定出金手续费。
+ * currency_id / fee_amount 均为字符串。
+ */
+export function setWithdrawalFee(payload: WithdrawalFeeUpdate) {
+  return request.post<unknown, WithdrawalFee>('/admin/setWithdrawalFee', {
+    currency_id: String(payload.currency_id),
+    fee_amount: payload.fee_amount,
+  });
 }
 
 /** 代理专属比例分页列表。 */

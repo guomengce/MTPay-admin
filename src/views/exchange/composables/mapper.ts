@@ -32,7 +32,7 @@ export function toExchangeRow(order: ExchangeOrder): ExchangeRow {
     id: order.order_no,
     time: order.submitted_at ?? '—',
     agent: order.user.company_name,
-    code: order.user.agent_code,
+    code: order.user.email,
     amount: order.source_amount,
     asset: order.source_currency.code,
     rate: formatExchangeRate(order.exchange_rate),

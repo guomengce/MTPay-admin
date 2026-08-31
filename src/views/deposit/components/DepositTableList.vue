@@ -22,7 +22,7 @@
       <el-table-column label="申報金額" min-width="150">
         <template #default="{ row }">
           <div class="asset">
-            <strong>{{ row.amount }}</strong>
+            <strong>{{ formatMoney(row.amount) }}</strong>
             <small class="asset-currency">{{ row.asset }}</small>
           </div>
         </template>
@@ -35,7 +35,7 @@
       <el-table-column label="操作" width="110" fixed="right">
         <template #default="{ row }">
           <div class="fee-agent-table__actions">
-            <el-button plain type="primary" size="small" :icon="View" @click="emit('view', row)">查看詳情</el-button>
+            <el-button plain type="primary" size="small" :icon="View" @click="emit('view', row)">詳情</el-button>
           </div>
         </template>
       </el-table-column>
@@ -44,6 +44,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { View } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';

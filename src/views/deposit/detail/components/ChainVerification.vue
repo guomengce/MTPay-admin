@@ -20,8 +20,8 @@
         </article>
       </div>
       <dl class="chain-verification__meta">
-        <div><dt>平台交易號</dt><dd><code>{{ formatLongIdentifier(platformTransactionNo) }}</code><el-button v-if="platformTransactionNo" text circle :icon="DocumentCopy" aria-label="複製平台交易號" @click="emit('copy', '平台交易號', platformTransactionNo)" /></dd></div>
-        <div><dt>交易哈希 Txid</dt><dd><code>{{ formatLongIdentifier(txid) }}</code><el-button v-if="txid" text circle :icon="DocumentCopy" aria-label="複製交易雜湊" @click="emit('copy', '交易雜湊', txid)" /></dd></div>
+        <div><dt>平台交易號</dt><dd><code>{{ platformTransactionNo || '—' }}</code><el-button v-if="platformTransactionNo" text circle :icon="DocumentCopy" aria-label="複製平台交易號" @click="emit('copy', '平台交易號', platformTransactionNo)" /></dd></div>
+        <div><dt>交易哈希 Txid</dt><dd><code>{{ txid || '—' }}</code><el-button v-if="txid" text circle :icon="DocumentCopy" aria-label="複製交易雜湊" @click="emit('copy', '交易雜湊', txid)" /></dd></div>
       </dl>
     </div>
   </section>
@@ -29,7 +29,6 @@
 
 <script setup lang="ts">
 import { DocumentCopy, Link, Right } from '@element-plus/icons-vue';
-import { formatLongIdentifier } from '@/utils/text';
 
 defineProps<{
   txid: string;

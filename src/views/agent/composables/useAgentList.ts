@@ -1,3 +1,4 @@
+import { useListQueryState } from '@/composables/useListQueryState';
 import { onMounted, ref, watch } from 'vue';
 import { fetchAgentList, type AgentAccount } from '@/api/modules/agent';
 
@@ -12,7 +13,10 @@ export function useAgentList() {
   const status = ref<number>();
 
   /** 请求真实代理分页列表，不进行前端假分页或假数据回退。 */
+  const saveListQuery = useListQueryState({ keyword, status, page, limit }, ["status"]);
+
   async function loadAgents() {
+    await saveListQuery();
     loading.value = true;
     try {
       const result = await fetchAgentList({

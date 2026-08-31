@@ -12,13 +12,25 @@ export const useRouteStore = defineStore('route', () => {
   }
 
   function generateMenus(routes: RouteRecordRaw[]) {
-    const nextMenus = routes
-      .filter((route) => !route.meta?.hidden)
-      .map((route) => ({
+    const nextMenus: MenuItem[] = [];
+    routes.filter((route) => !route.meta?.hidden).forEach((route) => {
+      const item: MenuItem = {
         path: route.path,
         title: String(route.meta?.title || ''),
         icon: String(route.meta?.icon || ''),
-      }));
+      };
+      const group = route.meta?.menuGroup as { path: string; title: string; icon: string } | undefined;
+      if (!group) {
+        nextMenus.push(item);
+        return;
+      }
+      let parent = nextMenus.find((menu) => menu.path === group.path);
+      if (!parent) {
+        parent = { ...group, children: [] };
+        nextMenus.push(parent);
+      }
+      parent.children?.push(item);
+    });
 
     setMenus(nextMenus);
     return nextMenus;

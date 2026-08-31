@@ -3,7 +3,7 @@
     <el-input
       v-model="keyword"
       class="filter-bar__keyword filter-bar__keyword--wide"
-      placeholder="白名單編號 / 主體 / 代理編號 / 公司 / 郵箱"
+      placeholder="白名單編號 / 主體 / 公司 / 郵箱"
       clearable
       :prefix-icon="Search"
       @keyup.enter="emit('search')"

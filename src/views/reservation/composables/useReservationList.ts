@@ -1,3 +1,5 @@
+import { useListQueryState } from '@/composables/useListQueryState';
+import { toRefs } from 'vue';
 import { reactive, ref } from 'vue';
 
 import { fetchContactReservationList } from '@/api/modules/reservation';
@@ -17,7 +19,10 @@ export function useReservationList() {
   const limit = ref(15);
   const query = reactive<ReservationQuery>({ keyword: '', started_at: '', ended_at: '' });
 
+  const saveListQuery = useListQueryState({ ...toRefs(query), page, limit }, ["status","role","entity_type"]);
+
   async function loadList() {
+    await saveListQuery();
     loading.value = true;
     try {
       const result = await fetchContactReservationList({

@@ -3,23 +3,22 @@
     <AdminHero title="操作记录" :icon="Clock" />
 
     <AdminPanel :icon="Tickets">
-      <el-timeline v-loading="loading" class="log-timeline">
-        <el-timeline-item v-for="item in list" :key="item.id" color="#0ea5a2" size="large">
-          <article class="log-timeline__item">
-            <span class="log-timeline__icon">
+      <div v-loading="loading" class="log-list__items">
+          <article class="log-record" v-for="item in list" :key="item.id">
+            <span class="log-record__icon">
               <el-icon><component :is="moduleIcon(item.module)" /></el-icon>
             </span>
-            <div class="log-timeline__body">
-              <h3>
-                {{ item.admin_name || '未知管理员' }}
-                <em>{{ moduleLabel(item.module) }} · {{ actionLabel(item.action) }}</em>
-              </h3>
+            <div class="log-record__body">
+              <div class="log-record__heading">
+                <h3>{{ item.admin_name || '未知管理员' }}</h3>
+                <span>{{ moduleLabel(item.module) }}</span>
+                <em>{{ actionLabel(item.action) }}</em>
+              </div>
               <p>{{ item.content || '—' }}</p>
             </div>
             <time>{{ item.operated_at || '—' }}</time>
           </article>
-        </el-timeline-item>
-      </el-timeline>
+      </div>
 
       <el-empty v-if="!loading && list.length === 0" description="暂无操作记录" />
 
@@ -142,6 +141,13 @@ onMounted(loadList);
 
 <style scoped lang="scss">
 .log-list {
+  &__items {
+    display: grid;
+    min-height: 180px;
+    gap: 12px;
+    padding: 22px 24px 8px;
+  }
+
   &__pager {
     display: flex;
     justify-content: flex-end;
@@ -149,34 +155,23 @@ onMounted(loadList);
   }
 }
 
-.log-timeline {
-  min-height: 180px;
-  padding: 28px 26px 12px 36px;
+.log-record {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  padding: 16px 18px;
+  border: 1px solid #dfe8f1;
+  border-radius: 13px;
+  background: #fbfdff;
+  box-shadow: 0 4px 12px rgb(31 66 102 / 4%);
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  gap: 14px;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 
-  :deep(.el-timeline-item) {
-    padding-bottom: 0;
-  }
-  :deep(.el-timeline-item__node--large) {
-    left: -3px;
-    width: 18px;
-    height: 18px;
-  }
-  :deep(.el-timeline-item__wrapper) {
-    top: -16px;
-    padding-left: 28px;
-  }
-
-  &__item {
-    display: grid;
-    align-items: start;
-    padding: 18px 0;
-    border-bottom: 1px solid #e6edf5;
-    grid-template-columns: 52px minmax(0, 1fr) auto;
-    gap: 14px;
-  }
-
-  :deep(.el-timeline-item:last-child) &__item {
-    border-bottom: 0;
+  &:hover {
+    border-color: #b9ddd9;
+    box-shadow: 0 8px 20px rgb(31 66 102 / 8%);
+    transform: translateY(-1px);
   }
 
   &__icon {
@@ -191,54 +186,37 @@ onMounted(loadList);
     font-size: 20px;
   }
 
-  &__body {
-    min-width: 0;
-  }
+  &__body { min-width: 0; }
+
+  &__heading { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 7px; margin-bottom: 7px; }
 
   h3 {
-    margin: 0 0 8px;
+    margin: 0;
     color: var(--app-text-heading);
     font-size: 15px;
     font-weight: 600;
-
-    em {
-      display: inline-flex;
-      margin-left: 10px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      color: #078f82;
-      background: #dff6ec;
-      font-size: 12px;
-      font-style: normal;
-      font-weight: 600;
-    }
   }
 
+  &__heading span, &__heading em { display:inline-flex; padding:3px 9px; border-radius:999px; font-size:12px; font-style:normal; font-weight:600; }
+  &__heading span { color:#40617e; background:#edf3f8; }
+  &__heading em { color:#078f82; background:#dff6ec; }
+
   p {
-    margin: 0 0 10px;
+    margin: 0;
     color: #42516a;
     font-size: 13px;
     line-height: 1.55;
   }
 
-  time {
-    color: var(--app-text-label);
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  time {
-    white-space: nowrap;
-  }
+  time { align-self:start; padding-top:3px; color:var(--app-text-label); font-size:12px; font-weight:500; white-space:nowrap; }
 }
 
 @include mobile {
-  .log-timeline {
-    padding: 20px;
-
-    &__item {
-      grid-template-columns: 44px minmax(0, 1fr);
-    }
+  .log-list__items { padding:16px 14px 6px; }
+  .log-record {
+    align-items:start;
+    padding:14px;
+    grid-template-columns:40px minmax(0, 1fr);
     &__icon {
       width: 40px;
       height: 40px;
@@ -247,9 +225,7 @@ onMounted(loadList);
     time {
       grid-column: 2;
     }
-    h3 em {
-      margin: 6px 0 0;
-    }
+    time { grid-column:2; padding-top:0; }
   }
 }
 </style>

@@ -2,8 +2,9 @@
   <section class="admin-page withdrawal-detail-page">
     <template v-if="detail">
       <div class="withdrawal-detail-page__toolbar">
-        <el-button plain :icon="Back" @click="goBack">返回出金列表</el-button>
-        <div v-if="heroActions.length" class="withdrawal-detail-page__actions">
+        <el-button plain :icon="Back" @click="goBack">返回</el-button>
+        <div v-if="heroActions.length || detail.status === 3" class="withdrawal-detail-page__actions">
+          <el-button v-if="detail.status === 3" type="danger" plain :loading="cancelling" :disabled="submitting || cancelling" @click="cancelCompleted(toWithdrawalRow(detail))">取消出金</el-button>
           <el-button
             v-for="action in heroActions"
             :key="action.emitName"
@@ -31,7 +32,6 @@
           <div class="withdrawal-detail-page__supporting-left">
             <AgentCard
               :agent-company="detail.user.company_name"
-              :agent-code="detail.user.agent_code"
               :agent-email="detail.user.email"
             />
             <ResultPanel
@@ -80,6 +80,7 @@ import Timeline from './components/Timeline.vue';
 import WithdrawalActionDialog from '../components/WithdrawalActionDialog.vue';
 import type { WithdrawalActionMode } from '../components/WithdrawalActionDialog.vue';
 import { toWithdrawalRow } from '../composables/mapper';
+import { useCancelCompletedWithdrawal } from '../composables/useCancelCompletedWithdrawal';
 import { useWithdrawalDetail } from '../composables/useWithdrawalDetail';
 import { useWithdrawalDetailView } from '../composables/useWithdrawalDetailView';
 
@@ -87,6 +88,7 @@ const route = useRoute();
 const router = useRouter();
 const { detail, loading, submitting, uploading, loadDetail, requestSupplement, submitReview, submitPayment, appendPaymentFiles, uploadFile } = useWithdrawalDetail();
 usePageLoading(loading);
+const { cancelling, cancelCompleted } = useCancelCompletedWithdrawal(async () => { if (detail.value) await loadDetail(detail.value.id); });
 const { payeeBankFields, payerSubjectFields, payeeSubjectFields, reviewFields, paymentFields, timelineItems, fileRounds } = useWithdrawalDetailView(detail);
 
 interface DetailAction {
@@ -121,7 +123,7 @@ const actionRow = computed(() => (detail.value ? toWithdrawalRow(detail.value) :
 const dialogVisible = ref(false);
 const actionMode = ref<WithdrawalActionMode>('approve');
 
-function goBack() { void router.push('/withdrawal'); }
+function goBack() { router.go(-1); }
 function openAction(mode: WithdrawalActionMode) { actionMode.value = mode; dialogVisible.value = true; }
 
 async function handleAction(payload: { mode: WithdrawalActionMode; message?: string; result?: 'complete' | 'fail'; failureReason?: string; fileIds: number[] }) {

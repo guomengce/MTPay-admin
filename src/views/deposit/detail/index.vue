@@ -81,9 +81,7 @@ const timelineItems = computed<AdminTimelineItem[]>(() => {
   }));
 });
 
-function goBack() {
-  void router.push('/deposit');
-}
+function goBack() { router.go(-1); }
 
 async function copyValue(label: string, value: string) {
   try {

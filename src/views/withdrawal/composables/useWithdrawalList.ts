@@ -1,3 +1,6 @@
+import type { CsvFilters } from '@/api/modules/csvExport';
+import { useListQueryState } from '@/composables/useListQueryState';
+import { toRefs } from 'vue';
 /** 管理端出金列表：后端分页与真实筛选参数。 */
 import { reactive, ref } from 'vue';
 
@@ -22,29 +25,35 @@ const INITIAL_QUERY: WithdrawalQuery = {
 
 export function useWithdrawalList() {
   const loading = ref(false);
+  const exportFilters = ref<CsvFilters | null>(null);
   const list = ref<WithdrawalRow[]>([]);
   const total = ref(0);
   const page = ref(1);
   const limit = ref(15);
   const query = reactive<WithdrawalQuery>({ ...INITIAL_QUERY });
 
-  function buildParams(): WithdrawalListParams {
+  function buildParams(filters: WithdrawalQuery): WithdrawalListParams {
     return {
       page: page.value,
       limit: limit.value,
-      status: query.status,
-      keyword: query.keyword.trim() || undefined,
-      started_at: query.started_at || undefined,
-      ended_at: query.ended_at || undefined,
+      status: filters.status,
+      keyword: filters.keyword.trim() || undefined,
+      started_at: filters.started_at || undefined,
+      ended_at: filters.ended_at || undefined,
     };
   }
 
+  const saveListQuery = useListQueryState({ ...toRefs(query), page, limit }, ["status","role","entity_type"]);
+
   async function loadList() {
+    const filters = { ...query };
+    await saveListQuery();
     loading.value = true;
     try {
-      const result = await fetchWithdrawalList(buildParams());
+      const result = await fetchWithdrawalList(buildParams(filters));
       list.value = result.data.map(toWithdrawalRow);
       total.value = result.total;
+      exportFilters.value = filters;
       page.value = result.current_page;
       limit.value = result.per_page;
     } finally {
@@ -75,6 +84,7 @@ export function useWithdrawalList() {
   }
 
   return {
+    exportFilters,
     loading,
     list,
     total,

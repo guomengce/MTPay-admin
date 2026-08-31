@@ -10,6 +10,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { computed } from 'vue';
 import { Document } from '@element-plus/icons-vue';
 
@@ -55,7 +57,7 @@ const fields = computed<FieldItem[]>(() => {
     const review = (d.review ?? {}) as Record<string, unknown>;
     return [
       ...pick(d, ['currency', 'network']),
-      { label: '入金金额', value: text(d.amount), mono: true },
+      { label: '入金金额', value: formatMoney(d.amount), mono: true },
       { label: '交易哈希', value: formatLongIdentifier(d.txid), wide: true, mono: true },
       { label: '平台收款地址', value: text(d.receiving_address_snapshot), wide: true, mono: true },
       { label: '审核人', value: text(review.admin_name) },
@@ -69,10 +71,10 @@ const fields = computed<FieldItem[]>(() => {
     const review = (d.review ?? {}) as Record<string, unknown>;
     return [
       ...pick(d, ['source_currency', 'target_currency']),
-      { label: '支付数量', value: text(d.source_amount), mono: true },
+      { label: '支付数量', value: formatMoney(d.source_amount), mono: true },
       { label: '采用比例', value: formatExchangeRate(text(d.exchange_rate)), mono: true },
       { label: '比例来源', value: text(d.rate_source_name) },
-      { label: '获得金额', value: text(d.target_amount), mono: true },
+      { label: '获得金额', value: formatMoney(d.target_amount), mono: true },
       { label: '冻结时间', value: text(d.frozen_at) },
       { label: '审核人', value: text(review.admin_name) },
       { label: '审核时间', value: text(review.reviewed_at) },
@@ -86,9 +88,9 @@ const fields = computed<FieldItem[]>(() => {
   const review = (d.review ?? {}) as Record<string, unknown>;
   const payment = (d.payment ?? {}) as Record<string, unknown>;
   return [
-    { label: '出金金额（实收）', value: text(d.amount), mono: true },
-    { label: '固定手续费', value: formatFixedFee(text(d.fee_amount)), mono: true },
-    { label: '总扣款', value: text(d.total_amount), mono: true },
+    { label: '出金金额（实收）', value: formatMoney(d.amount), mono: true },
+    { label: '固定手续费', value: formatMoney(formatFixedFee(text(d.fee_amount))), mono: true },
+    { label: '总扣款', value: formatMoney(d.total_amount), mono: true },
     { label: '付款人', value: text(payer.name), wide: true },
     { label: '付款人白名单编号', value: text(payer.whitelist_no), mono: true },
     { label: '收款人', value: text(payee.name), wide: true },

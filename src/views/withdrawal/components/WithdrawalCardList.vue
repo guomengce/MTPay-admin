@@ -5,6 +5,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { computed } from 'vue';
 import { CircleCheck, CircleClose, CreditCard, DocumentAdd, Upload, View } from '@element-plus/icons-vue';
 
@@ -15,6 +17,7 @@ import type { WithdrawalRow } from '../composables/mapper';
 
 const props = defineProps<{ data: WithdrawalRow[] }>();
 const emit = defineEmits<{
+  (e: 'cancel-completed', row: WithdrawalRow): void;
   (e: 'view', row: WithdrawalRow): void;
   (e: 'approve', row: WithdrawalRow): void;
   (e: 'reject', row: WithdrawalRow): void;
@@ -28,6 +31,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
     const actions: AdminCardItem['actions'] = [
       { key: 'view', label: '详情', icon: View, type: 'primary', plain: true },
     ];
+    if (row.statusCode === 3) actions.push({ key: 'cancel-completed', label: '取消出金', icon: CircleClose, type: 'danger', plain: true });
     if (row.statusCode === 0) {
       actions.unshift(
         { key: 'approve', label: '通过', icon: CircleCheck, type: 'primary', plain: true },
@@ -56,13 +60,13 @@ const cardItems = computed<AdminCardItem[]>(() =>
       },
       pending: row.statusCode === 0 || row.statusCode === 1 || row.statusCode === 2,
       fields: [
-        { label: '代理', value: row.agent, subValue: row.agentCode, strong: true },
+        { label: '代理', value: row.agent, subValue: row.agentEmail, strong: true },
         { label: '付款人', value: `${row.payerType} · ${row.payer}`, subValue: row.payerNo },
         { label: '收款人', value: `${row.payeeType} · ${row.payee}`, subValue: row.payeeNo },
-        { label: '出金金额', value: `${row.amount} ${row.currency}`, subValue: '收款人实收', strong: true },
+        { label: '出金金额', value: `${formatMoney(row.amount)} ${row.currency}`, subValue: '收款人实收', strong: true },
         {
           label: '总扣款',
-          value: `${row.totalAmount} ${row.currency}`,
+          value: `${formatMoney(row.totalAmount)} ${row.currency}`,
         },
       ],
       actions,
@@ -72,6 +76,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
 
 function handleAction(actionKey: string, itemKey: string) {
   const row = props.data.find((item) => String(item.businessId) === itemKey);
+  if (row && row.statusCode === 3 && actionKey === 'cancel-completed') emit('cancel-completed', row);
   if (row && actionKey === 'view') emit('view', row);
   if (row && actionKey === 'approve') emit('approve', row);
   if (row && actionKey === 'reject') emit('reject', row);

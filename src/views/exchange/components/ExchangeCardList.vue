@@ -5,6 +5,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { computed } from 'vue';
 import { CircleCheck, CircleClose, View } from '@element-plus/icons-vue';
 
@@ -33,9 +35,9 @@ const cardItems = computed<AdminCardItem[]>(() =>
       { label: '编号', value: row.id, strong: true },
       { label: '时间', value: row.time },
       { label: '代理', value: row.agent, subValue: row.code },
-      { label: '支付资产', value: row.amount, subValue: row.asset, strong: true },
+      { label: '支付资产', value: formatMoney(row.amount), subValue: row.asset, strong: true },
       { label: '比例', value: row.rate, strong: true },
-      { label: '获得USD', value: row.usd, strong: true },
+      { label: '获得USD', value: formatMoney(row.usd), strong: true },
     ],
     actions: [
       { key: 'view', label: '详情', icon: View, type: 'primary', plain: true },

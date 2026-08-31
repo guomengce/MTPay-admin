@@ -2,7 +2,6 @@
   <AdminPanel title="申請代理" :icon="UserFilled">
     <div class="order-info">
       <div><small>代理名稱</small><strong>{{ agentCompany }}</strong></div>
-      <div><small>代理編號</small><strong>{{ agentCode }}</strong></div>
       <div><small>聯絡郵箱</small><strong>{{ agentEmail }}</strong></div>
     </div>
   </AdminPanel>
@@ -15,7 +14,6 @@ import AdminPanel from '@/components/admin/AdminPanel.vue';
 
 defineProps<{
   agentCompany: string;
-  agentCode: string;
   agentEmail: string;
 }>();
 </script>

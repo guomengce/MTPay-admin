@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 import { AUTH_TOKEN_KEY, USER_INFO_KEY } from '@/constants';
 import type { UserInfo } from '@/types/user';
 import { storage } from '@/utils/storage';
+import { clearListQueryState } from '@/composables/useListQueryState';
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(storage.get<string>(AUTH_TOKEN_KEY) || '');
@@ -16,12 +17,14 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function login(payload: { token: string; userInfo: UserInfo }) {
+    clearListQueryState();
     setToken(payload.token);
     userInfo.value = payload.userInfo;
     storage.set(USER_INFO_KEY, payload.userInfo);
   }
 
   function clearAuth() {
+    clearListQueryState();
     token.value = '';
     userInfo.value = null;
     storage.remove(AUTH_TOKEN_KEY);

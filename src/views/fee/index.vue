@@ -13,7 +13,8 @@
         @save="handleSaveRates"
       />
       <FeeWithdrawalForm
-        :fee-amount="config?.usd_withdrawal_fee?.fee_amount"
+        :fees="withdrawalFees"
+        :loading="loading"
         :saving="saving"
         @save="handleSaveFee"
       />
@@ -24,7 +25,7 @@
         <el-input
           v-model="agentQuery.keyword"
           clearable
-          placeholder="代理編號 / 公司 / Email"
+          placeholder="公司 / Email"
           :prefix-icon="Search"
           @keyup.enter="searchAgents"
         />
@@ -95,12 +96,14 @@ const {
   loading,
   saving,
   config,
+  withdrawalFees,
   agentList,
   agentTotal,
   agentPage,
   agentLimit,
   agentQuery,
   fetchConfig,
+  loadWithdrawalFees,
   loadAgents,
   saveDefaultRates,
   saveFee,
@@ -122,7 +125,7 @@ function syncCompact(event: MediaQueryListEvent | MediaQueryList) {
 }
 
 onMounted(() => {
-  void Promise.all([fetchConfig(), loadAgents()]);
+  void Promise.all([fetchConfig(), loadWithdrawalFees(), loadAgents()]);
   if (typeof window === 'undefined' || !window.matchMedia) return;
   mql = window.matchMedia(COMPACT_QUERY);
   syncCompact(mql);
@@ -143,9 +146,9 @@ async function handleSaveRates(payload: { usdt_rate: string; usdc_rate: string }
   }
 }
 
-async function handleSaveFee(payload: { fee_amount: string }) {
+async function handleSaveFee(payload: { currency_id: number | string; fee_amount: string }) {
   try {
-    await saveFee(payload.fee_amount);
+    await saveFee(payload);
     ElMessage.success('出金手续费已保存');
   } catch {
     /* 统一请求层已提示 */

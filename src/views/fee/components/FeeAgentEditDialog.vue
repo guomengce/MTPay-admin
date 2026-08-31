@@ -10,7 +10,7 @@
     <template v-if="row">
       <p class="fee-agent-dialog__hint">
         为 <strong>{{ row.company_name }}</strong
-        >（<span>{{ row.agent_code }}</span
+        >（<span>{{ row.email }}</span
         >）设定 USDT / USDC 兑换比例，保存后立即对该代理生效。
       </p>
 

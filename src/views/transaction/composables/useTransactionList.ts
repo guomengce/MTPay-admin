@@ -1,3 +1,5 @@
+import { useListQueryState } from '@/composables/useListQueryState';
+import { toRefs } from 'vue';
 /**
  * 交易记录列表组合逻辑
  * - 统一交易记录接口 /admin/getTransactionList，只读；
@@ -52,7 +54,10 @@ export function useTransactionList() {
     };
   }
 
+  const saveListQuery = useListQueryState({ ...toRefs(query), page, limit }, ["status","role","entity_type"]);
+
   async function loadList() {
+    await saveListQuery();
     loading.value = true;
     try {
       const result = await TransactionApi.fetchTransactionList(buildParams());

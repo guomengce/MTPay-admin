@@ -5,7 +5,10 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { computed } from 'vue';
+import { businessDetailRoute } from '../businessDetailRoute';
 import { View } from '@element-plus/icons-vue';
 
 import type { TransactionItem } from '@/api/modules/transaction';
@@ -29,11 +32,11 @@ const items = computed<AdminCardItem[]>(() =>
     pending: isPending(row),
     fields: [
       { label: '类型', badge: { label: row.business_name, type: businessType(row) } },
-      { label: '代理', value: row.user.company_name, subValue: row.user.agent_code, strong: true },
+      { label: '代理', value: row.user.company_name, subValue: row.user.email, strong: true },
       { label: '交易内容', value: contentLabel(row), strong: true },
-      { label: '金额', value: `${row.amount} ${row.currency_code}`, subValue: amountSubValue(row), strong: true },
+      { label: '金额', value: displayAmount(row), subValue: amountSubValue(row), strong: true },
     ],
-    actions: [{ key: 'view', label: '查看详情', icon: View, type: 'primary', plain: true }],
+    actions: businessDetailRoute(row) ? [{ key: 'view', label: '查看详情', icon: View, type: 'primary', plain: true }] : [],
   })),
 );
 
@@ -52,10 +55,14 @@ function statusType(row: TransactionItem): StatusBadgeType {
 function businessType(row: TransactionItem): StatusBadgeType {
   if (row.business_type === 'deposit') return 'success';
   if (row.business_type === 'exchange') return 'warning';
+  if (row.business_type === 'manual_increase') return 'success';
+  if (row.business_type === 'manual_decrease') return 'danger';
   return 'primary';
 }
 
 function contentLabel(row: TransactionItem) {
+  if (row.business_type === 'manual_increase') return '人工增加代理資產';
+  if (row.business_type === 'manual_decrease') return '人工扣減代理資產';
   if (row.business_type === 'withdrawal') {
     const payer = partyLabel(row.payer_name, row.payer_entity_type_name, row.payer_entity_type);
     const payee = partyLabel(row.payee_name, row.payee_entity_type_name, row.payee_entity_type);
@@ -74,9 +81,14 @@ function partyLabel(name?: string | null, typeName?: string | null, type?: 1 | 2
 }
 
 function amountSubValue(row: TransactionItem) {
-  if (row.business_type === 'withdrawal') return `总扣款 ${row.total_amount || '—'} ${row.currency_code}`;
-  if (row.business_type === 'exchange') return `获得 ${row.target_amount || '—'} ${row.target_currency_code || ''}`;
+  if (row.business_type === 'withdrawal') return `总扣款 ${formatMoney(row.total_amount || '—')} ${row.currency_code}`;
+  if (row.business_type === 'exchange') return `获得 ${formatMoney(row.target_amount || '—')} ${row.target_currency_code || ''}`;
   return undefined;
+}
+
+function displayAmount(row: TransactionItem) {
+  const prefix = row.business_type === 'manual_increase' ? '+' : row.business_type === 'manual_decrease' ? '-' : '';
+  return `${prefix}${formatMoney(row.amount)} ${row.currency_code}`;
 }
 
 function handleAction(actionKey: string, itemKey: string) {

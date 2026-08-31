@@ -7,7 +7,7 @@ export interface WhitelistRow {
   time: string;
   updatedAt: string;
   agent: string;
-  agentCode: string;
+  agentEmail: string;
   role: string;
   entityType: string;
   type: string;
@@ -36,7 +36,7 @@ export function toWhitelistRow(item: WhitelistItem): WhitelistRow {
     time: item.submitted_at || '—',
     updatedAt: item.updated_at || '—',
     agent: item.user.company_name,
-    agentCode: item.user.agent_code,
+    agentEmail: item.user.email,
     role: item.role_name,
     entityType: item.entity_type_name,
     type: `${item.role_name} · ${item.entity_type_name}`,

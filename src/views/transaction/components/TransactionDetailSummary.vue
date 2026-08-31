@@ -15,7 +15,7 @@
       </div>
       <div>
         <dt>代理</dt>
-        <dd>{{ transaction.user.company_name }} · {{ transaction.user.agent_code }}</dd>
+        <dd>{{ transaction.user.company_name }} · {{ transaction.user.email }}</dd>
       </div>
       <div>
         <dt>提交时间</dt>
@@ -38,27 +38,27 @@
       <div v-if="transaction.business_type === 'deposit'">
         <dt>入金金额</dt>
         <dd class="is-accent">
-          {{ transaction.amount }} {{ transaction.currency_code }}
+          {{ formatMoney(transaction.amount) }} {{ transaction.currency_code }}
           <small v-if="transaction.network_code">· {{ transaction.network_code }}</small>
         </dd>
       </div>
       <div v-if="transaction.business_type === 'exchange'">
         <dt>兑换</dt>
         <dd class="is-accent">
-          {{ transaction.amount }} {{ transaction.currency_code }} →
-          {{ transaction.target_amount }} {{ transaction.target_currency_code }}
+          {{ formatMoney(transaction.amount) }} {{ transaction.currency_code }} →
+          {{ formatMoney(transaction.target_amount) }} {{ transaction.target_currency_code }}
           <small v-if="transaction.exchange_rate">· 比例 {{ formatExchangeRate(transaction.exchange_rate) }}</small>
         </dd>
       </div>
       <template v-if="transaction.business_type === 'withdrawal'">
         <div>
           <dt>出金金额（实收）</dt>
-          <dd class="is-accent">{{ transaction.amount }} {{ transaction.currency_code }}</dd>
+          <dd class="is-accent">{{ formatMoney(transaction.amount) }} {{ transaction.currency_code }}</dd>
         </div>
         <div>
           <dt>手续费 / 总扣款</dt>
           <dd>
-            {{ formatFixedFee(transaction.fee_amount) }} / {{ transaction.total_amount }}
+            {{ formatMoney(formatFixedFee(transaction.fee_amount)) }} / {{ formatMoney(transaction.total_amount) }}
             {{ transaction.currency_code }}
           </dd>
         </div>
@@ -72,6 +72,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { computed } from 'vue';
 import { Tickets } from '@element-plus/icons-vue';
 

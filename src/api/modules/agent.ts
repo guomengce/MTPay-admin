@@ -98,12 +98,6 @@ export interface AgentAssetOverview {
 export type AgentAssetOverviewResponse = Pick<AgentAssetOverview, 'user'> &
   Partial<Omit<AgentAssetOverview, 'user'>>;
 
-export interface AgentTransactionInfo {
-  transaction: AgentRecentTransaction;
-  /** 旧版近期交易弹框按动态业务字段展示，保留字典形态。 */
-  detail: Record<string, unknown>;
-}
-
 export interface AdjustAgentBalancePayload {
   user_id: number;
   currency_code: 'USDT' | 'USDC' | 'USD' | string;
@@ -138,13 +132,6 @@ export function adjustAgentBalance(payload: AdjustAgentBalancePayload) {
   form.append('amount', payload.amount);
   if (payload.reason) form.append('reason', payload.reason);
   return request.post('/admin/adjustAgentBalance', form);
-}
-
-/** 获取最近交易的业务详情，参数严格取自列表返回的 detail_type/detail_id。 */
-export function fetchAgentTransactionInfo(transaction: AgentRecentTransaction) {
-  return request.get<unknown, AgentTransactionInfo>('/admin/getTransactionInfo', {
-    params: { business_type: transaction.detail_type, business_id: transaction.detail_id },
-  });
 }
 
 /** 新增代理。代理编号由后端生成，并由后端发送激活邀请邮件。 */

@@ -23,7 +23,7 @@
                   <el-dropdown-menu>
                     <el-dropdown-item command="edit" :icon="Edit">修改</el-dropdown-item>
                     <el-dropdown-item command="status" :icon="SwitchButton" divided>{{ row.status === 1 ? '停用' : '啟用' }}</el-dropdown-item>
-                    <el-dropdown-item command="delete" :icon="Delete" divided>刪除</el-dropdown-item>
+                    <el-dropdown-item v-if="row.id !== 1" command="disable-2fa" :icon="Unlock" :disabled="twoFactorBusy" divided>關閉 2FA</el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Delete, Edit, Lock, MoreFilled, Plus, RefreshLeft, Search, SwitchButton } from '@element-plus/icons-vue';
+import { Unlock, Edit, Lock, MoreFilled, Plus, RefreshLeft, Search, SwitchButton } from '@element-plus/icons-vue';
 import type { AdminAccount } from '@/api/modules/adminAccount';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
@@ -53,10 +53,10 @@ import AdminFormDialog from './components/AdminFormDialog.vue';
 import { useAdminManagement } from './composables/useAdminManagement';
 
 const management = useAdminManagement();
-const { list, loading, submitting, page, limit, total, keyword, status, dialogVisible, editing, search, reset, openCreate, openEdit, submit, toggleStatus, remove } = management;
-const cardItems = computed<AdminCardItem[]>(() => list.value.map((row) => ({ key: String(row.id), title: row.name, subtitle: row.email, status: { label: row.status === 1 ? '啟用' : '停用', type: row.status === 1 ? 'success' : 'gray' }, fields: [{ label: '權限', value: '管理端完整權限' }, { label: 'Email', value: row.email }], actions: [{ key: 'edit', label: '修改', icon: Edit, type: 'primary', plain: true }, { key: 'status', label: row.status === 1 ? '停用' : '啟用', type: row.status === 1 ? 'warning' : 'primary', plain: true }, { key: 'delete', label: '刪除', icon: Delete, type: 'danger', plain: true }] })));
-function handleCardAction(action: string, key: string) { const row = list.value.find((item) => String(item.id) === key); if (!row) return; if (action === 'edit') void openEdit(row); else if (action === 'status') void toggleStatus(row); else if (action === 'delete') void remove(row); }
-function handleTableAction(action: string, row: AdminAccount) { if (action === 'edit') void openEdit(row); else if (action === 'status') void toggleStatus(row); else if (action === 'delete') void remove(row); }
+const { list, loading, submitting, page, limit, total, keyword, status, dialogVisible, editing, search, reset, openCreate, openEdit, submit, toggleStatus, twoFactorBusy, disableTwoFactor } = management;
+const cardItems = computed<AdminCardItem[]>(() => list.value.map((row) => ({ key: String(row.id), title: row.name, subtitle: row.email, status: { label: row.status === 1 ? '啟用' : '停用', type: row.status === 1 ? 'success' : 'gray' }, fields: [{ label: '權限', value: '管理端完整權限' }, { label: 'Email', value: row.email }], actions: [{ key: 'edit', label: '修改', icon: Edit, type: 'primary', plain: true }, { key: 'status', label: row.status === 1 ? '停用' : '啟用', type: row.status === 1 ? 'warning' : 'primary', plain: true }, ...(row.id === 1 ? [] : [{ key: 'disable-2fa', label: '關閉 2FA', icon: Unlock, type: 'warning' as const, plain: true }])] })));
+function handleCardAction(action: string, key: string) { const row = list.value.find((item) => String(item.id) === key); if (!row) return; if (action === 'edit') void openEdit(row); else if (action === 'status') void toggleStatus(row); else if (action === 'disable-2fa' && row.id !== 1) void disableTwoFactor(row); }
+function handleTableAction(action: string, row: AdminAccount) { if (action === 'edit') void openEdit(row); else if (action === 'status') void toggleStatus(row); else if (action === 'disable-2fa' && row.id !== 1) void disableTwoFactor(row); }
 </script>
 
 <style scoped lang="scss">

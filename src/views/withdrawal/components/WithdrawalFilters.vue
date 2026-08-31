@@ -3,7 +3,7 @@
     <el-input
       v-model="keyword"
       class="filter-bar__keyword filter-bar__keyword--wide"
-      placeholder="訂單編號 / 付款人 / 收款人 / 代理編號 / 公司 / 郵箱"
+      placeholder="訂單編號 / 付款人 / 收款人 / 公司 / 郵箱"
       clearable
       :prefix-icon="Search"
       @keyup.enter="emit('search')"
@@ -50,6 +50,7 @@ const statusOptions = [
   { value: 3, label: '已完成' },
   { value: 4, label: '已驳回' },
   { value: 5, label: '付款失败' },
+  { value: 6, label: '已取消' },
 ];
 
 const status = computed<WithdrawalStatus | undefined>({

@@ -3,7 +3,7 @@
       <li v-for="row in rows" :key="row.user_id" class="fee-agent-card-list__item">
         <header class="fee-agent-card-list__head">
           <strong>{{ row.company_name }}</strong>
-          <span class="fee-agent-card-list__code">{{ row.agent_code }}</span>
+          <span class="fee-agent-card-list__code">{{ row.email }}</span>
         </header>
 
         <div class="fee-agent-card-list__metrics">

@@ -6,7 +6,7 @@
         <div class="exchange-asset__body">
           <small>支付资产</small>
           <p>
-            <strong>{{ sourceAmount }}</strong>
+            <strong>{{ formatMoney(sourceAmount) }}</strong>
             <span>{{ sourceCurrency.code }}</span>
           </p>
         </div>
@@ -31,7 +31,7 @@
         <div class="exchange-asset__body">
           <small>预计到账</small>
           <p>
-            <strong>{{ targetAmount }}</strong>
+            <strong>{{ formatMoney(targetAmount) }}</strong>
             <span>{{ targetCurrency.code }}</span>
           </p>
         </div>
@@ -63,6 +63,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { computed } from 'vue';
 import { Calendar, Right, UserFilled } from '@element-plus/icons-vue';
 import type { BusinessUser, CurrencyRef } from '@/api/modules/deposit';

@@ -5,6 +5,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { computed } from 'vue';
 import { View } from '@element-plus/icons-vue';
 
@@ -34,7 +36,7 @@ const cardItems = computed<AdminCardItem[]>(() =>
       { label: '代理', value: row.agent },
       { label: '资产', value: row.asset, subValue: row.network, strong: true },
       { label: '交易哈希', value: formatLongIdentifier(row.hash), mono: true },
-      { label: '申报金额', value: `${row.amount} ${row.asset}`, strong: true },
+      { label: '申报金额', value: `${formatMoney(row.amount)} ${row.asset}`, strong: true },
     ],
     actions: [
       { key: 'view', label: '查看詳情', icon: View, type: 'primary', plain: true },

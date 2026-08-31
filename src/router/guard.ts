@@ -1,3 +1,4 @@
+import { getLoginChallenge, clearLoginChallenge } from '@/utils/loginChallenge';
 import { appConfig } from '@/config';
 import router from '@/router';
 import { useAuthStore } from '@/stores/modules/auth';
@@ -9,7 +10,7 @@ router.beforeEach((to) => {
   const title = to.meta?.title ? `${String(to.meta.title)} - ${appConfig.title}` : appConfig.title;
   document.title = title;
 
-  if (to.name === 'Login' && authStore.isLoggedIn) {
+  if ((to.name === 'Login' || to.name === 'TwoFactor') && authStore.isLoggedIn) {
     return { path: '/dashboard', replace: true };
   }
 
@@ -23,6 +24,8 @@ router.beforeEach((to) => {
     };
   }
 
+  if (to.name === 'TwoFactor' && !getLoginChallenge()) return { name: 'Login', replace: true };
+  if (to.name !== 'TwoFactor') clearLoginChallenge();
   return true;
 });
 

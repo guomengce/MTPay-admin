@@ -1,16 +1,19 @@
 <template>
   <div class="recent-order-card-list">
     <AdminCardList :items="items" @action="handleAction" />
-    <el-empty v-if="orders.length === 0" description="暫無最近交易" />
+    <el-empty v-if="orders.length === 0" description="暫無交易記錄" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { computed } from 'vue';
 import { View } from '@element-plus/icons-vue';
 import type { AgentRecentTransaction } from '@/api/modules/agent';
 import AdminCardList, { type AdminCardItem } from '@/components/admin/AdminCardList.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
+import { businessDetailRoute } from '@/views/transaction/businessDetailRoute';
 
 const props = defineProps<{ orders: AgentRecentTransaction[] }>();
 const emit = defineEmits<{ (event: 'view', order: AgentRecentTransaction): void }>();
@@ -26,7 +29,7 @@ const items = computed<AdminCardItem[]>(() => props.orders.map((row) => ({
     { label: '交易內容', value: transactionContent(row), strong: true },
     { label: '金額', value: orderAmount(row), strong: true },
   ],
-  actions: [{ key: 'view', label: '查看詳情', icon: View, type: 'primary', plain: true }],
+  actions: businessDetailRoute(row) ? [{ key: 'view', label: '查看詳情', icon: View, type: 'primary', plain: true }] : [],
 })));
 
 function statusType(group: string): StatusBadgeType {
@@ -39,24 +42,30 @@ function statusType(group: string): StatusBadgeType {
 function businessType(type: AgentRecentTransaction['business_type']): StatusBadgeType {
   if (type === 'deposit') return 'success';
   if (type === 'exchange') return 'warning';
+  if (type === 'manual_increase') return 'success';
+  if (type === 'manual_decrease') return 'danger';
   return 'primary';
 }
 
 function transactionContent(row: AgentRecentTransaction) {
+  if (row.business_type === 'manual_increase') return '人工增加代理資產';
+  if (row.business_type === 'manual_decrease') return '人工扣減代理資產';
   if (row.business_type === 'withdrawal') return [row.payer_name, row.payee_name].filter(Boolean).join(' → ') || '—';
   if (row.business_type === 'exchange') return `${row.currency_code} → ${row.target_currency_code || '—'}`;
   return [row.currency_code, row.network_code].filter(Boolean).join(' · ');
 }
 
 function orderAmount(row: AgentRecentTransaction) {
-  if (row.business_type === 'exchange') return `${row.amount} ${row.currency_code} → ${row.target_amount || '—'} ${row.target_currency_code || ''}`.trim();
-  return `${row.amount} ${row.currency_code}`;
+  if (row.business_type === 'exchange') return `${formatMoney(row.amount)} ${row.currency_code} → ${formatMoney(row.target_amount || '—')} ${row.target_currency_code || ''}`.trim();
+  if (row.business_type === 'manual_increase') return `+${formatMoney(row.amount)} ${row.currency_code}`;
+  if (row.business_type === 'manual_decrease') return `-${formatMoney(row.amount)} ${row.currency_code}`;
+  return `${formatMoney(row.amount)} ${row.currency_code}`;
 }
 
 function handleAction(action: string, key: string) {
   if (action !== 'view') return;
   const row = props.orders.find((item) => item.transaction_key === key);
-  if (row) emit('view', row);
+  if (row && businessDetailRoute(row)) emit('view', row);
 }
 </script>
 

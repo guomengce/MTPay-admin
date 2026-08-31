@@ -8,15 +8,15 @@
       <div class="transaction-amounts__list">
         <div class="is-debit">
           <span><i></i>賬戶扣款</span>
-          <strong>{{ detail.total_amount }} <small>{{ detail.currency.code }}</small></strong>
+          <strong>{{ formatMoney(detail.total_amount) }} <small>{{ detail.currency.code }}</small></strong>
         </div>
         <div class="is-fee">
           <span><i></i>手續費</span>
-          <strong>{{ formatFixedFee(detail.fee_amount) }} <small>{{ detail.currency.code }}</small></strong>
+          <strong>{{ formatMoney(formatFixedFee(detail.fee_amount)) }} <small>{{ detail.currency.code }}</small></strong>
         </div>
         <div class="is-result">
           <span><i></i>實際出金</span>
-          <strong>{{ detail.amount }} <small>{{ detail.currency.code }}</small></strong>
+          <strong>{{ formatMoney(detail.amount) }} <small>{{ detail.currency.code }}</small></strong>
         </div>
       </div>
       </div>
@@ -44,6 +44,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import type { WithdrawalOrderDetail, WithdrawalParty } from '@/api/modules/withdrawal';
 import { formatFixedFee } from '@/utils/decimal';
 

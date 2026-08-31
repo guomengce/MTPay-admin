@@ -5,11 +5,9 @@
         <template #default="{ row }">
           <div class="agent-cell">
             <span>{{ row.company_name.charAt(0).toUpperCase() }}</span>
-            <div class="row-title"><strong>{{ row.company_name }}</strong><small>{{ row.agent_code }}</small></div>
+            <div class="row-title"><strong>{{ row.company_name }}</strong><small>{{ row.email }}</small></div>
           </div>
         </template>
-      </el-table-column>
-      <el-table-column label="郵箱" prop="email" min-width="240">
       </el-table-column>
       <el-table-column label="手機號" prop="phone" min-width="240">
       </el-table-column>
@@ -41,6 +39,7 @@
                   :disabled="mailLoading"
                   divided
                 >重置密碼</el-dropdown-item>
+                 <el-dropdown-item command="disable-2fa" :icon="Unlock" :disabled="twoFactorBusy">關閉 2FA</el-dropdown-item>
                 <el-dropdown-item
                   v-for="(option, index) in statusOptions(row.status)"
                   :key="option.value"
@@ -50,6 +49,7 @@
                 >
                   {{ option.label }}
                 </el-dropdown-item>
+               
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -60,16 +60,17 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowDown, Edit, Key, Promotion, Setting, View,MoreFilled } from '@element-plus/icons-vue';
+import { Unlock, ArrowDown, Edit, Key, Promotion, Setting, View,MoreFilled } from '@element-plus/icons-vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import type { AgentAccount } from '@/api/modules/agent';
 
 export type AgentStatus = 1 | 2 | 3;
-type AgentCommand = 'detail' | 'edit' | 'invitation' | 'password-reset' | `status-${AgentStatus}`;
+type AgentCommand = 'disable-2fa' | 'detail' | 'edit' | 'invitation' | 'password-reset' | `status-${AgentStatus}`;
 
-const props = defineProps<{ data: AgentAccount[]; loading: boolean; mailLoading?: boolean }>();
+const props = defineProps<{ data: AgentAccount[]; loading: boolean; mailLoading?: boolean; twoFactorBusy?: boolean }>();
 const emit = defineEmits<{
+  (event: 'disable-2fa', row: AgentAccount): void;
   (event: 'detail', row: AgentAccount): void;
   (event: 'edit', row: AgentAccount): void;
   (event: 'status', row: AgentAccount, status: AgentStatus): void;
@@ -88,7 +89,8 @@ function statusOptions(status: AgentAccount['status']): Array<{ label: string; v
 }
 
 function handleCommand(row: AgentAccount, command: AgentCommand) {
-  if (command === 'detail') emit('detail', row);
+  if (command === 'disable-2fa' && !props.twoFactorBusy) emit('disable-2fa', row);
+  else if (command === 'detail') emit('detail', row);
   else if (command === 'edit') emit('edit', row);
   else if (command === 'invitation' && !props.mailLoading) emit('send-invitation', row);
   else if (command === 'password-reset' && !props.mailLoading) emit('send-password-reset', row);

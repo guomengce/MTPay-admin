@@ -3,16 +3,16 @@ import { ElMessage } from 'element-plus';
 import { useRoute, useRouter } from 'vue-router';
 import {
   fetchAgentAssetOverview,
-  fetchAgentTransactionInfo,
   type AgentAssetOverview,
   type AgentRecentTransaction,
-  type AgentTransactionInfo,
 } from '@/api/modules/agent';
 import { fetchTransactionList, type TransactionItem } from '@/api/modules/transaction';
 import { useAgentMail } from './useAgentMail';
+import { businessDetailRoute } from '@/views/transaction/businessDetailRoute';
+import { useListQueryState } from '@/composables/useListQueryState';
 
 /**
- * 代理资产详情页：集中管理概览读取、最近交易详情弹框和邮件动作。
+ * 代理资产详情页：集中管理概览读取、交易记录导航和邮件动作。
  * 页面组件只负责展示，接口参数均在此处按接口文档组装。
  */
 export function useAgentOverview() {
@@ -20,17 +20,19 @@ export function useAgentOverview() {
   const router = useRouter();
   const loading = ref(false);
   const overview = ref<AgentAssetOverview | null>(null);
-  const transactionVisible = ref(false);
-  const transactionLoading = ref(false);
-  const transactionInfo = ref<AgentTransactionInfo | null>(null);
   const recentTransactions = ref<TransactionItem[]>([]);
   const recentTransactionsLoading = ref(false);
+  const transactionPage = ref(1);
+  const transactionLimit = ref(5);
+  const transactionTotal = ref(0);
+  const saveTransactionQuery = useListQueryState({ page: transactionPage, limit: transactionLimit });
+  let transactionRequest = 0;
   const { mailLoading, sendInvitation, sendPasswordReset } = useAgentMail();
 
   async function loadOverview() {
     const userId = Number(route.params.id);
     if (!Number.isInteger(userId) || userId <= 0) {
-      ElMessage.error('代理编号无效');
+      ElMessage.error('代理账户参数无效');
       await router.replace('/agent');
       return;
     }
@@ -64,29 +66,41 @@ export function useAgentOverview() {
 
   async function loadRecentTransactions(userId = Number(route.params.id)) {
     if (!Number.isInteger(userId) || userId <= 0) return;
+    const requestId = ++transactionRequest;
+    await saveTransactionQuery();
+    if (requestId !== transactionRequest) return;
     recentTransactionsLoading.value = true;
     try {
-      const result = await fetchTransactionList({ user_id: userId, page: 1, limit: 5 });
+      const result = await fetchTransactionList({ user_id: userId, page: transactionPage.value, limit: transactionLimit.value });
+      if (requestId !== transactionRequest) return;
       recentTransactions.value = result.data ?? [];
+      transactionTotal.value = result.total ?? 0;
     } finally {
-      recentTransactionsLoading.value = false;
+      if (requestId === transactionRequest) recentTransactionsLoading.value = false;
     }
   }
 
-  /** 使用接口返回的 detail_type/detail_id 获取统一交易详情。 */
+  function setTransactionPage(page: number) {
+    if (!Number.isInteger(page) || page < 1) return;
+    transactionPage.value = page;
+    return loadRecentTransactions();
+  }
+
+  function setTransactionLimit(limit: number) {
+    if (!Number.isInteger(limit) || limit < 1) return;
+    transactionLimit.value = limit;
+    transactionPage.value = 1;
+    return loadRecentTransactions();
+  }
+
+  /** 复用业务详情路由，包含人工增减记录的独立详情页。 */
   async function openTransaction(transaction: AgentRecentTransaction) {
-    transactionVisible.value = true;
-    transactionLoading.value = true;
-    transactionInfo.value = null;
-    try {
-      transactionInfo.value = await fetchAgentTransactionInfo(transaction);
-    } finally {
-      transactionLoading.value = false;
-    }
+    const target = businessDetailRoute(transaction);
+    if (target) await router.push(target);
   }
 
   function goBack() {
-    return router.push('/agent');
+    return router.go(-1);
   }
 
   onMounted(loadOverview);
@@ -94,11 +108,13 @@ export function useAgentOverview() {
   return {
     loading,
     overview,
-    transactionVisible,
-    transactionLoading,
-    transactionInfo,
     recentTransactions,
     recentTransactionsLoading,
+    transactionPage,
+    transactionLimit,
+    transactionTotal,
+    setTransactionPage,
+    setTransactionLimit,
     loadRecentTransactions,
     mailLoading,
     loadOverview,

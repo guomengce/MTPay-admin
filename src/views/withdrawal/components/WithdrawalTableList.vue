@@ -14,7 +14,6 @@
         <template #default="{ row }">
           <div class="row-title">
             <strong>{{ row.agent }}</strong>
-            <!-- <span>{{ row.agentCode }}</span> -->
             <em class="withdrawal-table-list__email">{{ row.agentEmail }}</em>
           </div>
         </template>
@@ -34,9 +33,9 @@
       <el-table-column label="出金金额" min-width="180">
         <template #default="{ row }">
           <div class="withdrawal-table-list__amount-block">
-            <strong class="withdrawal-table-list__amount">{{ row.amount }} {{ row.currency }}</strong>
+            <strong class="withdrawal-table-list__amount">{{ formatMoney(row.amount) }} {{ row.currency }}</strong>
             <div class="withdrawal-table-list__deduction">
-              <span>总扣款 {{ row.totalAmount }}</span>
+              <span>总扣款 {{ formatMoney(row.totalAmount) }}</span>
             </div>
           </div>
         </template>
@@ -65,6 +64,7 @@
             <el-button plain :icon="MoreFilled">操作</el-button>
             <template #dropdown>
               <el-dropdown-menu>
+                <el-dropdown-item v-if="row.statusCode === 3" command="cancel-completed" :icon="CircleClose" divided>取消出金</el-dropdown-item>
                 <el-dropdown-item command="view" :icon="View">详情</el-dropdown-item>
                 <template v-if="row.statusCode === 0">
                   <el-dropdown-item command="approve" :icon="CircleCheck">通过</el-dropdown-item>
@@ -92,6 +92,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { CircleCheck, CircleClose, CreditCard, DocumentAdd, MoreFilled, Upload, View } from '@element-plus/icons-vue';
 
 import type { WithdrawalPaymentResult } from '@/api/modules/withdrawal';
@@ -101,6 +103,7 @@ import WithdrawalPartyFlow from './WithdrawalPartyFlow.vue';
 
 defineProps<{ data: WithdrawalRow[]; loading?: boolean }>();
 const emit = defineEmits<{
+  (e: 'cancel-completed', row: WithdrawalRow): void;
   (e: 'view', row: WithdrawalRow): void;
   (e: 'approve', row: WithdrawalRow): void;
   (e: 'reject', row: WithdrawalRow): void;
@@ -110,6 +113,7 @@ const emit = defineEmits<{
 }>();
 
 function handleCommand(command: string | number | object, row: WithdrawalRow) {
+  if (command === 'cancel-completed' && row.statusCode === 3) return emit('cancel-completed', row);
   if (command === 'view') return emit('view', row);
   if (command === 'approve') return emit('approve', row);
   if (command === 'reject') return emit('reject', row);

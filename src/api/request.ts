@@ -29,7 +29,7 @@ export const request = axios.create({
 
 /** 仅凭证失效才清理登录态；兼容 HTTP 401 与后端业务失效状态。 */
 const AUTH_EXPIRED_STATUSES = new Set([401, 50013, 50039]);
-const PUBLIC_AUTH_PATHS = new Set(['/api/getPubKey', '/admin/adminLogin']);
+const PUBLIC_AUTH_PATHS = new Set(['/api/getPubKey', '/admin/verifyTwoFactorLogin', '/admin/adminLogin']);
 let sessionExpiredHandled = false;
 
 /* =============================================================================
@@ -38,7 +38,7 @@ let sessionExpiredHandled = false;
 request.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore();
-    if (authStore.token) {
+    if (authStore.token && !isPublicAuthRequest(config.url)) {
       sessionExpiredHandled = false;
       config.headers.set('Authorization', `Bearer ${authStore.token}`);
     }
@@ -58,10 +58,11 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   async (response: AxiosResponse<any>) => {
     const refreshedToken = response.headers.authorization;
-    if (refreshedToken) {
+    if (refreshedToken && !isPublicAuthRequest(response.config.url)) {
       useAuthStore().setToken(refreshedToken.replace(/^Bearer\s+/i, ''));
     }
-    const body = response.data;
+    const body = response.data instanceof Blob && /json/i.test(response.data.type)
+      ? JSON.parse(await response.data.text()) : response.data;
 
     // 约定返回 { code, message, data }：解包
     if (isApiEnvelope(body)) {
@@ -84,6 +85,9 @@ request.interceptors.response.use(
     return body;
   },
   async (error: AxiosError<ApiResponse<unknown>>) => {
+    if (error.response?.data instanceof Blob && /json/i.test(error.response.data.type)) {
+      try { error.response.data = JSON.parse(await error.response.data.text()); } catch { /* Retain HTTP error. */ }
+    }
     const status = error.response?.status;
 
     if (status && AUTH_EXPIRED_STATUSES.has(status) && !isPublicAuthRequest(error.config?.url)) {

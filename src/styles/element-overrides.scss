@@ -215,7 +215,8 @@
 
 /* ==========================================================================
    Element Plus 表单视觉基线
-   - 业务表单统一使用 size="large"
+   - 所有业务表单直接使用 Element Plus 组件即可，无需逐页声明 size 或重复样式
+   - 筛选条由后加载的 filter-bar.scss 覆盖为紧凑尺寸
    - 这里负责控件尺寸、圆角、边框、聚焦和标签，不负责具体页面布局
    ========================================================================== */
 :root {
@@ -243,15 +244,15 @@
   line-height: 1.4;
 }
 
-.el-input--large,
-.el-select--large,
-.el-date-editor--large {
+.el-input,
+.el-select,
+.el-date-editor {
   --el-component-size-large: var(--mt-form-control-height);
 }
 
-.el-input--large .el-input__wrapper,
-.el-select--large .el-select__wrapper,
-.el-date-editor--large.el-input__wrapper,
+.el-input .el-input__wrapper,
+.el-select .el-select__wrapper,
+.el-date-editor.el-input__wrapper,
 .el-textarea .el-textarea__inner {
   border-radius: var(--mt-form-radius);
   background: var(--mt-form-bg);
@@ -261,24 +262,56 @@
     box-shadow 0.2s ease;
 }
 
-.el-input--large .el-input__wrapper,
-.el-select--large .el-select__wrapper,
-.el-date-editor--large.el-input__wrapper {
+.el-input .el-input__wrapper,
+.el-select .el-select__wrapper,
+.el-date-editor.el-input__wrapper {
   min-height: var(--mt-form-control-height);
   padding-right: 15px;
   padding-left: 15px;
 }
 
-.el-input--large .el-input__wrapper:hover,
-.el-select--large .el-select__wrapper:hover,
-.el-date-editor--large.el-input__wrapper:hover,
+/* 带前后缀插槽的组合输入框保持同高，并只保留整体最外侧圆角。 */
+.el-input-group {
+  align-items: stretch;
+}
+
+.el-input-group--append > .el-input__wrapper {
+  border-radius: var(--mt-form-radius) 0 0 var(--mt-form-radius);
+}
+
+.el-input-group--prepend > .el-input__wrapper {
+  border-radius: 0 var(--mt-form-radius) var(--mt-form-radius) 0;
+}
+
+.el-input-group__append,
+.el-input-group__prepend {
+  min-height: var(--mt-form-control-height);
+  padding: 0 18px;
+  border: 0;
+  color: #64748b;
+  background: #f3f6fa;
+  box-shadow: 0 0 0 1px var(--mt-form-border) inset;
+  font-weight: 600;
+}
+
+.el-input-group__append {
+  border-radius: 0 var(--mt-form-radius) var(--mt-form-radius) 0;
+}
+
+.el-input-group__prepend {
+  border-radius: var(--mt-form-radius) 0 0 var(--mt-form-radius);
+}
+
+.el-input .el-input__wrapper:hover,
+.el-select .el-select__wrapper:hover,
+.el-date-editor.el-input__wrapper:hover,
 .el-textarea .el-textarea__inner:hover {
   box-shadow: 0 0 0 1px var(--mt-form-border-hover) inset;
 }
 
-.el-input--large .el-input__wrapper.is-focus,
-.el-select--large .el-select__wrapper.is-focused,
-.el-date-editor--large.el-input__wrapper.is-focus,
+.el-input .el-input__wrapper.is-focus,
+.el-select .el-select__wrapper.is-focused,
+.el-date-editor.el-input__wrapper.is-focus,
 .el-textarea .el-textarea__inner:focus {
   background: #ffffff;
   box-shadow:
@@ -286,8 +319,8 @@
     0 0 0 4px rgb(16 166 158 / 10%);
 }
 
-.el-input--large .el-input__inner,
-.el-select--large .el-select__selected-item {
+.el-input .el-input__inner,
+.el-select .el-select__selected-item {
   color: #13243c;
   font-size: 15px;
   font-weight: 500;

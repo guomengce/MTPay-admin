@@ -3,13 +3,14 @@
     <el-table v-loading="loading" class="admin-data-table" :data="data" stripe>
       <el-table-column label="订单号" min-width="200">
         <template #default="{ row }">
-          <a class="text-link" href="javascript:void(0)" @click.prevent="emit('view', row)">
+          <a v-if="businessDetailRoute(row)" class="text-link" href="javascript:void(0)" @click.prevent="emit('view', row)">
             {{ row.order_no }}
           </a>
+          <span v-else>{{ row.order_no }}</span>
           <small class="transaction-time">{{ row.submitted_at || '—' }}</small>
         </template>
       </el-table-column>
-      <el-table-column label="类型" min-width="90">
+      <el-table-column label="类型" min-width="120">
         <template #default="{ row }">
           <span class="type-chip" :class="`is-${row.business_type}`">{{ row.business_name }}</span>
         </template>
@@ -18,7 +19,7 @@
         <template #default="{ row }">
           <div class="row-title">
             <strong>{{ row.user.company_name }}</strong>
-            <span>{{ row.user.agent_code }}</span>
+            <span>{{ row.user.email }}</span>
           </div>
         </template>
       </el-table-column>
@@ -45,12 +46,12 @@
       <el-table-column label="金额" min-width="220">
         <template #default="{ row }">
           <div class="transaction-amount">
-            <strong>{{ row.amount }} {{ row.currency_code }}</strong>
+            <strong>{{ displayAmount(row) }}</strong>
             <small v-if="row.business_type === 'withdrawal'">
-              总扣款 {{ row.total_amount || '—' }} {{ row.currency_code }}
+              总扣款 {{ formatMoney(row.total_amount || '—') }} {{ row.currency_code }}
             </small>
             <small v-else-if="row.business_type === 'exchange'">
-              获得 {{ row.target_amount || '—' }} {{ row.target_currency_code || '' }}
+              获得 {{ formatMoney(row.target_amount || '—') }} {{ row.target_currency_code || '' }}
             </small>
           </div>
         </template>
@@ -66,7 +67,7 @@
       </el-table-column>
       <el-table-column label="操作" width="110" fixed="right" align="center">
         <template #default="{ row }">
-          <el-button type="primary" plain size="small" :icon="View" @click="emit('view', row)">
+          <el-button v-if="businessDetailRoute(row)" type="primary" plain size="small" :icon="View" @click="emit('view', row)">
             详情
           </el-button>
         </template>
@@ -76,6 +77,9 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
+import { businessDetailRoute } from '../businessDetailRoute';
 import { View } from '@element-plus/icons-vue';
 
 import type { TransactionItem } from '@/api/modules/transaction';
@@ -88,10 +92,17 @@ defineProps<{ data: TransactionItem[]; loading?: boolean }>();
 const emit = defineEmits<{ (e: 'view', row: TransactionItem): void }>();
 
 function contentLabel(row: TransactionItem) {
+  if (row.business_type === 'manual_increase') return '人工增加代理資產';
+  if (row.business_type === 'manual_decrease') return '人工扣減代理資產';
   if (row.business_type === 'deposit') {
     return [row.currency_code, row.network_code].filter(Boolean).join(' · ');
   }
   return [row.payer_name, row.payee_name].filter(Boolean).join(' → ') || '—';
+}
+
+function displayAmount(row: TransactionItem) {
+  const prefix = row.business_type === 'manual_increase' ? '+' : row.business_type === 'manual_decrease' ? '-' : '';
+  return `${prefix}${formatMoney(row.amount)} ${row.currency_code}`;
 }
 
 function entityTypeLabel(name?: string | null, type?: 1 | 2 | null) {
@@ -128,6 +139,9 @@ function statusEffect(row: TransactionItem) {
       color: #b45309;
       background: #fef3c7;
     }
+
+    &.is-manual_increase { color: #047857; background: #dff7ec; }
+    &.is-manual_decrease { color: #dc2626; background: #fee2e2; }
   }
 }
 

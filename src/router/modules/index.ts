@@ -2,6 +2,21 @@ import type { RouteRecordRaw } from 'vue-router';
 
 export const featureRoutes: RouteRecordRaw[] = [
   {
+    path: '/manual-adjustments/:type/:id', name: 'ManualAdjustmentDetail',
+    component: () => import('@/views/manual-adjustment/index.vue'),
+    meta: { title: '人工调账详情', requiresAuth: true, hidden: true, activeMenu: '/transactions' },
+  },
+  {
+    path: '/account', name: 'Account', component: () => import('@/views/account/index.vue'),
+    meta: { title: '账户与安全', icon: 'Lock', requiresAuth: true, hidden: true },
+  },
+  {
+    path: '/notifications',
+    name: 'Notifications',
+    component: () => import('@/views/notifications/index.vue'),
+    meta: { title: '消息中心', icon: 'Bell', requiresAuth: true, hidden: true },
+  },
+  {
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/views/dashboard/index.vue'),
@@ -55,13 +70,15 @@ export const featureRoutes: RouteRecordRaw[] = [
     name: 'Deposit',
     component: () => import('@/views/deposit/index.vue'),
     meta: {
-      title: '入金記錄',
+      title: '数字货币入金',
       description: '确认平台已收到USDT或USDC后，审核通过并增加代理余额',
       icon: 'Wallet',
       requiresAuth: true,
       hidden: false,
     },
   },
+  {path:'/fiat-deposit',name:'FiatDeposit',component:()=>import('@/views/fiat-deposit/index.vue'),meta:{title:'法币入金',description:'审核代理提交的法币汇款申请',icon:'CreditCard',requiresAuth:true,hidden:false}},
+  {path:'/fiat-deposit/detail/:id',name:'FiatDepositDetail',component:()=>import('@/views/fiat-deposit/detail/index.vue'),meta:{title:'法币入金详情',icon:'CreditCard',requiresAuth:true,hidden:true,activeMenu:'/fiat-deposit'}},
   {
     path: '/deposit/detail/:id',
     name: 'DepositDetail',
@@ -174,30 +191,44 @@ export const featureRoutes: RouteRecordRaw[] = [
       hidden: false,
     },
   },
-  {
-    path: '/transactions/detail/:businessType/:businessId',
-    name: 'TransactionDetail',
-    component: () => import('@/views/transaction/detail/index.vue'),
-    meta: {
-      title: '交易详情',
-      description: '统一交易的只读详情',
-      icon: 'Tickets',
-      requiresAuth: true,
-      hidden: true,
-      activeMenu: '/transactions',
-    },
-  },
+
   {
     path: '/permission',
     name: 'Permission',
     component: () => import('@/views/permission/index.vue'),
     meta: {
-      title: '權限管理',
+      title: '管理员列表',
       description: '管理可登入後台的管理員帳戶',
-      icon: 'Lock',
+      icon: 'User',
+      menuGroup: { path: '/access-management', title: '权限管理', icon: 'Lock' },
       requiresAuth: true,
       hidden: false,
     },
+  },
+  {
+    path: '/roles',
+    name: 'RoleManagement',
+    component: () => import('@/views/role/index.vue'),
+    meta: {
+      title: '角色管理',
+      description: '维护管理端角色与权限范围',
+      icon: 'Key',
+      menuGroup: { path: '/access-management', title: '权限管理', icon: 'Lock' },
+      requiresAuth: true,
+      hidden: false,
+    },
+  },
+  {
+    path: '/roles/create',
+    name: 'RoleCreate',
+    component: () => import('@/views/role/form/index.vue'),
+    meta: { title: '新增角色', icon: 'Key', requiresAuth: true, hidden: true, activeMenu: '/roles' },
+  },
+  {
+    path: '/roles/:id/edit',
+    name: 'RoleEdit',
+    component: () => import('@/views/role/form/index.vue'),
+    meta: { title: '编辑角色', icon: 'Key', requiresAuth: true, hidden: true, activeMenu: '/roles' },
   },
   {
     path: '/log',

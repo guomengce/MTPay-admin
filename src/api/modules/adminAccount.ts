@@ -40,7 +40,3 @@ export function updateAdminAccount(payload: AdminAccountPayload & { id: number }
 export function updateAdminAccountStatus(id: number, status: 0 | 1) {
   return request.post('/admin/editAdminStatus', { id, status });
 }
-
-export function deleteAdminAccount(id: number) {
-  return request.post('/admin/delAdmin', { id });
-}

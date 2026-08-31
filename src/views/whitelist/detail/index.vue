@@ -51,7 +51,7 @@
     </template>
 
     <el-empty v-else-if="!loading" description="未找到白名单记录">
-      <el-button type="primary" @click="goBack">返回白名单列表</el-button>
+      <el-button type="primary" @click="goBack">返回</el-button>
     </el-empty>
   </section>
 </template>
@@ -127,7 +127,7 @@ const reviewRow = computed<WhitelistRow | null>(() => {
   return {
     businessId: detail.value.id, id: detail.value.whitelist_no,
     time: detail.value.submitted_at || '—', updatedAt: detail.value.updated_at || '—',
-    agent: detail.value.user.company_name, agentCode: detail.value.user.agent_code,
+    agent: detail.value.user.company_name, agentEmail: detail.value.user.email,
     role: detail.value.role_name, entityType: detail.value.entity_type_name,
     type: `${detail.value.role_name} · ${detail.value.entity_type_name}`,
     subject: detail.value.subject_name, country: detail.value.country,
@@ -139,7 +139,7 @@ const reviewRow = computed<WhitelistRow | null>(() => {
 const dialogVisible = ref(false);
 const dialogMode = ref<WhitelistActionMode>('approve');
 
-function goBack() { void router.push('/whitelist'); }
+function goBack() { router.go(-1); }
 function openDialog(mode: WhitelistActionMode) { dialogMode.value = mode; dialogVisible.value = true; }
 
 async function handleSubmit(payload: { row: WhitelistRow; mode: WhitelistActionMode; message?: string }) {

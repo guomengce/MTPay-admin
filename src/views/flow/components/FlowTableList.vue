@@ -12,8 +12,8 @@
     <el-table-column label="金额" min-width="190">
       <template #default="{ row }">
         <div :class="getAmountClass(row)">
-          <strong>{{ row.amount }}</strong>
-          <small v-if="row.usd">{{ row.usd }}</small>
+          <strong>{{ formatMoney(row.amount) }}</strong>
+          <small v-if="row.usd">{{ formatMoney(row.usd) }}</small>
         </div>
       </template>
     </el-table-column>
@@ -31,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMoney } from '@/utils/formatMoney';
+
 import { View } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';

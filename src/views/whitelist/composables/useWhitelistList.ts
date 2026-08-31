@@ -1,3 +1,6 @@
+import type { CsvFilters } from '@/api/modules/csvExport';
+import { useListQueryState } from '@/composables/useListQueryState';
+import { toRefs } from 'vue';
 /** 管理端白名单列表：真实后端分页，不做本地假分页或虚构筛选。 */
 import { reactive, ref } from 'vue';
 
@@ -14,24 +17,30 @@ export interface WhitelistQuery {
 
 export function useWhitelistList() {
   const loading = ref(false);
+  const exportFilters = ref<CsvFilters | null>(null);
   const list = ref<WhitelistRow[]>([]);
   const total = ref(0);
   const page = ref(1);
   const limit = ref(15);
   const query = reactive<WhitelistQuery>({ keyword: '', role: undefined, entity_type: undefined });
 
+  const saveListQuery = useListQueryState({ ...toRefs(query), page, limit }, ["status","role","entity_type"]);
+
   async function loadList() {
+    const filters = { ...query };
+    await saveListQuery();
     loading.value = true;
     try {
       const result = await fetchWhitelistList({
         page: page.value,
         limit: limit.value,
-        keyword: query.keyword.trim() || undefined,
-        role: query.role,
-        entity_type: query.entity_type,
+        keyword: filters.keyword.trim() || undefined,
+        role: filters.role,
+        entity_type: filters.entity_type,
       });
       list.value = result.data.map(toWhitelistRow);
       total.value = result.total;
+      exportFilters.value = filters;
       page.value = result.current_page;
       limit.value = result.per_page;
     } finally {
@@ -61,5 +70,5 @@ export function useWhitelistList() {
     void loadList();
   }
 
-  return { loading, list, total, page, limit, query, loadList, search, reset, setPage, setLimit };
+  return { exportFilters, loading, list, total, page, limit, query, loadList, search, reset, setPage, setLimit };
 }

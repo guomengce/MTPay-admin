@@ -5,7 +5,7 @@
       :icon="Wallet"
     >
       <template #extra>
-        <el-button type="primary" plain :icon="Download" :loading="exporting" @click="exportOrders">匯出 CSV</el-button>
+        <el-button type="primary" plain :icon="Download" :loading="exporting" :disabled="loading || !exportFilters" @click="exportOrders">匯出 CSV</el-button>
       </template>
     </AdminHero>
 
@@ -26,6 +26,7 @@
         @supplement="openDialog('supplement', $event)"
         @payment="openPayment"
         @append="openDialog('append', $event)"
+        @cancel-completed="cancelCompleted"
       />
       <WithdrawalCardList
         :data="list"
@@ -35,6 +36,7 @@
         @supplement="openDialog('supplement', $event)"
         @payment="openPayment"
         @append="openDialog('append', $event)"
+        @cancel-completed="cancelCompleted"
       />
       <el-empty v-if="!loading && list.length === 0" description="暂无出金订单" />
       <TablePager
@@ -66,8 +68,8 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Download, Wallet } from '@element-plus/icons-vue';
 
-import { fetchWithdrawalList, type WithdrawalPaymentResult } from '@/api/modules/withdrawal';
-import { useCsvExport } from '@/composables/useCsvExport';
+import { type WithdrawalPaymentResult } from '@/api/modules/withdrawal';
+import { useBusinessCsvExport } from '@/composables/useBusinessCsvExport';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import TablePager from '@/components/common/TablePager.vue';
@@ -78,33 +80,17 @@ import type { WithdrawalActionMode } from './components/WithdrawalActionDialog.v
 import WithdrawalFilters from './components/WithdrawalFilters.vue';
 import WithdrawalTableList from './components/WithdrawalTableList.vue';
 import type { WithdrawalRow } from './composables/mapper';
-import { toWithdrawalRow } from './composables/mapper';
 import { useWithdrawalDetail } from './composables/useWithdrawalDetail';
+import { useCancelCompletedWithdrawal } from './composables/useCancelCompletedWithdrawal';
 import { useWithdrawalList } from './composables/useWithdrawalList';
 
 const router = useRouter();
-const { loading, list, total, page, limit, query, loadList, search, reset, setPage, setLimit } =
+const { cancelCompleted } = useCancelCompletedWithdrawal(() => loadList());
+const { exportFilters, loading, list, total, page, limit, query, loadList, search, reset, setPage, setLimit } =
   useWithdrawalList();
-const { exporting, exportPagedCsv } = useCsvExport();
+const { exporting, downloadCsv } = useBusinessCsvExport('withdrawal', () => exportFilters.value);
 
-function exportOrders() {
-  void exportPagedCsv<WithdrawalRow>({
-    filename: '出金訂單',
-    columns: [
-      { label: '訂單編號', value: 'id' }, { label: '提交時間', value: 'time' },
-      { label: '最後更新', value: 'updatedAt' }, { label: '代理公司', value: 'agent' },
-      { label: '代理編號', value: 'agentCode' }, { label: '代理郵箱', value: 'agentEmail' },
-      { label: '付款方', value: 'payer' }, { label: '付款方類型', value: 'payerType' },
-      { label: '收款方', value: 'payee' }, { label: '收款方類型', value: 'payeeType' },
-      { label: '實際出金', value: 'amount' }, { label: '賬戶扣款', value: 'totalAmount' },
-      { label: '幣種', value: 'currency' }, { label: '狀態', value: 'status' },
-    ],
-    fetchPage: async (page, limit) => {
-      const result = await fetchWithdrawalList({ page, limit, status: query.status, keyword: query.keyword.trim() || undefined, started_at: query.started_at || undefined, ended_at: query.ended_at || undefined });
-      return { ...result, data: result.data.map(toWithdrawalRow) };
-    },
-  });
-}
+function exportOrders() { void downloadCsv(); }
 
 function openDetail(row: WithdrawalRow) {
   void router.push({ name: 'WithdrawalDetail', params: { id: row.businessId } });

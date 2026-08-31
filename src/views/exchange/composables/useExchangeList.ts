@@ -1,3 +1,6 @@
+import type { CsvFilters } from '@/api/modules/csvExport';
+import { useListQueryState } from '@/composables/useListQueryState';
+import { toRefs } from 'vue';
 import { onMounted, reactive, ref, watch } from 'vue';
 import { fetchExchangeList } from '@/api/modules/exchange';
 import type { ExchangeStatus } from '@/api/modules/exchange';
@@ -7,6 +10,7 @@ import { toExchangeRow } from './mapper';
 /** 兑换审核列表：真实后端分页，不做前端假分页。 */
 export function useExchangeList() {
   const loading = ref(false);
+  const exportFilters = ref<CsvFilters | null>(null);
   const list = ref<ExchangeRow[]>([]);
   const total = ref(0);
   const page = ref(1);
@@ -18,19 +22,24 @@ export function useExchangeList() {
     ended_at: '',
   });
 
+  const saveListQuery = useListQueryState({ ...toRefs(query), page, limit }, ["status","role","entity_type"]);
+
   async function loadList() {
+    const filters = { ...query };
+    await saveListQuery();
     loading.value = true;
     try {
       const result = await fetchExchangeList({
         page: page.value,
         limit: limit.value,
-        status: query.status,
-        keyword: query.keyword.trim() || undefined,
-        started_at: query.started_at || undefined,
-        ended_at: query.ended_at || undefined,
+        status: filters.status,
+        keyword: filters.keyword.trim() || undefined,
+        started_at: filters.started_at || undefined,
+        ended_at: filters.ended_at || undefined,
       });
       list.value = result.data.map(toExchangeRow);
       total.value = result.total;
+      exportFilters.value = filters;
     } finally {
       loading.value = false;
     }
@@ -53,5 +62,5 @@ export function useExchangeList() {
     search();
   }
 
-  return { loading, list, total, page, limit, query, loadList, search, reset };
+  return { exportFilters, loading, list, total, page, limit, query, loadList, search, reset };
 }

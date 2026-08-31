@@ -1,3 +1,5 @@
+import { useListQueryState } from '@/composables/useListQueryState';
+import { toRefs } from 'vue';
 /**
  * 比例与费用页面组合逻辑
  * - 默认兑换比例 + 固定出金手续费来自 /admin/getRateFeeConfig；
@@ -6,7 +8,7 @@
 import { computed, reactive, ref } from 'vue';
 
 import * as FeeApi from '@/api/modules/fee';
-import type { RateFeeConfig } from '@/api/modules/fee';
+import type { RateFeeConfig, WithdrawalFee, WithdrawalFeeUpdate } from '@/api/modules/fee';
 import { formatExchangeRate } from '@/utils/decimal';
 
 export interface FeeAgentRow {
@@ -47,6 +49,7 @@ export function useFeeSettings() {
   const loading = computed(() => loadingCount.value > 0);
   const saving = computed(() => savingCount.value > 0);
   const config = ref<RateFeeConfig | null>(null);
+  const withdrawalFees = ref<WithdrawalFee[]>([]);
 
   const agentList = ref<FeeAgentRow[]>([]);
   const agentTotal = ref(0);
@@ -63,7 +66,19 @@ export function useFeeSettings() {
     }
   }
 
+  async function loadWithdrawalFees() {
+    loadingCount.value += 1;
+    try {
+      withdrawalFees.value = await FeeApi.fetchWithdrawalFeeList();
+    } finally {
+      loadingCount.value -= 1;
+    }
+  }
+
+  const saveListQuery = useListQueryState({ ...toRefs(agentQuery), page: agentPage, limit: agentLimit }, ["status"]);
+
   async function loadAgents() {
+    await saveListQuery();
     loadingCount.value += 1;
     try {
       const result = await FeeApi.fetchAgentExchangeRateList({
@@ -90,12 +105,17 @@ export function useFeeSettings() {
     }
   }
 
-  async function saveFee(feeAmount: string) {
+  async function saveFee(item: WithdrawalFeeUpdate) {
     savingCount.value += 1;
     try {
-      const fee = await FeeApi.setUsdWithdrawalFee({ fee_amount: feeAmount });
-      if (config.value) {
-        config.value = { ...config.value, usd_withdrawal_fee: fee };
+      const response = await FeeApi.setWithdrawalFee(item);
+      const index = withdrawalFees.value.findIndex(
+        (entry) => entry.currency.id === response.currency.id,
+      );
+      if (index >= 0) {
+        withdrawalFees.value.splice(index, 1, response);
+      } else {
+        withdrawalFees.value.push(response);
       }
     } finally {
       savingCount.value -= 1;
@@ -130,12 +150,14 @@ export function useFeeSettings() {
     loading,
     saving,
     config,
+    withdrawalFees,
     agentList,
     agentTotal,
     agentPage,
     agentLimit,
     agentQuery,
     fetchConfig,
+    loadWithdrawalFees,
     loadAgents,
     saveDefaultRates,
     saveFee,

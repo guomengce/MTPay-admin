@@ -2,14 +2,15 @@
   <el-dialog
     :model-value="modelValue"
     :title="dialogTitle"
-    width="min(620px, calc(100vw - 24px))"
+    width="min(440px, calc(100vw - 24px))"
     :close-on-click-modal="false"
     align-center
     @open="reset"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <template v-if="row">
-      <el-alert type="warning" class="withdrawal-action__hint">{{ dialogHint }}</el-alert>
+      <p v-if="mode === 'approve'">确认通过此出金申请？</p>
+      <p v-if="mode === 'payment'">{{ form.result === 'fail' ? '付款失败后将释放冻结资金，原订单不可重试。' : '请确认已实际完成付款。' }}</p>
 
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" @submit.prevent>
         <el-form-item
@@ -20,10 +21,10 @@
           <el-input
             v-model="form.message"
             type="textarea"
-            :rows="4"
+            :rows="3"
             maxlength="1000"
             show-word-limit
-            :placeholder="mode === 'reject' ? '请说明驳回原因' : '请明确代理需要补充的文件或信息'"
+            :placeholder="mode === 'reject' ? '请说明驳回原因' : '请输入补件要求'"
           />
         </el-form-item>
 
@@ -38,10 +39,10 @@
             <el-input
               v-model="form.failureReason"
               type="textarea"
-              :rows="4"
+              :rows="3"
               maxlength="1000"
               show-word-limit
-              placeholder="请填写真实、可追溯的付款失败原因"
+              placeholder="请输入失败原因"
             />
           </el-form-item>
         </template>
@@ -61,20 +62,20 @@
             <el-button plain :icon="Upload">选择文件</el-button>
             <template #tip>
               <p class="withdrawal-action__file-tip">
-                最多 5 个，支持 PDF / PNG / JPG / JPEG，单个不超过 10 MB
+                PDF / PNG / JPG / JPEG，最多 5 个，每个 ≤ 10 MB
               </p>
             </template>
           </el-upload>
         </el-form-item>
 
-        <el-form-item v-if="mode === 'append'" label="追加说明" prop="message">
+        <el-form-item v-if="mode === 'append'" label="追加说明（选填）" prop="message">
           <el-input
             v-model="form.message"
             type="textarea"
             :rows="3"
             maxlength="1000"
             show-word-limit
-            placeholder="可选：说明本次追加凭证的用途"
+            placeholder="请输入说明"
           />
         </el-form-item>
       </el-form>
@@ -147,16 +148,6 @@ const dialogTitle = computed(
       append: '追加付款凭证',
     })[props.mode],
 );
-const dialogHint = computed(
-  () =>
-    ({
-      approve: '通过后订单进入付款处理中，冻结资金保持不变，等待平台执行付款。',
-      reject: '驳回后将释放本订单冻结的出金金额与手续费，请填写明确原因。',
-      supplement: '提交后订单进入待补充文件，代理补件后会重新回到待审核。',
-      payment: '付款完成会正式扣除冻结资金；付款失败会释放冻结资金且原订单不可重试。',
-      append: '仅为已完成订单补充付款凭证，不会再次改变代理资金。',
-    })[props.mode],
-);
 const submitLabel = computed(
   () =>
     ({
@@ -217,14 +208,6 @@ async function handleSubmit() {
 
 <style scoped lang="scss">
 .withdrawal-action {
-  &__hint {
-    margin: 0 0 18px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-size: 13px;
-    line-height: 1.6;
-  }
-
   &__file-tip {
     margin: 7px 0 0;
     color: var(--app-text-label);
@@ -232,13 +215,4 @@ async function handleSubmit() {
   }
 }
 
-@include mobile {
-  .withdrawal-action__summary {
-    grid-template-columns: 1fr;
-
-    > div.is-wide {
-      grid-column: auto;
-    }
-  }
-}
 </style>

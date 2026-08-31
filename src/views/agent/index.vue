@@ -17,13 +17,15 @@
         :data="agents"
         :loading="loading"
         :mail-loading="Boolean(mailLoading)"
+        :two-factor-busy="twoFactorBusy"
+        @disable-2fa="disableTwoFactor"
         @detail="openDetail"
         @edit="openEdit"
         @status="changeStatus"
         @send-invitation="sendInvitation"
         @send-password-reset="sendPasswordReset"
       />
-      <AgentCardList :data="agents" @detail="openDetail" @edit="openEdit" @status="changeStatus" />
+      <AgentCardList :data="agents" @disable-2fa="disableTwoFactor" @detail="openDetail" @edit="openEdit" @status="changeStatus" />
       <el-empty v-if="!loading && agents.length === 0" description="暫無代理賬户" />
       <TablePager v-model="page" v-model:page-size="limit" :total="total" />
     </AdminPanel>
@@ -52,6 +54,8 @@ import { useAgentManagement } from './composables/useAgentManagement';
 /** 页面只负责组件编排；接口、数据状态和业务动作全部来自 composables。 */
 const {
   agents,
+  twoFactorBusy,
+  disableTwoFactor,
   loading,
   page,
   limit,
