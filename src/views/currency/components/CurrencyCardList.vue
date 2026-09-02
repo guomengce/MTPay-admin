@@ -1,32 +1,8 @@
-<template>
-  <div v-loading="loading" class="currency-card-list">
-    <AdminCardList v-if="data.length" :items="items" @action="handleAction" />
-    <el-empty v-else-if="!loading" description="暫無幣種資料" />
-  </div>
-</template>
-
+<template><div v-loading="loading" class="currency-card-list"><AdminCardList v-if="data.length" :items="items" @action="handleAction"/><el-empty v-else-if="!loading" description="暫無幣種資料"/></div></template>
 <script setup lang="ts">
-import { computed } from 'vue';
-import { CircleCheck, CircleClose } from '@element-plus/icons-vue';
-import AdminCardList, { type AdminCardItem } from '@/components/admin/AdminCardList.vue';
-import type { CurrencyItem } from '@/api/modules/currency';
-const props = defineProps<{ data: CurrencyItem[]; loading: boolean }>();
-const emit = defineEmits<{ (event: 'toggle-status', row: CurrencyItem): void }>();
-const items = computed<AdminCardItem[]>(() => props.data.map((row) => ({
-  key: String(row.id),
-  title: row.name,
-  subtitle: row.code,
-  status: { label: row.status_name || (row.status === 1 ? '啓用' : '禁用'), type: row.status === 1 ? 'success' : 'gray' },
-  fields: [
-    { label: '類型', value: row.type_name || (row.type === 1 ? '數字貨幣' : '法幣') },
-    { label: '建立時間', value: row.created_at || '—' },
-    { label: '更新時間', value: row.updated_at || '—' },
-  ],
-  actions: [{ key: 'toggle-status', label: row.status === 1 ? '禁用' : '啓用', icon: row.status === 1 ? CircleClose : CircleCheck, type: row.status === 1 ? 'danger' : 'primary', plain: true }],
-})));
-function handleAction(_: string, key: string) { const row = props.data.find((item) => String(item.id) === key); if (row) emit('toggle-status', row); }
+import{computed}from'vue';import{CircleCheck,CircleClose,Edit}from'@element-plus/icons-vue';import AdminCardList,{type AdminCardItem}from'@/components/admin/AdminCardList.vue';import type{CurrencyItem}from'@/api/modules/currency';import{usePermission}from'@/composables/usePermission';import{formatFixedFee}from'@/utils/decimal';
+const props=defineProps<{data:CurrencyItem[];loading:boolean}>();const{canOperate}=usePermission();const emit=defineEmits<{(event:'edit',row:CurrencyItem):void;(event:'toggle-status',row:CurrencyItem):void}>();
+const items=computed<AdminCardItem[]>(()=>props.data.map(row=>({key:String(row.id),title:row.name,subtitle:row.code,status:{label:row.status_name||(row.status===1?'啓用':'禁用'),type:row.status===1?'success':'gray'},fields:[{label:'類型',value:row.type_name||(row.type===1?'數字貨幣':'法幣')},{label:'固定手續費',value:row.type===2&&row.fee_amount!=null?`${formatFixedFee(row.fee_amount)} ${row.code}`:'—'},{label:'建立時間',value:row.created_at||'—'},{label:'更新時間',value:row.updated_at||'—'}],actions:[...(canOperate('currencies.edit')?[{key:'edit',label:'修改',icon:Edit,type:'primary' as const,plain:true}]:[]),...(canOperate('currencies.status')?[{key:'toggle-status',label:row.status===1?'禁用':'啓用',icon:row.status===1?CircleClose:CircleCheck,type:row.status===1?'danger' as const:'primary' as const,plain:true}]:[])]})));
+function handleAction(action:string,key:string){const row=props.data.find(item=>String(item.id)===key);if(!row)return;if(action==='edit')emit('edit',row);if(action==='toggle-status')emit('toggle-status',row)}
 </script>
-
-<style scoped lang="scss">
-.currency-card-list { display: none; @include mobile { display: block; } }
-</style>
+<style scoped lang="scss">.currency-card-list{display:none;@include mobile{display:block}}</style>

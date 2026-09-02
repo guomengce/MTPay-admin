@@ -15,7 +15,7 @@ export function useManualAdjustment() {
     info.value = null;
     error.value = '';
     if ((type !== 'manual_increase' && type !== 'manual_decrease') || !Number.isSafeInteger(id) || id <= 0) {
-      error.value = '无效的调账记录';
+      error.value = '無效的調賬記錄';
       return;
     }
     loading.value = true;
@@ -25,7 +25,7 @@ export function useManualAdjustment() {
       if (!result?.transaction || !result.detail || result.transaction.business_type !== type) throw new Error('Invalid adjustment');
       info.value = result;
     } catch {
-      if (current === version) error.value = '读取调账详情失败';
+      if (current === version) error.value = '讀取調賬詳情失敗';
     } finally {
       if (current === version) loading.value = false;
     }

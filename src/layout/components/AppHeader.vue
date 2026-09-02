@@ -17,7 +17,7 @@
 
     <div class="app-header__right">
       <NotificationPopover>
-        <button class="app-header__bell" type="button" :aria-label="unreadCount ? `通知，${unreadCount} 条未读` : '通知'">
+        <button class="app-header__bell" type="button" :aria-label="unreadCount ? `通知，${unreadCount} 條未讀` : '通知'">
           <el-icon><Bell /></el-icon>
           <span v-if="unreadCount" class="app-header__bell-count">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
         </button>
@@ -35,7 +35,7 @@
               <span class="app-header__user-email">{{ adminEmail }}</span>
             </el-dropdown-item>
             <el-dropdown-item command="account">
-              <el-icon><Lock /></el-icon><span>账户与安全</span>
+              <el-icon><Lock /></el-icon><span>2FA 驗證</span>
             </el-dropdown-item>
             <el-dropdown-item divided command="logout">
               <el-icon><SwitchButton /></el-icon><span>登出</span>
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted } from 'vue';
 import { ArrowDown, ArrowRight, Bell, Fold, Lock, SwitchButton } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -61,9 +61,18 @@ const route = useRoute();
 const router = useRouter();
 const appStore = useAppStore();
 const authStore = useAuthStore();
-const { unreadCount } = useNotifications();
+const { unreadCount, loadUnreadCount } = useNotifications();
+let notificationTimer: ReturnType<typeof setInterval> | undefined;
 
-const pageTitle = computed(() => String(route.meta.title || '营运总览'));
+onMounted(() => {
+  void loadUnreadCount();
+  notificationTimer = setInterval(() => void loadUnreadCount(), 5_000);
+});
+onBeforeUnmount(() => {
+  if (notificationTimer) clearInterval(notificationTimer);
+});
+
+const pageTitle = computed(() => String(route.meta.title || '營運總覽'));
 const adminName = computed(() => authStore.userInfo?.name || 'MTPay管理員');
 const adminEmail = computed(() => authStore.userInfo?.email || '—');
 const adminInitial = computed(() => adminName.value.trim().charAt(0).toUpperCase() || 'M');

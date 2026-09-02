@@ -10,15 +10,15 @@
           </svg>
         </span>
         <div>
-          <h2>登录管理后台</h2>
-          <p>登录以继续管理代理与资金流程</p>
+          <h2>登錄管理後台</h2>
+          <p>登錄以繼續管理代理與資金流程</p>
         </div>
       </div>
 
-      <label for="login-email">管理员 Email</label>
+      <label for="login-email">管理員 Email</label>
       <el-input id="login-email" placeholder="Email" v-model="form.email" size="large" :prefix-icon="User" />
 
-      <label for="login-password">密码</label>
+      <label for="login-password">密碼</label>
       <el-input
         id="login-password"
         placeholder="Password"

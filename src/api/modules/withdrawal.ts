@@ -1,4 +1,4 @@
-/** 管理端 USD 出金 API：列表、详情、审核、付款处理及私有附件。 */
+/** 管理端 USD 出金 API：列表、詳情、審核、付款處理及私有附件。 */
 import request from '../request';
 
 import type { BusinessUser, CurrencyRef, ReviewDecision, ReviewInfo } from './deposit';
@@ -19,7 +19,7 @@ export interface WithdrawalParty {
   entity_type: 1 | 2;
   name: string;
   data?: Record<string, unknown>;
-  /** 兼容旧版详情响应，新接口以 data 为准。 */
+  /** 兼容舊版詳情響應，新接口以 data 為準。 */
   snapshot?: Record<string, unknown>;
 }
 
@@ -138,19 +138,19 @@ export interface AppendWithdrawalPaymentFilesPayload {
   message?: string;
 }
 
-/** 获取 USD 出金分页列表。 */
+/** 獲取 USD 出金分頁列表。 */
 export function fetchWithdrawalList(params: WithdrawalListParams) {
   return request.get<unknown, WithdrawalPageResult>('/admin/getWithdrawalList', { params });
 }
 
-/** 获取单笔 USD 出金完整详情。 */
+/** 獲取單筆 USD 出金完整詳情。 */
 export function fetchWithdrawalDetail(id: number) {
   return request.get<unknown, WithdrawalOrderDetail>('/admin/getWithdrawalInfo', {
     params: { id },
   });
 }
 
-/** 待审核订单要求代理补充文件。 */
+/** 待審核訂單要求代理補充文件。 */
 export function requestWithdrawalSupplement(payload: RequestWithdrawalSupplementPayload) {
   return request.post<unknown, WithdrawalOrderDetail>(
     '/admin/requestWithdrawalSupplement',
@@ -158,22 +158,22 @@ export function requestWithdrawalSupplement(payload: RequestWithdrawalSupplement
   );
 }
 
-/** 审核订单；通过进入付款处理中，驳回会释放冻结资金。 */
+/** 審核訂單；通過進入付款處理中，駁回會釋放凍結資金。 */
 export function reviewWithdrawal(payload: ReviewWithdrawalPayload) {
   return request.post<unknown, WithdrawalOrderDetail>('/admin/reviewWithdrawal', payload);
 }
 
-/** 上传未绑定的管理员付款凭证，返回 file_id 供后续动作绑定。 */
+/** 上傳未綁定的管理員付款憑證，返回 file_id 供後續動作綁定。 */
 export function uploadWithdrawalFile(formData: FormData) {
   return request.post<unknown, WithdrawalFile>('/admin/uploadWithdrawalFile', formData);
 }
 
-/** 登记付款完成或失败；付款失败不得携带文件。 */
+/** 登記付款完成或失敗；付款失敗不得攜帶文件。 */
 export function processWithdrawalPayment(payload: ProcessWithdrawalPaymentPayload) {
   return request.post<unknown, WithdrawalOrderDetail>('/admin/processWithdrawalPayment', payload);
 }
 
-/** 已完成订单追加付款凭证。 */
+/** 已完成訂單追加付款憑證。 */
 export function appendWithdrawalPaymentFiles(payload: AppendWithdrawalPaymentFilesPayload) {
   return request.post<unknown, WithdrawalOrderDetail>(
     '/admin/appendWithdrawalPaymentFiles',
@@ -181,18 +181,22 @@ export function appendWithdrawalPaymentFiles(payload: AppendWithdrawalPaymentFil
   );
 }
 
-/** 鉴权预览出金附件；响应拦截器对二进制直接返回 Blob。 */
+/** 鑑權預覽出金附件；響應攔截器對二進制直接返回 Blob。 */
 export function previewWithdrawalFile(fileId: number) {
   return request.get<unknown, Blob>('/admin/previewWithdrawalFile', {
     params: { file_id: fileId },
     responseType: 'blob',
+    timeout: 120_000,
+    silent: true,
   });
 }
 
-/** 鉴权下载出金附件；响应拦截器对二进制直接返回 Blob。 */
+/** 鑑權下載出金附件；響應攔截器對二進制直接返回 Blob。 */
 export function downloadWithdrawalFile(fileId: number) {
   return request.get<unknown, Blob>('/admin/downloadWithdrawalFile', {
     params: { file_id: fileId },
     responseType: 'blob',
+    timeout: 120_000,
+    silent: true,
   });
 }

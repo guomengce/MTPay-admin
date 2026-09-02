@@ -1,5 +1,5 @@
 /**
- * 缩略展示哈希、钱包地址等长标识符。仅用于 UI，复制与接口提交应保留原值。
+ * 縮略展示哈希、錢包地址等長標識符。僅用於 UI，複製與接口提交應保留原值。
  */
 export function formatLongIdentifier(value: unknown, head = 8, tail = 8): string {
   if (value === null || value === undefined || value === '') return '—';

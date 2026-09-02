@@ -1,4 +1,4 @@
-/** 去除十进制字符串末尾无意义的 0，不经过 Number，避免资金精度损失。 */
+/** 去除十進制字符串末尾無意義的 0，不經過 Number，避免資金精度損失。 */
 export function trimDecimalZeros(value: string | number | null | undefined): string {
   if (value === null || value === undefined || value === '') return '';
   const text = String(value).trim();
@@ -7,7 +7,7 @@ export function trimDecimalZeros(value: string | number | null | undefined): str
   return text.replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '');
 }
 
-/** 兑换比例固定显示 4 位小数，超过 4 位时四舍五入。 */
+/** 兑換比例固定顯示 4 位小數，超過 4 位時四捨五入。 */
 export function formatExchangeRate(value: string | number | null | undefined): string {
   const text = trimDecimalZeros(value);
   if (!text || !/^[+-]?\d+(?:\.\d+)?$/.test(text)) return text;
@@ -36,11 +36,11 @@ export function formatExchangeRate(value: string | number | null | undefined): s
   return `${negative ? '-' : ''}${integer}.${fraction}`;
 }
 
-/** 固定手续费展示格式；正常的整数手续费会显示为 50 而不是 50.00000000。 */
+/** 固定手續費展示格式；正常的整數手續費會顯示為 50 而不是 50.00000000。 */
 export const formatFixedFee = trimDecimalZeros;
 
 
-/** 限制非负十进制输入的小数位数，用于输入过程中直接阻止超长精度。 */
+/** 限制非負十進制輸入的小數位數，用於輸入過程中直接阻止超長精度。 */
 export function limitDecimalInput(value: string, decimalPlaces = 2): string {
   const cleaned = value.replace(/[^\d.]/g, '');
   const [integer = '', ...fractionParts] = cleaned.split('.');

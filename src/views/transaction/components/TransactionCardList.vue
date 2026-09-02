@@ -31,12 +31,12 @@ const items = computed<AdminCardItem[]>(() =>
     },
     pending: isPending(row),
     fields: [
-      { label: '类型', badge: { label: row.business_name, type: businessType(row) } },
+      { label: '類型', badge: { label: businessLabel(row), type: businessType(row) } },
       { label: '代理', value: row.user.company_name, subValue: row.user.email, strong: true },
-      { label: '交易内容', value: contentLabel(row), strong: true },
-      { label: '金额', value: displayAmount(row), subValue: amountSubValue(row), strong: true },
+      { label: '交易內容', value: contentLabel(row), strong: true },
+      { label: '金額', value: displayAmount(row), subValue: amountSubValue(row), strong: true },
     ],
-    actions: businessDetailRoute(row) ? [{ key: 'view', label: '查看详情', icon: View, type: 'primary', plain: true }] : [],
+    actions: businessDetailRoute(row) ? [{ key: 'view', label: '查看詳情', icon: View, type: 'primary', plain: true }] : [],
   })),
 );
 
@@ -60,9 +60,15 @@ function businessType(row: TransactionItem): StatusBadgeType {
   return 'primary';
 }
 
+function businessLabel(row: TransactionItem) {
+  if (row.business_type === 'deposit') return '數字貨幣入金';
+  if (row.business_type === 'exchange') return '數字貨幣兌換';
+  if (row.business_type === 'withdrawal') return '法幣出金';
+  return row.business_name;
+}
+
 function contentLabel(row: TransactionItem) {
-  if (row.business_type === 'manual_increase') return '人工增加代理資產';
-  if (row.business_type === 'manual_decrease') return '人工扣減代理資產';
+  if (row.business_type === 'manual_increase' || row.business_type === 'manual_decrease') return '—';
   if (row.business_type === 'withdrawal') {
     const payer = partyLabel(row.payer_name, row.payer_entity_type_name, row.payer_entity_type);
     const payee = partyLabel(row.payee_name, row.payee_entity_type_name, row.payee_entity_type);
@@ -70,19 +76,19 @@ function contentLabel(row: TransactionItem) {
   }
   if (row.business_type === 'exchange') {
     const rate = formatExchangeRate(row.exchange_rate);
-    return `${row.currency_code} → ${row.target_currency_code || '—'}${rate ? ` · 兑换比例 ${rate}` : ''}`;
+    return `${row.currency_code} → ${row.target_currency_code || '—'}${rate ? ` · 數字貨幣兌換比例 ${rate}` : ''}`;
   }
   return [row.currency_code, row.network_code].filter(Boolean).join(' · ');
 }
 
 function partyLabel(name?: string | null, typeName?: string | null, type?: 1 | 2 | null) {
-  const entity = typeName || (type === 1 ? '公司' : type === 2 ? '个人' : '');
+  const entity = typeName || (type === 1 ? '公司' : type === 2 ? '個人' : '');
   return [name, entity].filter(Boolean).join(' · ');
 }
 
 function amountSubValue(row: TransactionItem) {
-  if (row.business_type === 'withdrawal') return `总扣款 ${formatMoney(row.total_amount || '—')} ${row.currency_code}`;
-  if (row.business_type === 'exchange') return `获得 ${formatMoney(row.target_amount || '—')} ${row.target_currency_code || ''}`;
+  if (row.business_type === 'withdrawal') return `總扣款 ${formatMoney(row.total_amount || '—')} ${row.currency_code}`;
+  if (row.business_type === 'exchange') return `獲得 ${formatMoney(row.target_amount || '—')} ${row.target_currency_code || ''}`;
   return undefined;
 }
 

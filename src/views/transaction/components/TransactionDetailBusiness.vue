@@ -1,5 +1,5 @@
 <template>
-  <AdminPanel title="业务详情" subtitle="对应业务的只读详情快照" :icon="Document">
+  <AdminPanel title="業務詳情" subtitle="對應業務的只讀詳情快照" :icon="Document">
     <dl class="transaction-business">
       <div v-for="item in fields" :key="item.label" :class="{ 'is-wide': item.wide }">
         <dt>{{ item.label }}</dt>
@@ -57,30 +57,30 @@ const fields = computed<FieldItem[]>(() => {
     const review = (d.review ?? {}) as Record<string, unknown>;
     return [
       ...pick(d, ['currency', 'network']),
-      { label: '入金金额', value: formatMoney(d.amount), mono: true },
+      { label: '入金金額', value: formatMoney(d.amount), mono: true },
       { label: '交易哈希', value: formatLongIdentifier(d.txid), wide: true, mono: true },
       { label: '平台收款地址', value: text(d.receiving_address_snapshot), wide: true, mono: true },
-      { label: '审核人', value: text(review.admin_name) },
-      { label: '审核时间', value: text(review.reviewed_at) },
-      { label: '审核说明', value: text(review.note), wide: true },
-      { label: '入账时间', value: text(d.credited_at) },
-      { label: '当前状态', value: text(d.status_name) },
+      { label: '審核人', value: text(review.admin_name) },
+      { label: '審核時間', value: text(review.reviewed_at) },
+      { label: '審核説明', value: text(review.note), wide: true },
+      { label: '入賬時間', value: text(d.credited_at) },
+      { label: '當前狀態', value: text(d.status_name) },
     ].filter((item) => item.value !== '—');
   }
   if (props.businessType === 'exchange') {
     const review = (d.review ?? {}) as Record<string, unknown>;
     return [
       ...pick(d, ['source_currency', 'target_currency']),
-      { label: '支付数量', value: formatMoney(d.source_amount), mono: true },
-      { label: '采用比例', value: formatExchangeRate(text(d.exchange_rate)), mono: true },
-      { label: '比例来源', value: text(d.rate_source_name) },
-      { label: '获得金额', value: formatMoney(d.target_amount), mono: true },
-      { label: '冻结时间', value: text(d.frozen_at) },
-      { label: '审核人', value: text(review.admin_name) },
-      { label: '审核时间', value: text(review.reviewed_at) },
-      { label: '审核说明', value: text(review.note), wide: true },
-      { label: '完成时间', value: text(d.completed_at) },
-      { label: '当前状态', value: text(d.status_name) },
+      { label: '支付數量', value: formatMoney(d.source_amount), mono: true },
+      { label: '採用比例', value: formatExchangeRate(text(d.exchange_rate)), mono: true },
+      { label: '比例來源', value: text(d.rate_source_name) },
+      { label: '獲得金額', value: formatMoney(d.target_amount), mono: true },
+      { label: '凍結時間', value: text(d.frozen_at) },
+      { label: '審核人', value: text(review.admin_name) },
+      { label: '審核時間', value: text(review.reviewed_at) },
+      { label: '審核説明', value: text(review.note), wide: true },
+      { label: '完成時間', value: text(d.completed_at) },
+      { label: '當前狀態', value: text(d.status_name) },
     ].filter((item) => item.value !== '—');
   }
   const payer = (d.payer ?? {}) as Record<string, unknown>;
@@ -88,21 +88,21 @@ const fields = computed<FieldItem[]>(() => {
   const review = (d.review ?? {}) as Record<string, unknown>;
   const payment = (d.payment ?? {}) as Record<string, unknown>;
   return [
-    { label: '出金金额（实收）', value: formatMoney(d.amount), mono: true },
-    { label: '固定手续费', value: formatMoney(formatFixedFee(text(d.fee_amount))), mono: true },
-    { label: '总扣款', value: formatMoney(d.total_amount), mono: true },
+    { label: '法幣出金金額（實收）', value: formatMoney(d.amount), mono: true },
+    { label: '固定手續費', value: formatMoney(formatFixedFee(text(d.fee_amount))), mono: true },
+    { label: '總扣款', value: formatMoney(d.total_amount), mono: true },
     { label: '付款人', value: text(payer.name), wide: true },
-    { label: '付款人白名单编号', value: text(payer.whitelist_no), mono: true },
+    { label: '付款人白名單編號', value: text(payer.whitelist_no), mono: true },
     { label: '收款人', value: text(payee.name), wide: true },
-    { label: '收款人白名单编号', value: text(payee.whitelist_no), mono: true },
-    { label: '审核人', value: text(review.admin_name) },
-    { label: '审核时间', value: text(review.reviewed_at) },
-    { label: '审核说明', value: text(review.note), wide: true },
-    { label: '进入付款处理', value: text(payment.processing_at) },
-    { label: '付款完成时间', value: text(payment.completed_at) },
-    { label: '付款失败时间', value: text(payment.failed_at) },
-    { label: '付款失败原因', value: text(payment.failure_reason), wide: true },
-    { label: '当前状态', value: text(d.status_name) },
+    { label: '收款人白名單編號', value: text(payee.whitelist_no), mono: true },
+    { label: '審核人', value: text(review.admin_name) },
+    { label: '審核時間', value: text(review.reviewed_at) },
+    { label: '審核説明', value: text(review.note), wide: true },
+    { label: '進入付款處理', value: text(payment.processing_at) },
+    { label: '付款完成時間', value: text(payment.completed_at) },
+    { label: '付款失敗時間', value: text(payment.failed_at) },
+    { label: '付款失敗原因', value: text(payment.failure_reason), wide: true },
+    { label: '當前狀態', value: text(d.status_name) },
   ].filter((item) => item.value !== '—');
 });
 </script>

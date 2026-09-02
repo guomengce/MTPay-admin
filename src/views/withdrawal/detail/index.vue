@@ -4,7 +4,7 @@
       <div class="withdrawal-detail-page__toolbar">
         <el-button plain :icon="Back" @click="goBack">返回</el-button>
         <div v-if="heroActions.length || detail.status === 3" class="withdrawal-detail-page__actions">
-          <el-button v-if="detail.status === 3" type="danger" plain :loading="cancelling" :disabled="submitting || cancelling" @click="cancelCompleted(toWithdrawalRow(detail))">取消出金</el-button>
+          <el-button v-if="detail.status === 3 && canOperate('fiatWithdrawal.cancel')" type="danger" plain :loading="cancelling" :disabled="submitting || cancelling" @click="cancelCompleted(toWithdrawalRow(detail))">取消法幣出金</el-button>
           <el-button
             v-for="action in heroActions"
             :key="action.emitName"
@@ -53,12 +53,12 @@
         @submit="handleAction"
       />
     </template>
-    <el-empty v-else-if="!loading" description="未找到出金订单" />
+    <el-empty v-else-if="!loading" description="未找到法幣出金訂單" />
   </section>
 </template>
 
 <script setup lang="ts">
-/** 管理端 USD 出金详情：页面结构和可用动作完全由详情接口字段决定。 */
+/** 管理端 法幣出金詳情：頁面結構和可用動作完全由詳情接口字段決定。 */
 import { computed, onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
@@ -71,6 +71,7 @@ import {
 } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePageLoading } from '@/composables/usePageLoading';
+import { usePermission } from '@/composables/usePermission';
 
 import OrderHeader from './components/OrderHeader.vue';
 import AgentCard from './components/AgentCard.vue';
@@ -86,6 +87,7 @@ import { useWithdrawalDetailView } from '../composables/useWithdrawalDetailView'
 
 const route = useRoute();
 const router = useRouter();
+const { canOperate } = usePermission();
 const { detail, loading, submitting, uploading, loadDetail, requestSupplement, submitReview, submitPayment, appendPaymentFiles, uploadFile } = useWithdrawalDetail();
 usePageLoading(loading);
 const { cancelling, cancelCompleted } = useCancelCompletedWithdrawal(async () => { if (detail.value) await loadDetail(detail.value.id); });
@@ -102,19 +104,19 @@ const heroActions = computed<DetailAction[]>(() => {
   const status = detail.value?.status;
   if (status === 0) {
     return [
-      { label: '审核通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
-      { label: '要求补件', icon: DocumentAdd, type: 'warning', emitName: 'supplement' },
-      { label: '审核拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' },
-    ];
+      { label: '審核通過', icon: CircleCheck, type: 'primary', emitName: 'approve' },
+      { label: '要求補件', icon: DocumentAdd, type: 'warning', emitName: 'supplement' },
+      { label: '審核拒絕', icon: CircleClose, type: 'danger', emitName: 'reject' },
+    ].filter((action) => action.emitName === 'supplement' ? canOperate('fiatWithdrawal.supplement') : canOperate('fiatWithdrawal.review')) as DetailAction[];
   }
-  if (status === 1) {
-    return [{ label: '审核拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' }];
+  if (status === 1 && canOperate('fiatWithdrawal.review')) {
+    return [{ label: '審核拒絕', icon: CircleClose, type: 'danger', emitName: 'reject' }];
   }
-  if (status === 2) {
-    return [{ label: '登记付款结果', icon: CreditCard, type: 'primary', emitName: 'payment' }];
+  if (status === 2 && canOperate('fiatWithdrawal.payment')) {
+    return [{ label: '登記付款結果', icon: CreditCard, type: 'primary', emitName: 'payment' }];
   }
-  if (status === 3) {
-    return [{ label: '追加付款凭证', icon: Upload, type: 'primary', emitName: 'append' }];
+  if (status === 3 && canOperate('fiatWithdrawal.appendProof')) {
+    return [{ label: '追加付款憑證', icon: Upload, type: 'primary', emitName: 'append' }];
   }
   return [];
 });
@@ -132,20 +134,20 @@ async function handleAction(payload: { mode: WithdrawalActionMode; message?: str
   try {
     if (payload.mode === 'supplement') {
       await requestSupplement({ id, message: payload.message! });
-      ElMessage.success('补件要求已发送');
+      ElMessage.success('補件要求已發送');
     } else if (payload.mode === 'approve' || payload.mode === 'reject') {
       await submitReview({ id, decision: payload.mode, review_note: payload.mode === 'reject' ? payload.message : undefined });
-      ElMessage.success(payload.mode === 'approve' ? '出金审核已通过，进入付款处理' : '出金已驳回，冻结资金已释放');
+      ElMessage.success(payload.mode === 'approve' ? '法幣出金審核已通過，進入付款處理' : '法幣出金已駁回，凍結資金已釋放');
     } else if (payload.mode === 'payment') {
       const fileIds = payload.result === 'complete' ? payload.fileIds : [];
       await submitPayment({ id, result: payload.result!, file_ids: fileIds.length ? fileIds : undefined, failure_reason: payload.result === 'fail' ? payload.failureReason : undefined });
-      ElMessage.success(payload.result === 'complete' ? '付款完成已登记' : '付款失败已登记，冻结资金已释放');
+      ElMessage.success(payload.result === 'complete' ? '付款完成已登記' : '付款失敗已登記，凍結資金已釋放');
     } else {
       await appendPaymentFiles({ id, file_ids: payload.fileIds, message: payload.message });
-      ElMessage.success('付款凭证已追加');
+      ElMessage.success('付款憑證已追加');
     }
     dialogVisible.value = false;
-  } catch { /* 统一请求层已显示后端错误 */ }
+  } catch { /* 統一請求層已顯示後端錯誤 */ }
 }
 
 onMounted(() => {
@@ -235,6 +237,7 @@ onMounted(() => {
 
 @include mobile {
   .withdrawal-detail-page { gap: 16px; }
+  .withdrawal-detail-page__supporting { grid-template-columns: 1fr; }
   .withdrawal-detail-page__toolbar {
     align-items: flex-start;
     flex-direction: column;

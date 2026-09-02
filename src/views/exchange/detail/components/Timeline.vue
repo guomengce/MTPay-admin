@@ -2,8 +2,8 @@
   <AdminPanel
     v-if="items.length"
 
-    title="处理时间线"
-    subtitle="本次兑换订单的处理流程"
+    title="處理時間線"
+    subtitle="本次數字貨幣兌換訂單的處理流程"
     :icon="Clock"
   >
     <AdminTimeline class="exchange-timeline" :items="items" />

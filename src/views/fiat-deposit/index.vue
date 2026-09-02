@@ -1,15 +1,15 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="法币入金" :icon="CreditCard"
+    <AdminHero title="法幣入金" :icon="CreditCard"
       ><template #extra
         ><el-button type="primary" plain :icon="Download" :loading="exporting" @click="exportCsv"
-          >导出 CSV</el-button
+          >導出 CSV</el-button
         ></template
       ></AdminHero
     ><AdminPanel
       ><ReviewFilters
         :query="query"
-      keyword-placeholder="订单号 / 付款人 / 银行 / 参考号 / 代理"
+      keyword-placeholder="訂單號 / 付款人 / 銀行 / 參考號 / 代理"
       completed-label="已完成"
         :loading="loading"
         @update="Object.assign(query, $event)"

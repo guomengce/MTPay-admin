@@ -29,13 +29,13 @@ const emit = defineEmits<{
 }>();
 
 const fields: AdminCardFieldConfig[] = [
-  { label: '时间', prop: 'time' },
+  { label: '時間', prop: 'time' },
   { label: '代理', prop: 'agent', strong: true },
-  { label: '类型', badge: (row) => ({ label: toFlowRow(row).type, type: 'primary' }) },
-  { label: '编号', prop: 'id', strong: true },
-  { label: '内容', prop: 'content' },
+  { label: '類型', badge: (row) => ({ label: toFlowRow(row).type, type: 'primary' }) },
+  { label: '編號', prop: 'id', strong: true },
+  { label: '內容', prop: 'content' },
   {
-    label: '金额',
+    label: '金額',
     prop: 'amount',
     subValue: 'usd',
     valueClass: (row) => getAmountClass(toFlowRow(row)),
@@ -44,7 +44,7 @@ const fields: AdminCardFieldConfig[] = [
 ];
 
 const actions: AdminCardActionConfig[] = [
-  { key: 'view', label: '查看详情', icon: View, type: 'primary', plain: true },
+  { key: 'view', label: '查看詳情', icon: View, type: 'primary', plain: true },
 ];
 
 function getStatusBadge(row: AdminCardRecord) {

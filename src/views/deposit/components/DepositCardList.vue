@@ -31,12 +31,12 @@ const cardItems = computed<AdminCardItem[]>(() =>
       effect: row.statusEffect,
     },
     fields: [
-      { label: '编号', value: row.id, strong: true },
-      { label: '时间', value: row.time },
+      { label: '編號', value: row.id, strong: true },
+      { label: '時間', value: row.time },
       { label: '代理', value: row.agent },
-      { label: '资产', value: row.asset, subValue: row.network, strong: true },
+      { label: '資產', value: row.asset, subValue: row.network, strong: true },
       { label: '交易哈希', value: formatLongIdentifier(row.hash), mono: true },
-      { label: '申报金额', value: `${formatMoney(row.amount)} ${row.asset}`, strong: true },
+      { label: '申報金額', value: `${formatMoney(row.amount)} ${row.asset}`, strong: true },
     ],
     actions: [
       { key: 'view', label: '查看詳情', icon: View, type: 'primary', plain: true },

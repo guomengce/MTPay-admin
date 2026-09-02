@@ -1,11 +1,11 @@
 <template>
   <section class="admin-page">
     <AdminHero
-      title="资金流水"
+      title="資金流水"
       :icon="Tickets"
     >
       <template #extra>
-        <el-button type="primary" :icon="Download">导出CSV</el-button>
+        <el-button type="primary" :icon="Download">導出CSV</el-button>
       </template>
     </AdminHero>
 
@@ -41,12 +41,12 @@ const rows: FlowRow[] = [
   {
     time: '08/03 16:08',
     agent: '代理B · Bluewave Capital',
-    type: '兑换',
+    type: '數字貨幣兌換',
     id: 'EX-26073002',
     content: 'USDC → USD · 0.9000',
     amount: '5,000.00 USDC',
     usd: '≈ 5,000.00 USD',
-    status: '待审核',
+    status: '待審核',
     statusType: 'warning',
     statusEffect: 'pending',
   },
@@ -56,21 +56,21 @@ const rows: FlowRow[] = [
     type: '入金',
     id: 'DEP-26073002',
     content: 'USDC · ERC20',
-    amount: '待入账 12,000.00 USDC',
+    amount: '待入賬 12,000.00 USDC',
     usd: '',
-    status: '待审核',
+    status: '待審核',
     statusType: 'warning',
     statusEffect: 'pending',
   },
   {
     time: '08/03 14:08',
     agent: '代理A · Apex Trading',
-    type: '出金',
+    type: '法幣出金',
     id: 'WD-26073001',
     content: 'USD · B→B',
     amount: '-5,050.00 USD',
     usd: '≈ -5,050.00 USD',
-    status: '付款处理中',
+    status: '付款處理中',
     statusType: 'primary',
     statusEffect: 'pending',
   },
@@ -113,7 +113,7 @@ const rows: FlowRow[] = [
   {
     time: '07/31 17:08',
     agent: '代理A · Apex Trading',
-    type: '出金',
+    type: '法幣出金',
     id: 'WD-26072903',
     content: 'USD · C→C',
     amount: '-12,550.00 USD',

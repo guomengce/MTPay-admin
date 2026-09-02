@@ -10,7 +10,7 @@
         @back="goBack"
       />
 
-      <!-- 核心信息（金额 + 代理 + 提交时间） -->
+      <!-- 核心信息（金額 + 代理 + 提交時間） -->
       <CoreCard
         :amount="detail.amount"
         :currency="detail.currency"
@@ -19,7 +19,7 @@
         :submitted-at="detail.submitted_at"
       />
 
-      <!-- 链上核验 / 入账结果 + 处理时间线 -->
+      <!-- 鏈上核驗 / 入賬結果 + 處理時間線 -->
       <div class="deposit-detail-page__split">
         <div class="deposit-detail-page__split-col">
           <ChainVerification
@@ -33,12 +33,12 @@
         <Timeline :items="timelineItems" />
       </div>
     </template>
-    <el-empty v-else-if="!loading" description="未找到入金订单" />
+    <el-empty v-else-if="!loading" description="未找到入金訂單" />
   </section>
 </template>
 
 <script setup lang="ts">
-/** 管理端入金详情：展示订单、链上资料与处理时间线。 */
+/** 管理端入金詳情：展示訂單、鏈上資料與處理時間線。 */
 import { computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRoute, useRouter } from 'vue-router';
@@ -65,7 +65,7 @@ const statusType = computed<StatusBadgeType>(() => {
 });
 
 const heroStatus = computed(() => ({
-  label: detail.value?.status_name || '未知状态',
+  label: detail.value?.status_name || '未知狀態',
   type: statusType.value,
   effect: detail.value?.status === 0 ? ('pending' as const) : undefined,
 }));
@@ -86,9 +86,9 @@ function goBack() { router.go(-1); }
 async function copyValue(label: string, value: string) {
   try {
     await navigator.clipboard.writeText(value);
-    ElMessage.success(`${label}已复制`);
+    ElMessage.success(`${label}已複製`);
   } catch {
-    ElMessage.error('复制失败，请手动复制');
+    ElMessage.error('複製失敗，請手動複製');
   }
 }
 

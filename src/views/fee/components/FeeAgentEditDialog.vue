@@ -1,19 +1,13 @@
 <template>
   <el-dialog
     :model-value="modelValue"
-    title="修改代理专属比例"
+    title="修改代理專屬比例"
     width="min(520px, calc(100vw - 24px))"
     :close-on-click-modal="false"
     align-center
     @update:model-value="(val: boolean) => emit('update:modelValue', val)"
   >
     <template v-if="row">
-      <p class="fee-agent-dialog__hint">
-        为 <strong>{{ row.company_name }}</strong
-        >（<span>{{ row.email }}</span
-        >）设定 USDT / USDC 兑换比例，保存后立即对该代理生效。
-      </p>
-
       <el-form
         ref="formRef"
         class="fee-agent-dialog__form"
@@ -45,7 +39,7 @@
     <template #footer>
       <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
       <el-button type="primary" :icon="DocumentChecked" :loading="saving" @click="handleSubmit">
-        储存
+        儲存
       </el-button>
     </template>
   </el-dialog>
@@ -80,22 +74,22 @@ function isValidRate(value: string) {
 
 const rules: FormRules = {
   usdtRate: [
-    { required: true, message: '请填写 USDT 比例', trigger: 'blur' },
+    { required: true, message: '請填寫 USDT 比例', trigger: 'blur' },
     {
       validator: (_rule, value: string, cb) =>
         isValidRate(value)
           ? cb()
-          : cb(new Error('请输入大于 0 的比例（最多 4 位小数）')),
+          : cb(new Error('請輸入大於 0 的比例（最多 4 位小數）')),
       trigger: 'blur',
     },
   ],
   usdcRate: [
-    { required: true, message: '请填写 USDC 比例', trigger: 'blur' },
+    { required: true, message: '請填寫 USDC 比例', trigger: 'blur' },
     {
       validator: (_rule, value: string, cb) =>
         isValidRate(value)
           ? cb()
-          : cb(new Error('请输入大于 0 的比例（最多 4 位小数）')),
+          : cb(new Error('請輸入大於 0 的比例（最多 4 位小數）')),
       trigger: 'blur',
     },
   ],

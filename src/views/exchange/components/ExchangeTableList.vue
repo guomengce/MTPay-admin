@@ -1,7 +1,7 @@
 <template>
   <div class="exchange-table-list">
     <el-table v-loading="loading" class="admin-data-table" :data="data" stripe>
-      <el-table-column label="编号" min-width="170">
+      <el-table-column label="編號" min-width="170">
         <template #default="{ row }">
           <div class="row-title">
             <strong>{{ row.id }}</strong>
@@ -17,7 +17,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="支付资产" min-width="160">
+      <el-table-column label="支付資產" min-width="160">
         <template #default="{ row }">
           <div class="asset">
             <span>{{ formatMoney(row.amount) }}</span>
@@ -26,7 +26,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="rate" label="比例" min-width="120" />
-      <el-table-column label="获得USD" min-width="160">
+      <el-table-column label="獲得USD" min-width="160">
         <template #default="{ row }">
           <div class="asset">
             <strong>{{ formatMoney(row.usd) }}</strong>
@@ -34,7 +34,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="状态" min-width="100">
+      <el-table-column label="狀態" min-width="100">
         <template #default="{ row }">
           <StatusBadge :label="row.status" :type="row.statusType" :effect="row.statusEffect" />
         </template>
@@ -45,13 +45,13 @@
             <el-button plain size="small" :icon="MoreFilled">操作</el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="view" :icon="View">详情</el-dropdown-item>
+                <el-dropdown-item command="view" :icon="View">詳情</el-dropdown-item>
                 <template v-if="row.statusEffect === 'pending'">
-                  <el-dropdown-item command="approve" :icon="CircleCheck">
-                    <span class="review-command review-command--success">通过</span>
+                  <el-dropdown-item v-if="canOperate('cryptoExchange.review')" command="approve" :icon="CircleCheck">
+                    <span class="review-command review-command--success">通過</span>
                   </el-dropdown-item>
-                  <el-dropdown-item command="reject" :icon="CircleClose">
-                    <span class="review-command review-command--danger">拒绝</span>
+                  <el-dropdown-item v-if="canOperate('cryptoExchange.review')" command="reject" :icon="CircleClose">
+                    <span class="review-command review-command--danger">拒絕</span>
                   </el-dropdown-item>
                 </template>
               </el-dropdown-menu>
@@ -69,11 +69,13 @@ import { formatMoney } from '@/utils/formatMoney';
 import { CircleCheck, CircleClose, MoreFilled, View } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import { usePermission } from '@/composables/usePermission';
 
 import type { ExchangeRow } from '../composables/mapper';
 export type { ExchangeRow } from '../composables/mapper';
 
 defineProps<{ data: ExchangeRow[]; loading?: boolean }>();
+const { canOperate } = usePermission();
 const emit = defineEmits<{
   (e: 'view', row: ExchangeRow): void;
   (e: 'approve', row: ExchangeRow): void;

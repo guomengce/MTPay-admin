@@ -39,10 +39,7 @@
       <div class="detail-hero__identity">
         <el-button class="detail-hero__back" plain :icon="ArrowLeft" @click="emit('back')" />
 
-        <div class="detail-hero__title">
-          <h1>{{ title }}</h1>
-          <p v-if="description">{{ description }}</p>
-        </div>
+        <div class="detail-hero__title"><h1>{{ title }}</h1></div>
       </div>
 
       <div v-if="orderId || status || actions.length" class="detail-hero__controls">
@@ -147,7 +144,7 @@ const emit = defineEmits<{
     z-index: 1;
   }
 
-  /* 审核详情紧凑头部：只调整排版，状态徽标与业务按钮继续使用公共组件样式。 */
+  /* 審核詳情緊湊頭部：只調整排版，狀態徽標與業務按鈕繼續使用公共組件樣式。 */
   &.is-compact {
     padding: 22px 28px;
     border-radius: 14px;

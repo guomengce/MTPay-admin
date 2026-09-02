@@ -4,7 +4,6 @@ import zhTw from 'element-plus/es/locale/lang/zh-tw';
 import 'element-plus/dist/index.css';
 
 import App from './App.vue';
-import { installTraditionalChinese } from './plugins/traditionalChinese';
 import router from './router';
 import { pinia } from './stores';
 import './router/guard';
@@ -17,4 +16,3 @@ app.use(router);
 app.use(ElementPlus, { locale: zhTw });
 
 app.mount('#app');
-installTraditionalChinese();

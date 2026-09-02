@@ -1,8 +1,8 @@
 <template>
-  <AdminPanel title="交易摘要" subtitle="统一交易记录的公共字段" :icon="Tickets">
+  <AdminPanel title="交易摘要" subtitle="統一交易記錄的公共字段" :icon="Tickets">
     <dl class="transaction-summary">
       <div>
-        <dt>业务类型</dt>
+        <dt>業務類型</dt>
         <dd>
           <span class="type-chip" :class="`is-${transaction.business_type}`">
             {{ transaction.business_name }}
@@ -10,7 +10,7 @@
         </dd>
       </div>
       <div>
-        <dt>订单号</dt>
+        <dt>訂單號</dt>
         <dd class="is-mono">{{ transaction.order_no }}</dd>
       </div>
       <div>
@@ -18,32 +18,32 @@
         <dd>{{ transaction.user.company_name }} · {{ transaction.user.email }}</dd>
       </div>
       <div>
-        <dt>提交时间</dt>
+        <dt>提交時間</dt>
         <dd>{{ transaction.submitted_at || '—' }}</dd>
       </div>
       <div v-if="transaction.completed_at">
-        <dt>完成时间</dt>
+        <dt>完成時間</dt>
         <dd>{{ transaction.completed_at }}</dd>
       </div>
       <div v-if="transaction.finished_at">
-        <dt>终态时间</dt>
+        <dt>終態時間</dt>
         <dd>{{ transaction.finished_at }}</dd>
       </div>
       <div>
-        <dt>状态</dt>
+        <dt>狀態</dt>
         <dd>
           <StatusBadge :label="transaction.status_name" :type="statusType" :effect="statusEffect" />
         </dd>
       </div>
       <div v-if="transaction.business_type === 'deposit'">
-        <dt>入金金额</dt>
+        <dt>入金金額</dt>
         <dd class="is-accent">
           {{ formatMoney(transaction.amount) }} {{ transaction.currency_code }}
           <small v-if="transaction.network_code">· {{ transaction.network_code }}</small>
         </dd>
       </div>
       <div v-if="transaction.business_type === 'exchange'">
-        <dt>兑换</dt>
+        <dt>數字貨幣兌換</dt>
         <dd class="is-accent">
           {{ formatMoney(transaction.amount) }} {{ transaction.currency_code }} →
           {{ formatMoney(transaction.target_amount) }} {{ transaction.target_currency_code }}
@@ -52,11 +52,11 @@
       </div>
       <template v-if="transaction.business_type === 'withdrawal'">
         <div>
-          <dt>出金金额（实收）</dt>
+          <dt>法幣出金金額（實收）</dt>
           <dd class="is-accent">{{ formatMoney(transaction.amount) }} {{ transaction.currency_code }}</dd>
         </div>
         <div>
-          <dt>手续费 / 总扣款</dt>
+          <dt>手續費 / 總扣款</dt>
           <dd>
             {{ formatMoney(formatFixedFee(transaction.fee_amount)) }} / {{ formatMoney(transaction.total_amount) }}
             {{ transaction.currency_code }}

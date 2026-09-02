@@ -1,6 +1,6 @@
 /**
  * fee mapper
- * 集中处理比例 / 金额格式化（页面不直接调 toFixed）
+ * 集中處理比例 / 金額格式化（頁面不直接調 toFixed）
  */
 import { formatExchangeRate } from '@/utils/decimal';
 export interface RateFormat {
@@ -13,14 +13,14 @@ export function parseRate(rate: string): number {
   return Number.isFinite(num) ? num : 0;
 }
 
-/** 1 单位的输入资产 → 多少 USD 输出 */
+/** 1 單位的輸入資產 → 多少 USD 輸出 */
 export function toRateDisplay(rate: string, assetLabel: string): string {
   const value = parseRate(rate);
   if (!value) return '—';
   return `1 ${assetLabel} → ${formatExchangeRate(rate)} USD`;
 }
 
-/** 输入金额 + 比例 → 可得 USD */
+/** 輸入金額 + 比例 → 可得 USD */
 export function toConvertedUsd(amount: string, rate: string): string {
   const a = Number.parseFloat(amount);
   const r = parseRate(rate);
@@ -28,7 +28,7 @@ export function toConvertedUsd(amount: string, rate: string): string {
   return (a * r).toFixed(2);
 }
 
-/** 提取比例数字用于编辑控件 */
+/** 提取比例數字用於編輯控件 */
 export function toRateInputValue(rate: string): number {
   return parseRate(rate);
 }

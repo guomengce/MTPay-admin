@@ -9,14 +9,14 @@ export function useCancelCompletedWithdrawal(refresh: () => Promise<unknown>) {
     try {
       let reason: string;
       try {
-        const result = await ElMessageBox.prompt(`確定取消已完成的出金訂單「${row.id}」？請核實後再操作。`, '取消已完成出金', {
+        const result = await ElMessageBox.prompt(`確定取消已完成的法幣出金訂單「${row.id}」？請核實後再操作。`, '取消已完成法幣出金', {
           type: 'warning', inputType: 'textarea', inputPlaceholder: '取消原因（選填）',
-          confirmButtonText: '確認取消出金', cancelButtonText: '返回', closeOnClickModal: false,
+          confirmButtonText: '確認取消法幣出金', cancelButtonText: '返回', closeOnClickModal: false,
         });
         reason = result.value || '';
       } catch { return; }
       await cancelCompletedWithdrawal(row.businessId, reason);
-      ElMessage.success('出金訂單已取消');
+      ElMessage.success('法幣出金訂單已取消');
       await refresh();
     } catch { /* Backend errors are displayed by the request layer; do not retry mutations. */ }
     finally { cancelling.value = false; }

@@ -31,41 +31,51 @@ import { RouterLink } from 'vue-router';
 
 import type { OperationPendingBusinesses } from '@/api/modules/dashboard';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import { useAuthStore } from '@/stores/modules/auth';
 
 const props = defineProps<{ pending: OperationPendingBusinesses | null }>();
+const authStore = useAuthStore();
 
-const tasks = computed(() => [
+const taskDefinitions = [
   {
+    key: 'deposit',
     title: '入金',
-    count: props.pending?.deposit ?? 0,
     to: '/deposit',
     icon: Download,
     tone: 'blue',
   },
   {
-    title: '兑换',
-    count: props.pending?.exchange ?? 0,
+    key: 'exchange',
+    title: '兌換',
     to: '/exchange',
     icon: Switch,
     tone: 'purple',
   },
   {
-    title: '白名单',
-    count: props.pending?.whitelist ?? 0,
+    key: 'whitelist',
+    title: '白名單',
     to: '/whitelist',
     icon: Tickets,
     tone: 'amber',
   },
   {
-    title: '出金',
-    count: props.pending?.withdrawal ?? 0,
+    key: 'withdrawal',
+    title: '法幣出金',
     to: '/withdrawal',
     icon: Wallet,
     tone: 'teal',
   },
-]);
+] as const;
 
-const total = computed(() => props.pending?.total ?? 0);
+const tasks = computed(() => {
+  if (!props.pending) return [];
+  return taskDefinitions
+    .filter((task) => authStore.cryptoEnabled || !['deposit', 'exchange'].includes(task.key))
+    .filter((task) => Object.prototype.hasOwnProperty.call(props.pending, task.key))
+    .map((task) => ({ ...task, count: props.pending?.[task.key] ?? 0 }));
+});
+
+const total = computed(() => tasks.value.reduce((sum, task) => sum + task.count, 0));
 </script>
 
 <style scoped lang="scss">

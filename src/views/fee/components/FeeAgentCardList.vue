@@ -11,27 +11,26 @@
             <span>USDT 比例</span>
             <div class="fee-agent-card-list__rate-line">
               <strong>{{ row.usdt_rate }}</strong>
-              <StatusBadge :label="row.usdt_source" :type="row.usdt_source === '代理专属' ? 'primary' : 'gray'" />
+              <StatusBadge :label="row.usdt_source" :type="row.usdt_source === '代理專屬' ? 'primary' : 'gray'" />
             </div>
           </div>
           <div class="fee-agent-card-list__metric">
             <span>USDC 比例</span>
             <div class="fee-agent-card-list__rate-line">
               <strong>{{ row.usdc_rate }}</strong>
-              <StatusBadge :label="row.usdc_source" :type="row.usdc_source === '代理专属' ? 'primary' : 'gray'" />
+              <StatusBadge :label="row.usdc_source" :type="row.usdc_source === '代理專屬' ? 'primary' : 'gray'" />
             </div>
           </div>
         </div>
 
         <div class="fee-agent-card-list__actions">
-          <el-button type="warning" plain :icon="Edit" @click="emit('edit', row)">修改</el-button>
-          <el-button
-            v-if="row.has_custom_rate"
+          <el-button v-if="canOperate('exchangeRates.agent')" type="warning" plain :icon="Edit" @click="emit('edit', row)">修改</el-button>
+          <el-button v-if="row.has_custom_rate && canOperate('exchangeRates.clear')"
             type="warning"
             plain
             :icon="RefreshLeft"
             @click="emit('clear', row)"
-            >恢复默认</el-button
+            >恢復默認</el-button
           >
         </div>
       </li>
@@ -42,8 +41,10 @@
 import { Edit, RefreshLeft } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import { usePermission } from '@/composables/usePermission';
 import type { FeeAgentRow } from '../composables/useFeeSettings';
 
+const { canOperate } = usePermission();
 defineProps<{ rows: FeeAgentRow[]; loading?: boolean }>();
 const emit = defineEmits<{
   (e: 'edit', row: FeeAgentRow): void;

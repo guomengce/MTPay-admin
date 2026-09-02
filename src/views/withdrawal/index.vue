@@ -1,7 +1,7 @@
 <template>
   <section class="admin-page">
     <AdminHero
-      title="USD 出金管理"
+      title="法幣出金管理"
       :icon="Wallet"
     >
       <template #extra>
@@ -38,7 +38,7 @@
         @append="openDialog('append', $event)"
         @cancel-completed="cancelCompleted"
       />
-      <el-empty v-if="!loading && list.length === 0" description="暂无出金订单" />
+      <el-empty v-if="!loading && list.length === 0" description="暫無法幣出金訂單" />
       <TablePager
         :model-value="page"
         :page-size="limit"
@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-/** 管理端出金列表：真实筛选、后端分页，并按状态在行内完成审核、付款与补件处理。 */
+/** 管理端法幣出金列表：真實篩選、後端分頁，並按狀態在行內完成審核、付款與補件處理。 */
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
@@ -130,14 +130,14 @@ async function handleSubmit(payload: {
   try {
     if (payload.mode === 'supplement') {
       await requestSupplement({ id, message: payload.message! });
-      ElMessage.success('补件要求已发送');
+      ElMessage.success('補件要求已發送');
     } else if (payload.mode === 'approve' || payload.mode === 'reject') {
       await submitReview({
         id,
         decision: payload.mode,
         review_note: payload.mode === 'reject' ? payload.message : undefined,
       });
-      ElMessage.success(payload.mode === 'approve' ? '出金审核已通过，进入付款处理' : '出金已驳回，冻结资金已释放');
+      ElMessage.success(payload.mode === 'approve' ? '法幣出金審核已通過，進入付款處理' : '法幣出金已駁回，凍結資金已釋放');
     } else if (payload.mode === 'payment') {
       const fileIds = payload.result === 'complete' ? payload.fileIds : [];
       await submitPayment({
@@ -146,15 +146,15 @@ async function handleSubmit(payload: {
         file_ids: fileIds.length ? fileIds : undefined,
         failure_reason: payload.result === 'fail' ? payload.failureReason : undefined,
       });
-      ElMessage.success(payload.result === 'complete' ? '付款完成已登记' : '付款失败已登记，冻结资金已释放');
+      ElMessage.success(payload.result === 'complete' ? '付款完成已登記' : '付款失敗已登記，凍結資金已釋放');
     } else {
       await appendPaymentFiles({ id, file_ids: payload.fileIds, message: payload.message });
-      ElMessage.success('付款凭证已追加');
+      ElMessage.success('付款憑證已追加');
     }
     dialogVisible.value = false;
     await loadList();
   } catch {
-    /* 统一请求层已显示后端错误 */
+    /* 統一請求層已顯示後端錯誤 */
   }
 }
 

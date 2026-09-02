@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import type { RouteRecordRaw } from 'vue-router';
 
 import type { MenuItem } from '@/types/router';
+import { useAuthStore } from './auth';
 
 export const useRouteStore = defineStore('route', () => {
   const menus = ref<MenuItem[]>([]);
@@ -13,7 +14,8 @@ export const useRouteStore = defineStore('route', () => {
 
   function generateMenus(routes: RouteRecordRaw[]) {
     const nextMenus: MenuItem[] = [];
-    routes.filter((route) => !route.meta?.hidden).forEach((route) => {
+    const authStore = useAuthStore();
+    routes.filter((route) => !route.meta?.hidden && (!route.meta?.cryptoOnly || authStore.cryptoEnabled) && authStore.canAccessMenu(String(route.meta?.menuPermission || ''))).forEach((route) => {
       const item: MenuItem = {
         path: route.path,
         title: String(route.meta?.title || ''),

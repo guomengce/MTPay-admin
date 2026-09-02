@@ -3,9 +3,9 @@
     <template v-if="detail">
       <DetailHero
         compact
-        order="订单号"
-        title="法币入金审核"
-        description="核对汇款资料与银行凭证后完成审核"
+        order="訂單號"
+        title="法幣入金審核"
+        description="核對匯款資料與銀行憑證後完成審核"
         :order-id="detail.order_no"
         :status="heroStatus"
         :actions="heroActions"
@@ -37,7 +37,7 @@
         @review="review"
       />
     </template>
-    <el-empty v-else-if="!loading" description="未找到法币入金订单" />
+    <el-empty v-else-if="!loading" description="未找到法幣入金訂單" />
   </section>
 </template>
 
@@ -50,6 +50,7 @@ import DetailHero, { type HeroAction } from '@/components/detail/DetailHero.vue'
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import { usePageLoading } from '@/composables/usePageLoading';
+import { usePermission } from '@/composables/usePermission';
 import {
   downloadFiatFile,
   fetchFiatDetail,
@@ -64,6 +65,7 @@ import ReviewActions from './components/ReviewActions.vue';
 
 const route = useRoute();
 const router = useRouter();
+const { canOperate } = usePermission();
 const detail = ref<FiatOrderDetail>();
 const loading = ref(false);
 const submitting = ref(false);
@@ -72,10 +74,10 @@ const reviewMode = ref<'approve' | 'reject'>('approve');
 usePageLoading(loading);
 
 const statusType = computed<StatusBadgeType>(() => detail.value?.status === 1 ? 'success' : detail.value?.status === 2 ? 'danger' : 'warning');
-const heroStatus = computed(() => ({ label: detail.value?.status_name || '未知状态', type: statusType.value, effect: detail.value?.status === 0 ? ('pending' as const) : undefined }));
-const heroActions = computed<HeroAction[]>(() => detail.value?.status === 0 ? [
-  { label: '审核通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
-  { label: '审核拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' },
+const heroStatus = computed(() => ({ label: detail.value?.status_name || '未知狀態', type: statusType.value, effect: detail.value?.status === 0 ? ('pending' as const) : undefined }));
+const heroActions = computed<HeroAction[]>(() => detail.value?.status === 0 && canOperate('fiatDeposits.review') ? [
+  { label: '審核通過', icon: CircleCheck, type: 'primary', emitName: 'approve' },
+  { label: '審核拒絕', icon: CircleClose, type: 'danger', emitName: 'reject' },
 ] : []);
 const timelineItems = computed<AdminTimelineItem[]>(() => {
   const source = detail.value?.timeline ?? [];
@@ -103,7 +105,7 @@ async function review(value: { decision: 'approve' | 'reject'; review_note?: str
   try {
     detail.value = await reviewFiatDeposit({ id: detail.value.id, ...value });
     reviewVisible.value = false;
-    ElMessage.success(value.decision === 'approve' ? '法币入金审核已通过' : '法币入金申请已拒绝');
+    ElMessage.success(value.decision === 'approve' ? '法幣入金審核已通過' : '法幣入金申請已拒絕');
   } finally { submitting.value = false; }
 }
 

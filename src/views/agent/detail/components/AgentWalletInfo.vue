@@ -3,14 +3,21 @@
     <div class="wallet-info">
       <section class="wallet-account">
         <span class="wallet-account__icon"><el-icon><Key /></el-icon></span>
-        <div><small>錢包賬戶地址</small><strong>{{ walletAccountAddress || '—' }}</strong></div>
-        <el-button v-if="walletAccountAddress" plain :icon="CopyDocument" @click="copy(walletAccountAddress)">複製</el-button>
+        <div><small>Safeheron錢包帳戶Key</small><strong>{{ safeheronAccountKey || '—' }}</strong></div>
+        <el-button v-if="safeheronAccountKey" plain :icon="CopyDocument" @click="copy(safeheronAccountKey)">複製</el-button>
       </section>
 
       <div class="address-table">
         <el-table :data="addresses" table-layout="fixed">
-          <el-table-column label="幣種" prop="currency_code" width="110" />
-          <el-table-column label="網絡" min-width="130"><template #default="{row}"><strong>{{row.network_code}}</strong><small v-if="row.network_name">{{row.network_name}}</small></template></el-table-column>
+          <el-table-column label="幣種" width="150"><template #default="{row}"><strong>{{row.currency.code}}</strong></template></el-table-column>
+          <el-table-column label="網絡" min-width="150">
+            <template #default="{row}">
+              <div style="display: flex; flex-direction: column;">
+                <strong>{{row.network.code}}</strong>
+                <small>{{row.network.name}}</small>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column label="COINKEY" prop="coin_key" min-width="160" />
           <el-table-column label="代理專屬地址" min-width="320"><template #default="{row}"><span class="address-value">{{row.address}}</span><el-button text :icon="CopyDocument" @click="copy(row.address)" /></template></el-table-column>
           <el-table-column label="狀態" width="120" align="center"><template #default="{row}"><StatusBadge :label="row.status_name" :type="row.status===1?'success':'gray'" /></template></el-table-column>
@@ -19,9 +26,9 @@
       </div>
 
       <div class="address-cards">
-        <article v-for="row in addresses" :key="`${row.coin_key}-${row.address}`">
-          <header><strong>{{row.currency_code}} · {{row.network_code}}</strong><StatusBadge :label="row.status_name" :type="row.status===1?'success':'gray'" /></header>
-          <dl><div><dt>網絡名稱</dt><dd>{{row.network_name||'—'}}</dd></div><div><dt>COINKEY</dt><dd>{{row.coin_key}}</dd></div><div><dt>代理專屬地址</dt><dd>{{row.address}}<el-button text :icon="CopyDocument" @click="copy(row.address)" /></dd></div></dl>
+        <article v-for="row in addresses" :key="row.wallet_address_id">
+          <header><strong>{{row.currency.code}} · {{row.network.code}}</strong><StatusBadge :label="row.status_name" :type="row.status===1?'success':'gray'" /></header>
+          <dl><div><dt>幣種名稱</dt><dd>{{row.currency.name}}</dd></div><div><dt>網絡名稱</dt><dd>{{row.network.name}}</dd></div><div><dt>COINKEY</dt><dd>{{row.coin_key}}</dd></div><div><dt>代理專屬地址</dt><dd>{{row.address}}<el-button text :icon="CopyDocument" @click="copy(row.address)" /></dd></div></dl>
         </article>
         <el-empty v-if="!addresses.length" description="暫無數字貨幣收款地址" />
       </div>
@@ -30,7 +37,7 @@
 </template>
 <script setup lang="ts">
 import {CopyDocument,Key,Wallet} from '@element-plus/icons-vue';import{ElMessage}from'element-plus';import AdminPanel from '@/components/admin/AdminPanel.vue';import StatusBadge from '@/components/admin/StatusBadge.vue';import type{AgentCryptoReceivingAddress}from'@/api/modules/agent';
-defineProps<{walletAccountAddress:string;addresses:AgentCryptoReceivingAddress[]}>();
+defineProps<{safeheronAccountKey:string;addresses:AgentCryptoReceivingAddress[]}>();
 async function copy(value:string){try{await navigator.clipboard.writeText(value);ElMessage.success('已複製')}catch{ElMessage.error('複製失敗，請手動複製')}}
 </script>
 <style scoped lang="scss">

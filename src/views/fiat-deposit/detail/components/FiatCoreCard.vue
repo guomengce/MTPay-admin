@@ -3,11 +3,11 @@
     <div class="fiat-core__layout">
       <div class="fiat-core__amount">
         <span class="fiat-core__amount-icon"><el-icon><Wallet /></el-icon></span>
-        <div><small>申报入金金额</small><p><strong>{{ formatMoney(amount) }}</strong><span>{{ currency.code }}</span></p><em>{{ currency.name }}</em></div>
+        <div><small>申報入金金額</small><p><strong>{{ formatMoney(amount) }}</strong><span>{{ currency.code }}</span></p><em>{{ currency.name }}</em></div>
       </div>
       <div class="fiat-core__meta">
-        <article><span class="is-purple"><el-icon><UserFilled /></el-icon></span><div><small>申请代理</small><strong>{{ user.company_name }}</strong><p>{{ user.email }}</p></div></article>
-        <article><span class="is-blue"><el-icon><Calendar /></el-icon></span><div><small>提交时间</small><strong>{{ submittedAt || '—' }}</strong></div></article>
+        <article><span class="is-purple"><el-icon><UserFilled /></el-icon></span><div><small>申請代理</small><strong>{{ user.company_name }}</strong><p>{{ user.email }}</p></div></article>
+        <article><span class="is-blue"><el-icon><Calendar /></el-icon></span><div><small>提交時間</small><strong>{{ submittedAt || '—' }}</strong></div></article>
       </div>
     </div>
   </section>

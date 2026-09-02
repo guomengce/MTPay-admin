@@ -6,7 +6,7 @@ import { fetchDepositList } from '@/api/modules/deposit';
 import type { DepositRow } from './mapper';
 import { toDepositRow } from './mapper';
 
-/** 入金记录列表：真实后端分页，不做前端假分页。 */
+/** 入金記錄列表：真實後端分頁，不做前端假分頁。 */
 export function useDepositList() {
   const loading = ref(false);
   const exportFilters = ref<CsvFilters | null>(null);

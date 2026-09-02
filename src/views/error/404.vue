@@ -1,8 +1,8 @@
 <template>
   <section class="error-page">
     <h1>404</h1>
-    <p>页面不存在</p>
-    <RouterLink to="/dashboard">返回营运总览</RouterLink>
+    <p>頁面不存在</p>
+    <RouterLink to="/dashboard">返回營運總覽</RouterLink>
   </section>
 </template>
 

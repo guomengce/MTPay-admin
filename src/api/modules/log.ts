@@ -1,7 +1,7 @@
 /**
- * 操作记录（管理员行为审计）
+ * 操作記錄（管理員行為審計）
  * -----------------------------------------------------------------------------
- * 第一版只提供列表，不提供筛选、详情和导出。
+ * 第一版只提供列表，不提供篩選、詳情和導出。
  */
 import request from '../request';
 
@@ -10,8 +10,8 @@ export interface AdminOperationLog {
   admin_id: number;
   admin_name: string;
   admin_email: string;
-  module: string;
-  action: string;
+  module_name: string;
+  action_name: string;
   content: string;
   target_type: string;
   target_id: string;

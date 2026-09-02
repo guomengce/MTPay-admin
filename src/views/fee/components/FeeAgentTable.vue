@@ -12,7 +12,7 @@
       </el-table-column>
       <el-table-column prop="usdc_rate" label="USDC 比例" min-width="170">
       </el-table-column>
-      <el-table-column label="状态" min-width="90">
+      <el-table-column label="狀態" min-width="90">
         <template #default="{ row }">
           <StatusBadge :label="row.status_name" :effect="row.status == 0 ? 'pending': undefined" :type="row.status === 1 ? 'success' : 'warning'" />
         </template>
@@ -20,15 +20,14 @@
       <el-table-column label="操作" min-width="180" fixed="right" align="center">
         <template #default="{ row }">
           <div class="fee-agent-table__actions">
-            <el-button plain size="small" :icon="Edit" @click="emit('edit', row)">修改</el-button>
-            <el-button
-              v-if="row.has_custom_rate"
+            <el-button v-if="canOperate('exchangeRates.agent')" plain size="small" :icon="Edit" @click="emit('edit', row)">修改</el-button>
+            <el-button v-if="row.has_custom_rate && canOperate('exchangeRates.clear')"
               type="danger"
               plain
               size="small"
               :icon="RefreshLeft"
               @click="emit('clear', row)"
-              >恢复默认</el-button
+              >恢復默認</el-button
             >
           </div>
         </template>
@@ -40,8 +39,10 @@
 import { Edit, RefreshLeft } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import { usePermission } from '@/composables/usePermission';
 import type { FeeAgentRow } from '../composables/useFeeSettings';
 
+const { canOperate } = usePermission();
 defineProps<{ rows: FeeAgentRow[]; loading?: boolean }>();
 const emit = defineEmits<{
   (e: 'edit', row: FeeAgentRow): void;

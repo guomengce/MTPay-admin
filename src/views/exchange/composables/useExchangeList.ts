@@ -7,7 +7,7 @@ import type { ExchangeStatus } from '@/api/modules/exchange';
 import type { ExchangeRow } from './mapper';
 import { toExchangeRow } from './mapper';
 
-/** 兑换审核列表：真实后端分页，不做前端假分页。 */
+/** 數字貨幣兌換審核列表：真實後端分頁，不做前端假分頁。 */
 export function useExchangeList() {
   const loading = ref(false);
   const exportFilters = ref<CsvFilters | null>(null);

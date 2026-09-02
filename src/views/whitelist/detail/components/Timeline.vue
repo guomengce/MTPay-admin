@@ -2,7 +2,7 @@
   <AdminPanel
     v-if="timelineItems.length"
     class="timeline-card"
-    title="处理时间线"
+    title="處理時間線"
     :icon="Clock"
   >
     <div class="timeline-scroll">
@@ -10,9 +10,9 @@
         <template #item-extra="{ item }">
           <div v-if="getFileRound(item.key)" class="timeline-files">
             <p v-if="getFileRound(item.key)?.files.length" class="timeline-files__count">
-              本次关联 {{ getFileRound(item.key)?.files.length }} 个文件
+              本次關聯 {{ getFileRound(item.key)?.files.length }} 個文件
             </p>
-            <p v-else class="timeline-files__empty">本次未提交证明文件</p>
+            <p v-else class="timeline-files__empty">本次未提交證明文件</p>
             <div v-if="getFileRound(item.key)?.files.length" class="file-list">
               <article
                 v-for="file in getFileRound(item.key)?.files"
@@ -31,8 +31,8 @@
                     plain
                     :icon="View"
                     :loading="isFileLoading(file.file_id, 'preview')"
-                    title="预览文件"
-                    aria-label="预览文件"
+                    title="預覽文件"
+                    aria-label="預覽文件"
                     @click="previewFile(file.file_id)"
                   />
                   <el-button
@@ -41,8 +41,8 @@
                     plain
                     :icon="Download"
                     :loading="isFileLoading(file.file_id, 'download')"
-                    title="下载文件"
-                    aria-label="下载文件"
+                    title="下載文件"
+                    aria-label="下載文件"
                     @click="downloadFile(file.file_id, file.original_name)"
                   />
                 </div>

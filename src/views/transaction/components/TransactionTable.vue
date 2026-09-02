@@ -1,18 +1,15 @@
 <template>
   <div class="transaction-table-list">
     <el-table v-loading="loading" class="admin-data-table" :data="data" stripe>
-      <el-table-column label="订单号" min-width="200">
+      <el-table-column label="訂單號" min-width="250" class-name="transaction-order-cell">
         <template #default="{ row }">
-          <a v-if="businessDetailRoute(row)" class="text-link" href="javascript:void(0)" @click.prevent="emit('view', row)">
-            {{ row.order_no }}
-          </a>
-          <span v-else>{{ row.order_no }}</span>
+          <strong>{{ row.order_no }}</strong>
           <small class="transaction-time">{{ row.submitted_at || '—' }}</small>
         </template>
       </el-table-column>
-      <el-table-column label="类型" min-width="120">
+      <el-table-column label="類型" min-width="150">
         <template #default="{ row }">
-          <span class="type-chip" :class="`is-${row.business_type}`">{{ row.business_name }}</span>
+          <span class="type-chip" :class="`is-${row.business_type}`">{{ businessLabel(row) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="代理" min-width="200" show-overflow-tooltip>
@@ -23,7 +20,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="内容" min-width="320" align="center" header-align="center">
+      <el-table-column label="內容" min-width="320" align="center" header-align="center">
         <template #default="{ row }">
           <WithdrawalPartyFlow
             v-if="row.business_type === 'withdrawal'"
@@ -38,25 +35,25 @@
               <FlowArrow />
               <strong>{{ row.target_currency_code || '—' }}</strong>
             </div>
-            <small>兑换比例：{{ formatExchangeRate(row.exchange_rate) || '—' }}</small>
+            <small>數字貨幣兌換比例：{{ formatExchangeRate(row.exchange_rate) || '—' }}</small>
           </div>
           <span v-else class="transaction-content">{{ contentLabel(row) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="金额" min-width="220">
+      <el-table-column label="金額" min-width="220">
         <template #default="{ row }">
           <div class="transaction-amount">
             <strong>{{ displayAmount(row) }}</strong>
             <small v-if="row.business_type === 'withdrawal'">
-              总扣款 {{ formatMoney(row.total_amount || '—') }} {{ row.currency_code }}
+              總扣款 {{ formatMoney(row.total_amount || '—') }} {{ row.currency_code }}
             </small>
             <small v-else-if="row.business_type === 'exchange'">
-              获得 {{ formatMoney(row.target_amount || '—') }} {{ row.target_currency_code || '' }}
+              獲得 {{ formatMoney(row.target_amount || '—') }} {{ row.target_currency_code || '' }}
             </small>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="状态" min-width="120">
+      <el-table-column label="狀態" min-width="120">
         <template #default="{ row }">
           <StatusBadge
             :label="row.status_name"
@@ -68,7 +65,7 @@
       <el-table-column label="操作" width="110" fixed="right" align="center">
         <template #default="{ row }">
           <el-button v-if="businessDetailRoute(row)" type="primary" plain size="small" :icon="View" @click="emit('view', row)">
-            详情
+            詳情
           </el-button>
         </template>
       </el-table-column>
@@ -92,12 +89,18 @@ defineProps<{ data: TransactionItem[]; loading?: boolean }>();
 const emit = defineEmits<{ (e: 'view', row: TransactionItem): void }>();
 
 function contentLabel(row: TransactionItem) {
-  if (row.business_type === 'manual_increase') return '人工增加代理資產';
-  if (row.business_type === 'manual_decrease') return '人工扣減代理資產';
+  if (row.business_type === 'manual_increase' || row.business_type === 'manual_decrease') return '—';
   if (row.business_type === 'deposit') {
     return [row.currency_code, row.network_code].filter(Boolean).join(' · ');
   }
   return [row.payer_name, row.payee_name].filter(Boolean).join(' → ') || '—';
+}
+
+function businessLabel(row: TransactionItem) {
+  if (row.business_type === 'deposit') return '數字貨幣入金';
+  if (row.business_type === 'exchange') return '數字貨幣兌換';
+  if (row.business_type === 'withdrawal') return '法幣出金';
+  return row.business_name;
 }
 
 function displayAmount(row: TransactionItem) {
@@ -106,7 +109,7 @@ function displayAmount(row: TransactionItem) {
 }
 
 function entityTypeLabel(name?: string | null, type?: 1 | 2 | null) {
-  return name || (type === 1 ? '公司' : type === 2 ? '个人' : undefined);
+  return name || (type === 1 ? '公司' : type === 2 ? '個人' : undefined);
 }
 
 function statusType(row: TransactionItem): StatusBadgeType {
@@ -154,6 +157,19 @@ function statusEffect(row: TransactionItem) {
   margin-top: 5px;
   color: var(--app-text-label);
   font-size: 12px;
+}
+
+:deep(.transaction-order-cell .cell) {
+  white-space: nowrap;
+}
+
+:deep(.transaction-order-cell .text-link) {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  white-space: nowrap;
 }
 
 .transaction-content {

@@ -9,7 +9,7 @@ export const routes: RouteRecordRaw[] = [
     name: 'Login',
     component: () => import('@/views/login/index.vue'),
     meta: {
-      title: '登录',
+      title: '登錄',
       icon: '',
       requiresAuth: false,
       hidden: true,
@@ -37,7 +37,7 @@ export const routes: RouteRecordRaw[] = [
     name: 'Forbidden',
     component: () => import('@/views/error/403.vue'),
     meta: {
-      title: '无权访问',
+      title: '無權訪問',
       icon: '',
       requiresAuth: false,
       hidden: true,
@@ -48,7 +48,7 @@ export const routes: RouteRecordRaw[] = [
     name: 'NotFound',
     component: () => import('@/views/error/404.vue'),
     meta: {
-      title: '页面不存在',
+      title: '頁面不存在',
       icon: '',
       requiresAuth: false,
       hidden: true,

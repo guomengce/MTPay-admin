@@ -1,11 +1,7 @@
 <template>
   <aside class="app-aside">
     <div class="app-aside__brand">
-      <span class="app-aside__mark">M</span>
-      <div v-if="!isCollapsed" class="app-aside__brand-text">
-        <strong>MTPay-Admin</strong>
-        <span>ADMIN CONSOLE</span>
-      </div>
+      <img class="app-aside__logo" src="/assets/mtpay-logo.png" alt="MTPay" />
     </div>
     <el-menu class="app-aside__menu" :default-active="activeMenuPath" :default-openeds="openedMenus" :collapse="isCollapsed" router>
       <template v-for="menu in routeStore.menus" :key="menu.path">
@@ -95,6 +91,7 @@ function resolveIcon(name: string) {
   box-shadow: 1px 0 0 rgb(255 255 255 / 8%) inset;
 
   &__brand {
+    position: relative;
     display: flex;
     min-height: 52px;
     align-items: center;
@@ -102,6 +99,34 @@ function resolveIcon(name: string) {
     margin-bottom: 10px;
     padding-bottom: 10px;
     border-bottom: 1px solid rgb(125 163 214 / 20%);
+  }
+
+  &__brand::before {
+    position: absolute;
+    inset: -24px -14px -12px;
+    z-index: 0;
+    background: radial-gradient(
+      ellipse at 50% 48%,
+      rgb(94 207 239 / 36%) 0%,
+      rgb(48 137 188 / 14%) 48%,
+      transparent 76%
+    );
+    content: '';
+    filter: blur(8px);
+    pointer-events: none;
+  }
+
+  &__logo {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 156px;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    filter:
+      brightness(1.08)
+      drop-shadow(0 2px 7px rgb(71 199 236 / 24%));
   }
 
   &__mark {

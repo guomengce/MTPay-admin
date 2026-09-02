@@ -10,7 +10,7 @@
     <template v-else>
       <HeaderMetrics
         :agent-summary="overview?.agent_summary ?? null"
-        :balance-totals="overview?.balance_totals ?? []"
+        :balance-totals="visibleBalances"
       />
 
       <div class="overview-page__split">
@@ -18,13 +18,13 @@
         <TradingTrend :trend="overview?.transaction_trend ?? null" />
       </div>
 
-      <AssetFlows :transactions="overview?.recent_transactions ?? []" />
+      <AssetFlows :transactions="visibleTransactions" />
     </template>
   </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { usePageLoading } from '@/composables/usePageLoading';
 
 import AssetFlows from './components/AssetFlows.vue';
@@ -32,8 +32,12 @@ import HeaderMetrics from './components/HeaderMetrics.vue';
 import Tasks from './components/Tasks.vue';
 import TradingTrend from './components/TradingTrend.vue';
 import { useDashboard } from './composables/useDashboard';
+import { useAuthStore } from '@/stores/modules/auth';
 
 const { loading, overview, fetchOverview } = useDashboard();
+const authStore = useAuthStore();
+const visibleBalances = computed(() => (overview.value?.balance_totals ?? []).filter((item) => authStore.cryptoEnabled || item.currency.type === 2));
+const visibleTransactions = computed(() => (overview.value?.recent_transactions ?? []).filter((item) => authStore.cryptoEnabled || !['deposit', 'exchange'].includes(item.business_type)));
 usePageLoading(loading);
 
 onMounted(fetchOverview);

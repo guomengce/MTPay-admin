@@ -13,8 +13,10 @@ import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import { getIdentityBadgeType } from '@/utils/identityBadge';
 import type { WhitelistRow } from '../composables/mapper';
+import { usePermission } from '@/composables/usePermission';
 
 const props = defineProps<{ data: WhitelistRow[] }>();
+const { canOperate } = usePermission();
 const emit = defineEmits<{
   (e: 'view', row: WhitelistRow): void;
   (e: 'approve', row: WhitelistRow): void;
@@ -34,38 +36,38 @@ const cardItems = computed<AdminCardItem[]>(() =>
     },
     pending: row.statusCode === 0 || row.statusCode === 1,
     fields: [
-      { label: '编号', value: row.id, strong: true },
-      { label: '时间', value: row.time },
+      { label: '編號', value: row.id, strong: true },
+      { label: '時間', value: row.time },
       { label: '代理', value: row.agent, subValue: row.agentEmail, strong: true },
-      { label: '类型', badge: { label: row.type, type: identityBadgeType(row) } },
-      { label: '主体', value: row.subject, subValue: row.country, strong: true },
-      { label: '附件', value: `${row.fileCount} 个` },
+      { label: '類型', badge: { label: row.type, type: identityBadgeType(row) } },
+      { label: '主體', value: row.subject, subValue: row.country, strong: true },
+      { label: '附件', value: `${row.fileCount} 個` },
     ],
     actions: [
-      { key: 'view', label: '详情', icon: View, type: 'primary', plain: true },
+      { key: 'view', label: '詳情', icon: View, type: 'primary', plain: true },
       {
         key: 'approve',
-        label: '通过',
+        label: '通過',
         icon: CircleCheck,
         type: 'primary',
         plain: true,
-        visible: row.statusCode === 0 || row.statusCode === 1,
+        visible: (row.statusCode === 0 || row.statusCode === 1) && canOperate('whitelist.review'),
       },
       {
         key: 'supplement',
-        label: '补件',
+        label: '補件',
         icon: DocumentAdd,
         type: 'warning',
         plain: true,
-        visible: row.statusCode === 0,
+        visible: row.statusCode === 0 && canOperate('whitelist.supplement'),
       },
       {
         key: 'reject',
-        label: '拒绝',
+        label: '拒絕',
         icon: CircleClose,
         type: 'danger',
         plain: true,
-        visible: row.statusCode === 0 || row.statusCode === 1,
+        visible: (row.statusCode === 0 || row.statusCode === 1) && canOperate('whitelist.review'),
       },
     ],
   })),

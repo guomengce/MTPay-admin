@@ -72,10 +72,10 @@ const emit = defineEmits<{ (e: 'copy', value: string): void }>();
 async function copyText(value: string) {
   try {
     await navigator.clipboard?.writeText(value);
-    ElMessage.success('已复制');
+    ElMessage.success('已複製');
     emit('copy', value);
   } catch {
-    ElMessage.error('复制失败');
+    ElMessage.error('複製失敗');
   }
 }
 </script>

@@ -1,10 +1,10 @@
 <template>
   <section class="exchange-overview">
     <div class="exchange-overview__flow">
-      <!-- 支付资产 -->
+      <!-- 支付資產 -->
       <article class="exchange-asset is-source">
         <div class="exchange-asset__body">
-          <small>支付资产</small>
+          <small>支付資產</small>
           <p>
             <strong>{{ formatMoney(sourceAmount) }}</strong>
             <span>{{ sourceCurrency.code }}</span>
@@ -13,12 +13,12 @@
         
       </article>
 
-      <!-- 提交时汇率 -->
+      <!-- 提交時匯率 -->
       <div class="exchange-rate">
         <span>
           <el-icon><Right /></el-icon>
         </span>
-        <small>提交时汇率</small>
+        <small>提交時匯率</small>
         <strong>
           1 {{ sourceCurrency.code }} = {{ formatExchangeRate(exchangeRate) }}
           {{ targetCurrency.code }}
@@ -26,10 +26,10 @@
         <!-- <em>{{ rateSourceName }}</em> -->
       </div>
 
-      <!-- 预计到账 -->
+      <!-- 預計到賬 -->
       <article class="exchange-asset is-target">
         <div class="exchange-asset__body">
-          <small>预计到账</small>
+          <small>預計到賬</small>
           <p>
             <strong>{{ formatMoney(targetAmount) }}</strong>
             <span>{{ targetCurrency.code }}</span>
@@ -44,7 +44,7 @@
           <el-icon><UserFilled /></el-icon>
         </span>
         <div>
-          <small>申请代理</small>
+          <small>申請代理</small>
           <strong>{{ user.company_name }}</strong>
           <p>{{ user.email }}</p>
         </div>
@@ -54,7 +54,7 @@
           <el-icon><Calendar /></el-icon>
         </span>
         <div>
-          <small>提交时间</small>
+          <small>提交時間</small>
           <strong>{{ submittedAt || '—' }}</strong>
         </div>
       </article>
@@ -81,7 +81,7 @@ const props = defineProps<{
   submittedAt: string;
 }>();
 
-/** 币种 → 图标字符 + 主色。USDT/USDC 用专属字形，其余币种用首个字符 + 配套色。 */
+/** 幣種 → 圖標字符 + 主色。USDT/USDC 用專屬字形，其餘幣種用首個字符 + 配套色。 */
 interface CurrencyGlyph {
   symbol: string;
   tone: 'teal' | 'mint' | 'blue' | 'indigo' | 'amber' | 'violet' | 'rose' | 'slate';
@@ -251,7 +251,7 @@ const targetTone = computed(() => resolveGlyph(props.targetCurrency.code).tone);
   }
 }
 
-/* 币种图标：彩色圆底 + 字形字符 */
+/* 幣種圖標：彩色圓底 + 字形字符 */
 .currency-glyph {
   display: inline-flex;
   width: 48px;

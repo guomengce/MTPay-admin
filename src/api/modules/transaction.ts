@@ -1,7 +1,7 @@
 /**
- * 管理端统一交易记录
+ * 管理端統一交易記錄
  * -----------------------------------------------------------------------------
- * 聚合入金、兑换、出金与人工资产调整；列表与详情均只读。
+ * 聚合入金、兑換、出金與人工資產調整；列表與詳情均只讀。
  */
 import request from '../request';
 import type { DepositOrderDetail, ReviewInfo } from './deposit';
@@ -10,7 +10,6 @@ import type { WithdrawalFile, WithdrawalParty, WithdrawalRecord } from './withdr
 
 export type TransactionBusinessType =
   | 'deposit'
-  | 'fiat_deposit'
   | 'fiat_deposit'
   | 'exchange'
   | 'withdrawal'
@@ -42,7 +41,7 @@ export interface TransactionItem {
   total_amount: string | null;
   payer_name: string | null;
   payee_name: string | null;
-  /** 后端补充后用于统一交易列表展示主体类别；旧接口可能不返回。 */
+  /** 後端補充後用於統一交易列表展示主體類別；舊接口可能不返回。 */
   payer_entity_type?: 1 | 2 | null;
   payer_entity_type_name?: string | null;
   payee_entity_type?: 1 | 2 | null;
@@ -80,10 +79,10 @@ export interface TransactionPageResult {
 }
 
 /**
- * 统一交易详情中允许出现的出金详情字段：
- * - 后端当前接口不返回 `fund_times` 与 `available_actions`；
- * - `review` / `payment` / `application_files` / `payment_files` / `records` 与原详情接口一致；
- * - `payer.snapshot` / `payee.snapshot` 当前接口不返回，仅展示白名单基础信息。
+ * 統一交易詳情中允許出現的出金詳情字段：
+ * - 後端當前接口不返回 `fund_times` 與 `available_actions`；
+ * - `review` / `payment` / `application_files` / `payment_files` / `records` 與原詳情接口一致；
+ * - `payer.snapshot` / `payee.snapshot` 當前接口不返回，僅展示白名單基礎信息。
  */
 export interface TransactionWithdrawalDetail {
   id: number;
@@ -119,15 +118,19 @@ export interface ManualBalanceAdjustmentDetail {
   id?: number;
   user_id?: number;
   currency_code?: string;
-  direction?: 'increase' | 'decrease';
+  direction?: 'increase' | 'decrease' | 1 | 2;
   amount?: string;
+  balance_before?: string | null;
+  balance_after?: string | null;
   reason?: string | null;
   admin_name?: string | null;
+  admin?: { id: number; name: string } | null;
+  adjusted_at?: string | null;
   created_at?: string | null;
   [key: string]: unknown;
 }
 
-/** 业务详情联合类型；通过 `transaction.business_type` 区分。 */
+/** 業務詳情聯合類型；通過 `transaction.business_type` 區分。 */
 export type TransactionDetail =
   | DepositOrderDetail
   | ExchangeOrderDetail
@@ -139,12 +142,12 @@ export interface TransactionInfoResult {
   detail: TransactionDetail;
 }
 
-/** 统一交易分页列表。 */
+/** 統一交易分頁列表。 */
 export function fetchTransactionList(params: TransactionListParams = {}) {
   return request.get<unknown, TransactionPageResult>('/admin/getTransactionList', { params });
 }
 
-/** 统一交易详情（只读，返回交易公共字段 + 对应业务详情）。 */
+/** 統一交易詳情（只讀，返回交易公共字段 + 對應業務詳情）。 */
 export function fetchTransactionInfo(payload: {
   business_type: TransactionBusinessType;
   business_id: number;

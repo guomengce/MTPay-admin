@@ -69,7 +69,7 @@ withDefaults(
     flow?: FundImpactNode;
     result: FundImpactNode;
   }>(),
-  { title: '资金变化', flow: undefined },
+  { title: '資金變化', flow: undefined },
 );
 </script>
 

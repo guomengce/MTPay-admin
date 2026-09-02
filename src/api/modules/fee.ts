@@ -1,8 +1,8 @@
 /**
- * fee 模块真实接口
+ * fee 模塊真實接口
  * -----------------------------------------------------------------------------
- * 比例与费用：默认兑换比例、固定出金手续费、代理专属比例。
- * 金额与比例一律十进制字符串，不做浮点计算。
+ * 比例與費用：默認兑換比例、代理專屬比例。
+ * 金額與比例一律十進制字符串，不做浮點計算。
  */
 import request from '../request';
 
@@ -72,52 +72,22 @@ export interface AgentRateListParams {
   limit?: number;
 }
 
-/** 默认兑换比例与固定手续费配置。 */
+/** 默認兑換比例與固定手續費配置。 */
 export function fetchRateFeeConfig() {
   return request.get<unknown, RateFeeConfig>('/admin/getRateFeeConfig');
 }
 
-/** 保存平台默认兑换比例。 */
+/** 保存平台默認兑換比例。 */
 export function setDefaultExchangeRates(payload: { usdt_rate: string; usdc_rate: string }) {
   return request.post<unknown, RateFeeConfig>('/admin/setDefaultExchangeRates', payload);
 }
 
-/** 单币种出金手续费条目。 */
-export interface WithdrawalFee {
-  id: number;
-  currency: RateCurrencyRef;
-  fee_amount: string;
-  updated_at: string | null;
-}
-
-/** 单币种出金手续费提交项。 */
-export interface WithdrawalFeeUpdate {
-  currency_id: number | string;
-  fee_amount: string;
-}
-
-/** 获取各币种固定出金手续费列表。 */
-export function fetchWithdrawalFeeList() {
-  return request.get<unknown, WithdrawalFee[]>('/admin/getWithdrawalFeeList');
-}
-
-/**
- * 设置单个币种的固定出金手续费。
- * currency_id / fee_amount 均为字符串。
- */
-export function setWithdrawalFee(payload: WithdrawalFeeUpdate) {
-  return request.post<unknown, WithdrawalFee>('/admin/setWithdrawalFee', {
-    currency_id: String(payload.currency_id),
-    fee_amount: payload.fee_amount,
-  });
-}
-
-/** 代理专属比例分页列表。 */
+/** 代理專屬比例分頁列表。 */
 export function fetchAgentExchangeRateList(params: AgentRateListParams = {}) {
   return request.get<unknown, AgentRatePageResult>('/admin/getAgentExchangeRateList', { params });
 }
 
-/** 设置代理专属比例。 */
+/** 設置代理專屬比例。 */
 export function setAgentExchangeRates(payload: {
   user_id: number;
   usdt_rate: string;
@@ -126,7 +96,7 @@ export function setAgentExchangeRates(payload: {
   return request.post<unknown, AgentRateConfig>('/admin/setAgentExchangeRates', payload);
 }
 
-/** 清除代理专属比例，恢复使用平台默认。 */
+/** 清除代理專屬比例，恢復使用平台默認。 */
 export function clearAgentExchangeRates(userId: number) {
   return request.post<unknown, AgentRateConfig>('/admin/clearAgentExchangeRates', {
     user_id: userId,

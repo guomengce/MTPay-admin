@@ -5,7 +5,7 @@
         <el-icon><Wallet /></el-icon>
       </span>
       <div>
-        <small>申报入金金额</small>
+        <small>申報入金金額</small>
         <p>
           <strong>{{ formatMoney(amount) }}</strong
           ><span>{{ currency.code }}</span>
@@ -21,7 +21,7 @@
           <el-icon><UserFilled /></el-icon>
         </span>
         <div>
-          <small>申请代理</small><strong>{{ user.company_name }}</strong>
+          <small>申請代理</small><strong>{{ user.company_name }}</strong>
           <p> {{ user.email }}</p>
         </div>
       </article>
@@ -30,7 +30,7 @@
           <el-icon><Calendar /></el-icon>
         </span>
         <div>
-          <small>提交时间</small><strong>{{ submittedAt || '—' }}</strong>
+          <small>提交時間</small><strong>{{ submittedAt || '—' }}</strong>
         </div>
       </article>
     </div>

@@ -1,23 +1,23 @@
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { updateAgentStatus, type AgentAccount } from '@/api/modules/agent';
 
-export type AgentTargetStatus = 1 | 2 | 3;
+export type AgentTargetStatus = 1 | 2;
 
-/** 代理状态：负责合法目标状态的二次确认、提交及列表刷新。 */
+/** 代理狀態：負責合法目標狀態的二次確認、提交及列表刷新。 */
 export function useAgentStatus(refreshList: () => Promise<void>) {
   async function changeStatus(row: AgentAccount, targetStatus: AgentTargetStatus) {
-    const targetName = ({ 1: '正常', 2: '冻结', 3: '停用' } as const)[targetStatus];
+    const targetName = ({ 1: '正常', 2: '凍結' } as const)[targetStatus];
     try {
       await ElMessageBox.confirm(
-        `确认将“${row.company_name}”的状态修改为“${targetName}”吗？`,
-        '修改代理状态',
-        { type: targetStatus === 3 ? 'warning' : 'info', confirmButtonText: '确认修改' },
+        `確認將“${row.company_name}”的狀態修改為“${targetName}”嗎？`,
+        '修改代理狀態',
+        { type: 'info', confirmButtonText: '確認修改' },
       );
     } catch {
       return;
     }
     await updateAgentStatus(row.id, targetStatus);
-    ElMessage.success(`代理状态已修改为${targetName}`);
+    ElMessage.success(`代理狀態已修改為${targetName}`);
     await refreshList();
   }
 

@@ -1,7 +1,7 @@
 <template>
   <AdminPanel
     class="subject-info"
-    title="主体信息"
+    title="主體信息"
     :icon="OfficeBuilding"
   >
     <template #extra>
@@ -9,7 +9,7 @@
     </template>
 
     <div class="subject-info__sections">
-      <!-- 聚合层只判断主体类型，各资料组件在不同组合间复用。 -->
+      <!-- 聚合層只判斷主體類型，各資料組件在不同組合間複用。 -->
       <template v-if="entityType === 1">
         <CompanyInfo
           :fields="role === 1
@@ -50,16 +50,16 @@ defineProps<{
   /* 付款人 / 公司 */
   companyIdentityFields: WhitelistDetailField[];
   registrationFields: WhitelistDetailField[];
-  /* 付款人 / 个人 */
+  /* 付款人 / 個人 */
   payerIndividualIdentityFields: WhitelistDetailField[];
   payerIndividualResidenceFields: WhitelistDetailField[];
   /* 收款人 / 公司 */
   payeeCompanyFields: WhitelistDetailField[];
   payeeCompanyLocationFields: WhitelistDetailField[];
-  /* 收款人 / 个人 */
+  /* 收款人 / 個人 */
   payeeIndividualIdentityFields: WhitelistDetailField[];
   payeeIndividualResidenceFields: WhitelistDetailField[];
-  /* 收款账户信息（收款人共用） */
+  /* 收款賬户信息（收款人共用） */
   payeeBankFields: WhitelistDetailField[];
 }>();
 </script>

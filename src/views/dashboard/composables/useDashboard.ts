@@ -1,5 +1,5 @@
 /**
- * 管理端运营总览：统一处理首页聚合接口、加载状态与错误状态。
+ * 管理端運營總覽：統一處理首頁聚合接口、加載狀態與錯誤狀態。
  */
 import { ref } from 'vue';
 
@@ -19,7 +19,7 @@ export function useDashboard() {
       overview.value = data;
       return { ok: true, data };
     } catch (e) {
-      error.value = e instanceof Error ? e.message : '加载面板数据失败';
+      error.value = e instanceof Error ? e.message : '加載面板數據失敗';
       return { ok: false, error: e instanceof Error ? e : new Error('failed') };
     } finally {
       loading.value = false;

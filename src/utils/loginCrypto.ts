@@ -42,7 +42,7 @@ export function createLoginEnvelope(
   const rsa = new JSEncrypt();
   rsa.setPublicKey(toPem(normalizedPublicKey));
   const random = rsa.encrypt(aesKey);
-  if (!random) throw new Error('登录公钥加密失败，请重试');
+  if (!random) throw new Error('登錄公鑰加密失敗，請重試');
 
   return {
     random,

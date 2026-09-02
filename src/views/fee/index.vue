@@ -1,8 +1,8 @@
 <template>
   <section class="admin-page fee-setting-page">
     <header class="fee-setting-page__header">
-      <h1>比例与费用</h1>
-      <p>维护兑换比例、出金手续费以及各代理的专属交易设置</p>
+      <h1>比例與費用</h1>
+      <p>維護數字貨幣兌換比例以及各代理的專屬交易設置</p>
     </header>
 
     <div class="fee-setting-page__grid">
@@ -11,12 +11,6 @@
         :usdc-rate="config?.default_exchange_rates?.USDC?.rate"
         :saving="saving"
         @save="handleSaveRates"
-      />
-      <FeeWithdrawalForm
-        :fees="withdrawalFees"
-        :loading="loading"
-        :saving="saving"
-        @save="handleSaveFee"
       />
     </div>
 
@@ -88,7 +82,6 @@ import FeeAgentCardList from './components/FeeAgentCardList.vue';
 import FeeAgentEditDialog from './components/FeeAgentEditDialog.vue';
 import FeeAgentTable from './components/FeeAgentTable.vue';
 import FeeRateForm from './components/FeeRateForm.vue';
-import FeeWithdrawalForm from './components/FeeWithdrawalForm.vue';
 import type { FeeAgentRow } from './composables/useFeeSettings';
 import { useFeeSettings } from './composables/useFeeSettings';
 
@@ -96,17 +89,14 @@ const {
   loading,
   saving,
   config,
-  withdrawalFees,
   agentList,
   agentTotal,
   agentPage,
   agentLimit,
   agentQuery,
   fetchConfig,
-  loadWithdrawalFees,
   loadAgents,
   saveDefaultRates,
-  saveFee,
   saveAgentRates,
   clearAgentRates,
 } = useFeeSettings();
@@ -115,7 +105,7 @@ usePageLoading(loading);
 const dialogVisible = ref(false);
 const editingRow = ref<FeeAgentRow | null>(null);
 
-// 与 styles/breakpoints.scss 的 narrow-max 保持一致：窄屏 PC 也切换为卡片布局。
+// 與 styles/breakpoints.scss 的 narrow-max 保持一致：窄屏 PC 也切換為卡片佈局。
 const COMPACT_QUERY = '(max-width: 1310px)';
 const isCompact = ref(false);
 let mql: MediaQueryList | null = null;
@@ -125,7 +115,7 @@ function syncCompact(event: MediaQueryListEvent | MediaQueryList) {
 }
 
 onMounted(() => {
-  void Promise.all([fetchConfig(), loadWithdrawalFees(), loadAgents()]);
+  void Promise.all([fetchConfig(), loadAgents()]);
   if (typeof window === 'undefined' || !window.matchMedia) return;
   mql = window.matchMedia(COMPACT_QUERY);
   syncCompact(mql);
@@ -140,18 +130,9 @@ onBeforeUnmount(() => {
 async function handleSaveRates(payload: { usdt_rate: string; usdc_rate: string }) {
   try {
     await saveDefaultRates(payload);
-    ElMessage.success('默认兑换比例已保存');
+    ElMessage.success('默認數字貨幣兌換比例已保存');
   } catch {
-    /* 统一请求层已提示 */
-  }
-}
-
-async function handleSaveFee(payload: { currency_id: number | string; fee_amount: string }) {
-  try {
-    await saveFee(payload);
-    ElMessage.success('出金手续费已保存');
-  } catch {
-    /* 统一请求层已提示 */
+    /* 統一請求層已提示 */
   }
 }
 
@@ -164,24 +145,24 @@ async function handleSaveAgent(payload: { user_id: number; usdt_rate: string; us
   try {
     await saveAgentRates(payload);
     dialogVisible.value = false;
-    ElMessage.success('代理专属比例已保存');
+    ElMessage.success('代理專屬比例已保存');
   } catch {
-    /* 统一请求层已提示 */
+    /* 統一請求層已提示 */
   }
 }
 
 async function handleClear(row: FeeAgentRow) {
   try {
     await ElMessageBox.confirm(
-      `确认清除 ${row.company_name} 的专属比例并恢复平台默认吗？`,
-      '恢复平台默认比例',
-      { type: 'warning', confirmButtonText: '确认恢复', cancelButtonText: '取消' },
+      `確認清除 ${row.company_name} 的專屬比例並恢復平台默認嗎？`,
+      '恢復平台默認比例',
+      { type: 'warning', confirmButtonText: '確認恢復', cancelButtonText: '取消' },
     );
     await clearAgentRates(row.user_id);
-    ElMessage.success(`已清除 ${row.company_name} 的专属比例，恢复平台默认`);
+    ElMessage.success(`已清除 ${row.company_name} 的專屬比例，恢復平台默認`);
   } catch (error) {
     if (error !== 'cancel' && error !== 'close') {
-      /* 统一请求层已提示 */
+      /* 統一請求層已提示 */
     }
   }
 }
@@ -232,7 +213,7 @@ function changeLimit(value: number) {
 
   &__grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 20px;
 
     @include narrow {

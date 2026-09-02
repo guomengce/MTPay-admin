@@ -15,7 +15,7 @@
         </article>
         <span class="chain-verification__direction" aria-hidden="true"><el-icon><Right /></el-icon></span>
         <article class="chain-verification__address">
-          <span class="chain-verification__eyebrow">到</span><strong>代理专属地址</strong>
+          <span class="chain-verification__eyebrow">到</span><strong>代理專屬地址</strong>
           <div class="chain-verification__address-value"><code>{{ receivingAddress || '—' }}</code><el-button v-if="receivingAddress" text circle :icon="DocumentCopy" aria-label="複製平台收款地址" @click="emit('copy', '平台收款地址', receivingAddress)" /></div>
         </article>
       </div>

@@ -36,14 +36,14 @@ const status = (row: object) => {
 };
 const fields: AdminCardFieldConfig[] = [
   {
-    label: '金额',
+    label: '金額',
     value: (r) => `${formatMoney((r as FiatOrder).amount)} ${(r as FiatOrder).currency.code}`,
   },
   { label: '付款人', prop: 'payer_name' },
-  { label: '参考号', prop: 'remittance_reference' },
+  { label: '參考號', prop: 'remittance_reference' },
 ];
 const actions: AdminCardActionConfig[] = [
-  { key: 'view', label: '查看详情', icon: View, type: 'primary', plain: true },
+  { key: 'view', label: '查看詳情', icon: View, type: 'primary', plain: true },
 ];
 </script>
 <style scoped lang="scss">

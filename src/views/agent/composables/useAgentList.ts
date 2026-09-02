@@ -2,7 +2,7 @@ import { useListQueryState } from '@/composables/useListQueryState';
 import { onMounted, ref, watch } from 'vue';
 import { fetchAgentList, type AgentAccount } from '@/api/modules/agent';
 
-/** 代理列表：负责后端分页、关键字搜索、状态筛选及页面初始化加载。 */
+/** 代理列表：負責後端分頁、關鍵字搜索、狀態篩選及頁面初始化加載。 */
 export function useAgentList() {
   const agents = ref<AgentAccount[]>([]);
   const loading = ref(false);
@@ -12,7 +12,7 @@ export function useAgentList() {
   const keyword = ref('');
   const status = ref<number>();
 
-  /** 请求真实代理分页列表，不进行前端假分页或假数据回退。 */
+  /** 請求真實代理分頁列表，不進行前端假分頁或假數據回退。 */
   const saveListQuery = useListQueryState({ keyword, status, page, limit }, ["status"]);
 
   async function loadAgents() {

@@ -9,7 +9,28 @@ export interface AdminLoginResult {
   email?: string;
   status?: number;
   token: string;
+  crypto_enabled: boolean;
+  role: { id: number; name: string } | null;
+  menus: string[];
+  actions: string[];
   [key: string]: unknown;
+}
+
+export interface CurrentAdminInfo {
+  id: number;
+  username?: string;
+  name?: string;
+  email?: string;
+  status?: number;
+  crypto_enabled: boolean;
+  role: { id: number; name: string } | null;
+  menus: string[];
+  actions: string[];
+  two_factor_enabled?: boolean;
+}
+
+export function fetchCurrentAdminInfo() {
+  return request.get<unknown, CurrentAdminInfo>('/admin/getCurrentAdminInfo');
 }
 
 async function fetchPublicKey(): Promise<string> {

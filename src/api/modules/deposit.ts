@@ -1,8 +1,8 @@
-/** 管理端入金记录 API：列表与详情。 */
+/** 管理端入金記錄 API：列表與詳情。 */
 import request from '../request';
 
 export type DepositStatus = 0 | 1 | 2;
-/** 兑换、出金等仍需审核的模块共用类型；入金流程不再使用。 */
+/** 兑換、出金等仍需審核的模塊共用類型；入金流程不再使用。 */
 export type ReviewDecision = 'approve' | 'reject';
 
 export interface BusinessUser {
@@ -25,7 +25,7 @@ export interface NetworkRef {
   name: string;
 }
 
-/** 兑换、出金等仍需审核的模块共用审核信息。 */
+/** 兑換、出金等仍需審核的模塊共用審核信息。 */
 export interface ReviewInfo {
   admin_id: number | null;
   admin_name: string | null;
@@ -84,12 +84,12 @@ export interface DepositListParams {
   limit: number;
 }
 
-/** 获取入金分页列表。GET /admin/getDepositList */
+/** 獲取入金分頁列表。GET /admin/getDepositList */
 export function fetchDepositList(params: DepositListParams) {
   return request.get<unknown, DepositPageResult>('/admin/getDepositList', { params });
 }
 
-/** 获取入金详情。GET /admin/getDepositInfo?id=... */
+/** 獲取入金詳情。GET /admin/getDepositInfo?id=... */
 export function fetchDepositDetail(id: number) {
   return request.get<unknown, DepositOrderDetail>('/admin/getDepositInfo', { params: { id } });
 }

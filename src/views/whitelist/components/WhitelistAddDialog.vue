@@ -9,7 +9,7 @@
     @update:model-value="emit('update:modelValue', $event)"
   >
     <template v-if="row">
-      <p v-if="mode === 'approve'">确认通过此白名单申请？</p>
+      <p v-if="mode === 'approve'">確認通過此白名單申請？</p>
 
       <el-form
         v-if="mode !== 'approve'"
@@ -19,12 +19,12 @@
         label-position="top"
         @submit.prevent
       >
-        <el-form-item :label="mode === 'reject' ? '驳回原因' : '补件要求'" prop="message">
+        <el-form-item :label="mode === 'reject' ? '駁回原因' : '補件要求'" prop="message">
           <el-input
             v-model="formState.message"
             type="textarea"
             :rows="3"
-            :placeholder="mode === 'reject' ? '请说明驳回原因' : '请输入补件要求'"
+            :placeholder="mode === 'reject' ? '請説明駁回原因' : '請輸入補件要求'"
             maxlength="1000"
             show-word-limit
           />
@@ -67,16 +67,16 @@ const emit = defineEmits<{
 }>();
 
 const dialogTitle = computed(() =>
-  props.mode === 'approve' ? '审核通过' : props.mode === 'reject' ? '驳回白名单' : '要求补件',
+  props.mode === 'approve' ? '審核通過' : props.mode === 'reject' ? '駁回白名單' : '要求補件',
 );
 const submitLabel = computed(() =>
-  props.mode === 'approve' ? '确认通过' : props.mode === 'reject' ? '确认驳回' : '发送补件要求',
+  props.mode === 'approve' ? '確認通過' : props.mode === 'reject' ? '確認駁回' : '發送補件要求',
 );
 
 const formRef = ref<FormInstance>();
 const formState = reactive({ message: '' });
 const rules: FormRules<{ message: string }> = {
-  message: [{ required: true, message: '请填写处理说明', trigger: 'blur' }],
+  message: [{ required: true, message: '請填寫處理説明', trigger: 'blur' }],
 };
 
 function resetForm() {

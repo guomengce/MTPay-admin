@@ -16,18 +16,44 @@ import { CanvasRenderer } from 'echarts/renderers';
 
 import type { OperationTransactionTrend } from '@/api/modules/dashboard';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import { useAuthStore } from '@/stores/modules/auth';
 
 use([BarChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer]);
 
 const chartRef = ref<HTMLDivElement>();
 const props = defineProps<{ trend: OperationTransactionTrend | null }>();
+const authStore = useAuthStore();
 
 const trendItems = computed(() => props.trend?.items ?? []);
 const dates = computed(() => trendItems.value.map((item) => item.date.slice(5).replace('-', '/')));
-const deposits = computed(() => trendItems.value.map((item) => item.deposit));
-const exchanges = computed(() => trendItems.value.map((item) => item.exchange));
-const withdrawals = computed(() => trendItems.value.map((item) => item.withdrawal));
-const total = computed(() => props.trend?.total ?? 0);
+const businessDefinitions = [
+  { key: 'deposit', name: '入金', color: '#087f79' },
+  { key: 'exchange', name: '數字貨幣兌換', color: '#2fb1aa' },
+  { key: 'withdrawal', name: '法幣出金', color: '#8fd7d2' },
+] as const;
+const visibleBusinesses = computed(() => businessDefinitions.filter((business) =>
+  (authStore.cryptoEnabled || !['deposit', 'exchange'].includes(business.key)) &&
+  trendItems.value.some((item) => Object.prototype.hasOwnProperty.call(item, business.key)),
+));
+const total = computed(() => trendItems.value.reduce((sum, item) => sum + visibleBusinesses.value.reduce((itemSum, business) => itemSum + (item[business.key] ?? 0), 0), 0));
+const chartSeries = computed(() => visibleBusinesses.value.map((business, businessIndex, businesses) => {
+  const isFirst = businessIndex === 0;
+  const isLast = businessIndex === businesses.length - 1;
+  return {
+    name: business.name,
+    type: 'bar',
+    stack: 'orders',
+    data: trendItems.value.map((item) => isLast ? {
+      value: item[business.key] ?? 0,
+      label: { show: true, formatter: String(item.total ?? 0) },
+    } : (item[business.key] ?? 0)),
+    barWidth: 34,
+    showBackground: isFirst,
+    backgroundStyle: { color: '#e9eff2', borderRadius: 6 },
+    itemStyle: { color: business.color, borderRadius: isFirst ? [0, 0, 5, 5] : isLast ? [5, 5, 0, 0] : 0 },
+    label: isLast ? { show: true, position: 'top', color: '#4b5e73', fontSize: 11 } : undefined,
+  };
+}));
 
 let chart: ECharts | undefined;
 let resizeObserver: ResizeObserver | undefined;
@@ -38,7 +64,6 @@ function renderChart() {
 
   const option: EChartsCoreOption = {
     animationDuration: 650,
-    color: ['#087f79', '#2fb1aa', '#8fd7d2'],
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(7, 143, 135, 0.05)' } },
@@ -72,43 +97,7 @@ function renderChart() {
       axisLabel: { show: false },
       splitLine: { lineStyle: { color: '#e8eef2', type: 'solid' } },
     },
-    series: [
-      {
-        name: '入金',
-        type: 'bar',
-        stack: 'orders',
-        data: deposits.value,
-        barWidth: 34,
-        showBackground: true,
-        backgroundStyle: { color: '#e9eff2', borderRadius: 6 },
-        itemStyle: { borderRadius: [0, 0, 5, 5] },
-      },
-      {
-        name: '兑换',
-        type: 'bar',
-        stack: 'orders',
-        data: exchanges.value,
-      },
-      {
-        name: '出金',
-        type: 'bar',
-        stack: 'orders',
-        data: withdrawals.value.map((value, index) => ({
-          value,
-          label: {
-            show: true,
-            formatter: String(trendItems.value[index]?.total ?? 0),
-          },
-        })),
-        itemStyle: { borderRadius: [5, 5, 0, 0] },
-        label: {
-          show: true,
-          position: 'top',
-          color: '#4b5e73',
-          fontSize: 11,
-        },
-      },
-    ],
+    series: chartSeries.value,
   };
 
   chart.setOption(option);
@@ -123,20 +112,8 @@ watch(
     if (!chart) return;
     chart.setOption({
       xAxis: { data: dates.value },
-      series: [
-        { data: deposits.value },
-        { data: exchanges.value },
-        {
-          data: withdrawals.value.map((value, index) => ({
-            value,
-            label: {
-              show: true,
-              formatter: String(trendItems.value[index]?.total ?? 0),
-            },
-          })),
-        },
-      ],
-    });
+      series: chartSeries.value,
+    }, { replaceMerge: ['series'] });
   },
   { deep: true },
 );

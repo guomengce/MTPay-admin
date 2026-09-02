@@ -1,18 +1,18 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="操作记录" :icon="Clock" />
+    <AdminHero title="操作記錄" :icon="Clock" />
 
     <AdminPanel :icon="Tickets">
       <div v-loading="loading" class="log-list__items">
           <article class="log-record" v-for="item in list" :key="item.id">
             <span class="log-record__icon">
-              <el-icon><component :is="moduleIcon(item.module)" /></el-icon>
+              <el-icon><component :is="moduleIcon(item.module_name)" /></el-icon>
             </span>
             <div class="log-record__body">
               <div class="log-record__heading">
-                <h3>{{ item.admin_name || '未知管理员' }}</h3>
-                <span>{{ moduleLabel(item.module) }}</span>
-                <em>{{ actionLabel(item.action) }}</em>
+                <h3>{{ item.admin_name || '未知管理員' }}</h3>
+                <span>{{ moduleLabel(item.module_name) }}</span>
+                <em>{{ actionLabel(item.action_name) }}</em>
               </div>
               <p>{{ item.content || '—' }}</p>
             </div>
@@ -20,7 +20,7 @@
           </article>
       </div>
 
-      <el-empty v-if="!loading && list.length === 0" description="暂无操作记录" />
+      <el-empty v-if="!loading && list.length === 0" description="暫無操作記錄" />
 
       <div class="log-list__pager">
         <TablePager
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-/** 操作记录列表：真实分页，只读。 */
+/** 操作記錄列表：真實分頁，只讀。 */
 import { onMounted, ref, type Component } from 'vue';
 import {
   Clock,
@@ -63,14 +63,14 @@ const page = ref(1);
 const limit = ref(15);
 
 const MODULE_LABELS: Record<string, string> = {
-  admin: '管理员',
-  agent: '代理账户',
-  currency: '币种管理',
-  config: '业务配置',
+  admin: '管理員',
+  agent: '代理賬户',
+  currency: '幣種管理',
+  config: '業務配置',
   deposit: '入金',
-  exchange: '兑换',
-  whitelist: '白名单',
-  withdrawal: 'USD出金',
+  exchange: '數字貨幣兌換',
+  whitelist: '白名單',
+  withdrawal: '法幣出金',
 };
 
 function moduleLabel(module: string) {
@@ -80,17 +80,17 @@ function moduleLabel(module: string) {
 const ACTION_LABELS: Record<string, string> = {
   create: '新增',
   update: '修改',
-  delete: '删除',
-  status: '修改状态',
-  review: '审核',
-  request_supplement: '要求补件',
-  process_payment: '登记付款结果',
-  append_payment_files: '追加付款凭证',
-  set_default_rates: '设置默认比例',
-  set_agent_rates: '设置专属比例',
-  clear_agent_rates: '恢复默认比例',
-  set_withdrawal_fee: '设置出金手续费',
-  set_receiving_address: '设置收款地址',
+  delete: '刪除',
+  status: '修改狀態',
+  review: '審核',
+  request_supplement: '要求補件',
+  process_payment: '登記付款結果',
+  append_payment_files: '追加付款憑證',
+  set_default_rates: '設置默認比例',
+  set_agent_rates: '設置專屬比例',
+  clear_agent_rates: '恢復默認比例',
+  set_withdrawal_fee: '設置法幣出金手續費',
+  set_receiving_address: '設置收款地址',
 };
 
 function actionLabel(action: string) {

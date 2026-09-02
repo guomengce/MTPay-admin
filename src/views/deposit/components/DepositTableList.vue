@@ -61,7 +61,7 @@ const emit = defineEmits<{
 </script>
 
 <style scoped lang="scss">
-/* PC 显示，移动端隐藏（跟随全局 mobile 断点 ≤768px） */
+/* PC 顯示，移動端隱藏（跟隨全局 mobile 斷點 ≤768px） */
 .deposit-table-list {
   display: block;
 

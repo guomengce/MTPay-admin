@@ -1,8 +1,8 @@
 <template>
   <section class="error-page">
     <h1>403</h1>
-    <p>无权访问此页面</p>
-    <RouterLink to="/dashboard">返回营运总览</RouterLink>
+    <p>無權訪問此頁面</p>
+    <RouterLink to="/dashboard">返回營運總覽</RouterLink>
   </section>
 </template>
 

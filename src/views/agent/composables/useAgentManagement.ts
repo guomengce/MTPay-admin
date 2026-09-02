@@ -6,8 +6,8 @@ import { useAgentMail } from './useAgentMail';
 import { useAgentStatus } from './useAgentStatus';
 
 /**
- * 代理账户模块组合入口。
- * 各功能保持独立文件，页面只需要调用一次并绑定返回的状态与事件。
+ * 代理賬户模塊組合入口。
+ * 各功能保持獨立文件，頁面只需要調用一次並綁定返回的狀態與事件。
  */
 export function useAgentManagement() {
   const list = useAgentList();

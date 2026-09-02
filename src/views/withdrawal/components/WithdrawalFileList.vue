@@ -17,7 +17,7 @@
           :icon="View"
           :loading="isLoading(file.file_id, 'preview')"
           @click="emit('preview', file.file_id)"
-          >预览</el-button
+          >預覽</el-button
         >
         <el-button
           size="small"
@@ -25,7 +25,7 @@
           :icon="Download"
           :loading="isLoading(file.file_id, 'download')"
           @click="emit('download', file.file_id, file.original_name)"
-          >下载</el-button
+          >下載</el-button
         >
       </div>
     </article>

@@ -1,8 +1,8 @@
 <template>
   <AdminPanel
     class="fee-setting-panel rate-setting-panel"
-    title="预设兑换比例"
-    subtitle="设定预设的精准兑换比例"
+    title="預設數字貨幣兌換比例"
+    subtitle="設定預設的精準數字貨幣兌換比例"
     :icon="TrendCharts"
   >
     <el-form class="settings-form" label-position="top">
@@ -39,14 +39,14 @@
       </div>
       <p v-if="error" class="rate-form__error">{{ error }}</p>
     </el-form>
-    <el-button
+    <el-button v-if="canOperate('exchangeRates.default')"
       class="save-button"
       size="large"
       type="primary"
       :icon="Checked"
       :loading="saving"
       @click="submit"
-      >储存预设比例</el-button
+      >儲存預設比例</el-button
     >
   </AdminPanel>
 </template>
@@ -56,8 +56,10 @@ import { ref, watch } from 'vue';
 import { Checked, TrendCharts } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
+import { usePermission } from '@/composables/usePermission';
 import { formatExchangeRate, limitDecimalInput } from '@/utils/decimal';
 
+const { canOperate } = usePermission();
 const props = defineProps<{ usdtRate?: string; usdcRate?: string; saving?: boolean }>();
 const emit = defineEmits<{ (e: 'save', payload: { usdt_rate: string; usdc_rate: string }): void }>();
 
@@ -87,7 +89,7 @@ function submit() {
   const usdt = usdtRate.value.trim();
   const usdc = usdcRate.value.trim();
   if (!isValidRate(usdt) || !isValidRate(usdc)) {
-    error.value = '请输入大于 0 的比例（最多 4 位小数）';
+    error.value = '請輸入大於 0 的比例（最多 4 位小數）';
     return;
   }
   error.value = '';
@@ -131,19 +133,19 @@ function submit() {
 .rate-grid {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 34px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
   padding: 16px 28px 24px;
 
   &::before {
     position: absolute;
-    top: 50%;
-    right: 28px;
-    left: 28px;
-    height: 1px;
+    top: 16px;
+    bottom: 24px;
+    left: 50%;
+    width: 1px;
     background: #d9e3ef;
     content: '';
-    transform: translateY(-50%);
+    transform: translateX(-50%);
   }
 }
 

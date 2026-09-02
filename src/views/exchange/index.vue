@@ -1,6 +1,6 @@
 <template>
   <section class="admin-page">
-    <AdminHero title="兑换审核" :icon="Switch">
+    <AdminHero title="數字貨幣兌換" :icon="Switch">
       <template #extra>
         <el-button type="primary" plain :icon="Download" :loading="exporting" :disabled="loading || !exportFilters" @click="exportOrders">匯出 CSV</el-button>
       </template>
@@ -50,6 +50,7 @@ import { ElMessage } from 'element-plus';
 
 import { reviewExchange } from '@/api/modules/exchange';
 import { useBusinessCsvExport } from '@/composables/useBusinessCsvExport';
+import { usePermission } from '@/composables/usePermission';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import ReviewFilters from '@/components/admin/ReviewFilters.vue';
@@ -62,6 +63,7 @@ import type { ExchangeRow } from './composables/mapper';
 import { useExchangeList } from './composables/useExchangeList';
 
 const router = useRouter();
+const { canOperate } = usePermission();
 const { exportFilters, list, loading, total, page, limit, query, loadList, search, reset } = useExchangeList();
 const dialogVisible = ref(false);
 const dialogMode = ref<'approve' | 'reject'>('approve');
@@ -76,6 +78,7 @@ function openDetail(row: ExchangeRow) {
 }
 
 function openDialog(mode: 'approve' | 'reject', row: ExchangeRow) {
+  if (!canOperate('cryptoExchange.review')) return;
   dialogMode.value = mode;
   activeRow.value = row;
   dialogVisible.value = true;
@@ -86,6 +89,7 @@ async function handleSubmit(payload: {
   mode: 'approve' | 'reject';
   reason?: string;
 }) {
+  if (!canOperate('cryptoExchange.review')) return;
   reviewing.value = true;
   try {
     await reviewExchange({
@@ -93,7 +97,7 @@ async function handleSubmit(payload: {
       decision: payload.mode,
       review_note: payload.mode === 'reject' ? payload.reason?.trim() : undefined,
     });
-    ElMessage.success(payload.mode === 'approve' ? '兑换审核已通过' : '兑换申请已驳回');
+    ElMessage.success(payload.mode === 'approve' ? '數字貨幣兌換審核已通過' : '數字貨幣兌換申請已駁回');
     dialogVisible.value = false;
     activeRow.value = null;
     await loadList();

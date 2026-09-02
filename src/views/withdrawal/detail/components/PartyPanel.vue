@@ -7,7 +7,7 @@
       </header>
       <div class="transaction-amounts__list">
         <div class="is-debit">
-          <span><i></i>賬戶扣款</span>
+          <span><i></i>賬户扣款</span>
           <strong>{{ formatMoney(detail.total_amount) }} <small>{{ detail.currency.code }}</small></strong>
         </div>
         <div class="is-fee">
@@ -15,7 +15,7 @@
           <strong>{{ formatMoney(formatFixedFee(detail.fee_amount)) }} <small>{{ detail.currency.code }}</small></strong>
         </div>
         <div class="is-result">
-          <span><i></i>實際出金</span>
+          <span><i></i>實際法幣出金</span>
           <strong>{{ formatMoney(detail.amount) }} <small>{{ detail.currency.code }}</small></strong>
         </div>
       </div>
@@ -28,16 +28,17 @@
         <div class="party-flow">
           <PayerCompanyCard v-if="payer?.entity_type === 1" :fields="payerSubjectFields" />
           <PayerPersonCard v-else-if="payer?.entity_type === 2" :fields="payerSubjectFields" />
-          <PayeeCompanyCard
-            v-if="payee?.entity_type === 1"
-            :fields="payeeSubjectFields"
-            :bank-fields="payeeBankFields"
-          />
-          <PayeePersonCard
-            v-else-if="payee?.entity_type === 2"
-            :fields="payeeSubjectFields"
-            :bank-fields="payeeBankFields"
-          />
+          <div v-if="payee" class="party-flow__payee-group">
+            <PayeeCompanyCard
+              v-if="payee.entity_type === 1"
+              :fields="payeeSubjectFields"
+            />
+            <PayeePersonCard
+              v-else-if="payee.entity_type === 2"
+              :fields="payeeSubjectFields"
+            />
+            <PayeeBankCard :fields="payeeBankFields" />
+          </div>
         </div>
       </section>
     </div>
@@ -50,6 +51,7 @@ import type { WithdrawalOrderDetail, WithdrawalParty } from '@/api/modules/withd
 import { formatFixedFee } from '@/utils/decimal';
 
 import PayeeCompanyCard from './PayeeCompanyCard.vue';
+import PayeeBankCard from './PayeeBankCard.vue';
 import PayeePersonCard from './PayeePersonCard.vue';
 import PayerCompanyCard from './PayerCompanyCard.vue';
 import PayerPersonCard from './PayerPersonCard.vue';
@@ -155,6 +157,26 @@ defineProps<{
   gap: 18px;
 }
 
+.party-flow__payee-group {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  gap: 0;
+  border: 1px solid #dce6f3;
+  border-radius: 14px;
+  background: #f8faff;
+}
+
+.party-flow__payee-group :deep(.withdrawal-party-card) { overflow: visible; border: 0; border-radius: 0 !important; background: transparent; box-shadow: none; }
+.party-flow__payee-group :deep(.withdrawal-party-card.is-bank) { overflow: visible; border: 0; border-radius: 0; box-shadow: none; }
+.party-flow__payee-group :deep(.withdrawal-party-card.is-bank > header) { border-radius: 0; }
+.party-flow__payee-group :deep(.withdrawal-party-card.is-bank > header) { display: none; }
+.party-flow__payee-group :deep(.withdrawal-party-card.is-bank .withdrawal-party-card__title i),
+.party-flow__payee-group :deep(.withdrawal-party-card.is-bank .withdrawal-party-card__actions) { display: none; }
+.party-flow__payee-group :deep(.withdrawal-party-card.is-bank .withdrawal-party-card__title h3) { color: #5e7186; font-size: 11px; }
+.party-flow__payee-group :deep(.withdrawal-party-card.is-bank .withdrawal-party-card__fields) { padding-top: 0; }
+.party-flow__payee-group :deep(.withdrawal-party-card:not(.is-bank) .withdrawal-party-card__fields) { padding-bottom: 0; }
+
 .party-flow :deep(.withdrawal-party-card) {
   min-width: 0;
   overflow: hidden;
@@ -204,8 +226,8 @@ defineProps<{
   padding: 10px 15px 14px;
   grid-template-columns: 1fr;
 
-  > div { display: grid; min-width: 0; align-items: start; padding: 6px 0; grid-template-columns: 112px minmax(0, 1fr); gap: 8px; }
-  dt { color: var(--app-text-label); font-size: 11px; }
+  > div { display: grid; min-width: 0; align-items: start; padding: 6px 0; grid-template-columns: 115px minmax(0, 1fr); gap: 8px; }
+  dt { color: var(--app-text-label); font-size: 11px; white-space: nowrap; }
   dd { margin: 0; color: var(--app-text-body); font-size: 13px; font-weight: 600; line-height: 1.55; overflow-wrap: anywhere; }
   dd.is-mono { font-family: ui-monospace, Consolas, monospace; }
 }
@@ -219,6 +241,12 @@ defineProps<{
   .withdrawal-party-card__fields { padding-right: 0; padding-left: 0; }
 }
 
+.party-flow .party-flow__payee-group :deep(.withdrawal-party-card) {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
 @include mobile {
   // .transaction-overview { margin: 14px 16px 16px; }
   .transaction-amounts { padding: 12px; }
@@ -230,6 +258,6 @@ defineProps<{
     padding: 4px 16px 16px;
     grid-template-columns: 1fr;
   }
-  .party-flow :deep(.withdrawal-party-card__fields > div) { grid-template-columns: 96px minmax(0, 1fr); }
+  .party-flow :deep(.withdrawal-party-card__fields > div) { grid-template-columns: 115px minmax(0, 1fr); }
 }
 </style>

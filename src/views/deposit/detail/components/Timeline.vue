@@ -1,8 +1,8 @@
 <template>
   <AdminPanel
     v-if="items.length"
-    title="处理时间线"
-    subtitle="本次入金订单的处理流程"
+    title="處理時間線"
+    subtitle="本次入金訂單的處理流程"
     :icon="Clock"
   >
     <AdminTimeline class="deposit-timeline" :items="items" />

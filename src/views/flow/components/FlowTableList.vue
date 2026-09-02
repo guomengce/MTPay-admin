@@ -1,15 +1,15 @@
 <template>
   <el-table class="admin-data-table" :data="data" stripe>
-    <el-table-column prop="time" label="时间" sortable min-width="130" />
+    <el-table-column prop="time" label="時間" sortable min-width="130" />
     <el-table-column prop="agent" label="代理" sortable min-width="220" />
-    <el-table-column label="类型" min-width="100">
+    <el-table-column label="類型" min-width="100">
       <template #default="{ row }">
         <StatusBadge :label="row.type" type="primary" />
       </template>
     </el-table-column>
-    <el-table-column prop="id" label="编号" min-width="150" />
-    <el-table-column prop="content" label="内容" min-width="190" />
-    <el-table-column label="金额" min-width="190">
+    <el-table-column prop="id" label="編號" min-width="150" />
+    <el-table-column prop="content" label="內容" min-width="190" />
+    <el-table-column label="金額" min-width="190">
       <template #default="{ row }">
         <div :class="getAmountClass(row)">
           <strong>{{ formatMoney(row.amount) }}</strong>
@@ -17,7 +17,7 @@
         </div>
       </template>
     </el-table-column>
-    <el-table-column label="状态" min-width="140">
+    <el-table-column label="狀態" min-width="140">
       <template #default="{ row }">
         <StatusBadge :label="row.status" :type="row.statusType" :effect="row.statusEffect" />
       </template>

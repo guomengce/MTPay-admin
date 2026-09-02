@@ -5,6 +5,9 @@ export interface AdminAccount {
   name: string;
   email: string;
   status: 0 | 1;
+  role: { id: number; name: string } | null;
+  crypto_enabled: boolean;
+  two_factor_enabled?: boolean;
 }
 
 export interface AdminAccountPageResult {
@@ -19,6 +22,7 @@ export interface AdminAccountPayload {
   name: string;
   email: string;
   password?: string;
+  role_id: number;
 }
 
 export function fetchAdminAccountList(params: { keyword?: string; status?: 0 | 1; page: number; limit: number }) {
@@ -39,4 +43,8 @@ export function updateAdminAccount(payload: AdminAccountPayload & { id: number }
 
 export function updateAdminAccountStatus(id: number, status: 0 | 1) {
   return request.post('/admin/editAdminStatus', { id, status });
+}
+
+export function updateAdminCryptoStatus(id: number, crypto_enabled: 0 | 1) {
+  return request.post('/admin/editAdminCryptoStatus', { id, crypto_enabled });
 }

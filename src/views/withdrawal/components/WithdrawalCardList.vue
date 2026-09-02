@@ -14,8 +14,10 @@ import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
 import type { WithdrawalPaymentResult } from '@/api/modules/withdrawal';
 import type { WithdrawalRow } from '../composables/mapper';
+import { usePermission } from '@/composables/usePermission';
 
 const props = defineProps<{ data: WithdrawalRow[] }>();
+const { canOperate } = usePermission();
 const emit = defineEmits<{
   (e: 'cancel-completed', row: WithdrawalRow): void;
   (e: 'view', row: WithdrawalRow): void;
@@ -29,24 +31,24 @@ const emit = defineEmits<{
 const cardItems = computed<AdminCardItem[]>(() =>
   props.data.map((row) => {
     const actions: AdminCardItem['actions'] = [
-      { key: 'view', label: '详情', icon: View, type: 'primary', plain: true },
+      { key: 'view', label: '詳情', icon: View, type: 'primary', plain: true },
     ];
-    if (row.statusCode === 3) actions.push({ key: 'cancel-completed', label: '取消出金', icon: CircleClose, type: 'danger', plain: true });
+    if (row.statusCode === 3 && canOperate('fiatWithdrawal.cancel')) actions.push({ key: 'cancel-completed', label: '取消法幣出金', icon: CircleClose, type: 'danger', plain: true });
     if (row.statusCode === 0) {
-      actions.unshift(
-        { key: 'approve', label: '通过', icon: CircleCheck, type: 'primary', plain: true },
-        { key: 'reject', label: '驳回', icon: CircleClose, type: 'danger', plain: true },
-        { key: 'supplement', label: '要求补件', icon: DocumentAdd, type: 'warning', plain: true },
+      if (canOperate('fiatWithdrawal.review')) actions.unshift(
+        { key: 'approve', label: '通過', icon: CircleCheck, type: 'primary', plain: true },
+        { key: 'reject', label: '駁回', icon: CircleClose, type: 'danger', plain: true },
       );
-    } else if (row.statusCode === 1) {
-      actions.unshift({ key: 'reject', label: '驳回', icon: CircleClose, type: 'danger', plain: true });
-    } else if (row.statusCode === 2) {
+      if (canOperate('fiatWithdrawal.supplement')) actions.unshift({ key: 'supplement', label: '要求補件', icon: DocumentAdd, type: 'warning', plain: true });
+    } else if (row.statusCode === 1 && canOperate('fiatWithdrawal.review')) {
+      actions.unshift({ key: 'reject', label: '駁回', icon: CircleClose, type: 'danger', plain: true });
+    } else if (row.statusCode === 2 && canOperate('fiatWithdrawal.payment')) {
       actions.unshift(
         { key: 'pay-complete', label: '付款完成', icon: CreditCard, type: 'primary', plain: true },
-        { key: 'pay-fail', label: '付款失败', icon: CircleClose, type: 'danger', plain: true },
+        { key: 'pay-fail', label: '付款失敗', icon: CircleClose, type: 'danger', plain: true },
       );
-    } else if (row.statusCode === 3) {
-      actions.unshift({ key: 'append', label: '追加凭证', icon: Upload, type: 'primary', plain: true });
+    } else if (row.statusCode === 3 && canOperate('fiatWithdrawal.appendProof')) {
+      actions.unshift({ key: 'append', label: '追加憑證', icon: Upload, type: 'primary', plain: true });
     }
 
     return {
@@ -63,9 +65,9 @@ const cardItems = computed<AdminCardItem[]>(() =>
         { label: '代理', value: row.agent, subValue: row.agentEmail, strong: true },
         { label: '付款人', value: `${row.payerType} · ${row.payer}`, subValue: row.payerNo },
         { label: '收款人', value: `${row.payeeType} · ${row.payee}`, subValue: row.payeeNo },
-        { label: '出金金额', value: `${formatMoney(row.amount)} ${row.currency}`, subValue: '收款人实收', strong: true },
+        { label: '法幣出金金額', value: `${formatMoney(row.amount)} ${row.currency}`, subValue: '收款人實收', strong: true },
         {
-          label: '总扣款',
+          label: '總扣款',
           value: `${formatMoney(row.totalAmount)} ${row.currency}`,
         },
       ],

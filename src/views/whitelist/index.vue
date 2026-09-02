@@ -1,7 +1,7 @@
 <template>
   <section class="admin-page">
     <AdminHero
-      title="白名单审核"
+      title="白名單審核"
       :icon="Checked"
     >
       <template #extra>
@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-/** 管理端白名单列表：真实分页、状态操作与详情路由入口。 */
+/** 管理端白名單列表：真實分頁、狀態操作與詳情路由入口。 */
 import { onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Checked, Download } from '@element-plus/icons-vue';
@@ -104,19 +104,19 @@ async function handleSubmit(payload: {
   try {
     if (payload.mode === 'supplement') {
       await requestSupplement({ id: payload.row.businessId, message: payload.message! });
-      ElMessage.success('补件要求已发送');
+      ElMessage.success('補件要求已發送');
     } else {
       await submitReview({
         id: payload.row.businessId,
         decision: payload.mode,
         review_note: payload.mode === 'reject' ? payload.message : undefined,
       });
-      ElMessage.success(payload.mode === 'approve' ? '白名单审核已通过' : '白名单已驳回');
+      ElMessage.success(payload.mode === 'approve' ? '白名單審核已通過' : '白名單已駁回');
     }
     dialogVisible.value = false;
     await loadList();
   } catch {
-    /* 统一请求层已显示后端错误 */
+    /* 統一請求層已顯示後端錯誤 */
   }
 }
 

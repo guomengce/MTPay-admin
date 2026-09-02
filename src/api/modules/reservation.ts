@@ -1,4 +1,4 @@
-/** 管理端官网预约列表。 */
+/** 管理端官網預約列表。 */
 import request from '../request';
 
 export interface ContactReservation {

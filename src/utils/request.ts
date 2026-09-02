@@ -29,11 +29,11 @@ request.interceptors.response.use(
       const authStore = useAuthStore();
       authStore.clearAuth();
       await router.replace({ name: 'Login' });
-      ElMessage.error('登录状态已失效，请重新登录');
+      ElMessage.error('登錄狀態已失效，請重新登錄');
       return Promise.reject(error);
     }
 
-    ElMessage.error(error.response?.data?.message || '请求失败，请稍后重试');
+    ElMessage.error(error.response?.data?.message || '請求失敗，請稍後重試');
     return Promise.reject(error);
   },
 );

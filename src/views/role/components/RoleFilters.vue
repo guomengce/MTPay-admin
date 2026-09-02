@@ -1,3 +1,9 @@
-<template><div class="role-filters"><el-input :model-value="keyword" clearable :prefix-icon="Search" placeholder="角色名称" @update:model-value="emit('update:keyword', String($event))" @keyup.enter="emit('search')"/><el-select :model-value="status" clearable placeholder="全部状态" @update:model-value="emit('update:status', $event as 0|1|undefined)"><el-option label="启用" :value="1"/><el-option label="停用" :value="0"/></el-select><div><el-button type="primary" :icon="Search" @click="emit('search')">查询</el-button><el-button :icon="RefreshLeft" @click="emit('reset')">重置</el-button></div></div></template>
-<script setup lang="ts">import { RefreshLeft, Search } from '@element-plus/icons-vue';defineProps<{keyword:string;status:0|1|undefined}>();const emit=defineEmits<{(e:'update:keyword',v:string):void;(e:'update:status',v:0|1|undefined):void;(e:'search'):void;(e:'reset'):void}>();</script>
-<style scoped lang="scss">.role-filters{display:grid;grid-template-columns:minmax(260px,1fr) 180px auto;gap:12px;padding:18px 20px;border-bottom:1px solid #e5edf3;background:#f8fbfd;>div{display:flex;gap:8px}}@include mobile{.role-filters{grid-template-columns:1fr;padding:14px;>div .el-button{flex:1}}}</style>
+<template>
+    <div class="role-filters filter-bar"><el-input class="filter-bar__keyword" :model-value="keyword" clearable :prefix-icon="Search" placeholder="角色名稱"
+            @update:model-value="emit('update:keyword', String($event))" @keyup.enter="emit('search')" />
+        <div class="filter-bar__actions"><el-button type="primary" :icon="Search" @click="emit('search')">查詢</el-button><el-button
+                plain :icon="RefreshLeft" @click="emit('reset')">重置</el-button></div>
+    </div>
+</template>
+<script setup
+    lang="ts">    import { RefreshLeft, Search } from '@element-plus/icons-vue'; defineProps<{ keyword: string }>(); const emit = defineEmits<{ (e: 'update:keyword', v: string): void; (e: 'search'): void; (e: 'reset'): void }>();</script>

@@ -7,9 +7,13 @@ export function completeLogin(result: AdminLoginResult) {
       token: result.token,
       userInfo: {
         id: String(result.id),
-        name: String(result.name || result.username || result.email || 'MTPay 管理员'),
+        name: String(result.name || result.username || result.email || 'MTPay 管理員'),
         email: String(result.email || ''),
-        role: 'admin',
+        status: result.status,
+        cryptoEnabled: Boolean(result.crypto_enabled),
+        role: result.role || null,
+        menus: result.menus || [],
+        actions: result.actions || [],
       },
     });
   clearLoginChallenge();

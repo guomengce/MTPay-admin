@@ -30,10 +30,6 @@
       title="全平台代理賬户餘額"
       subtitle="彙總所有代理的可用與凍結資金"
     >
-      <template #extra>
-        <span class="dashboard-count"><i />{{ assets.length }} 個幣種</span>
-      </template>
-
       <div class="asset-overview__grid">
         <article
           v-for="asset in assets"
@@ -88,7 +84,7 @@ const props = defineProps<{
 }>();
 
 const assets = computed(() =>
-  props.balanceTotals.map((item, index) => ({
+  props.balanceTotals.slice(0, 3).map((item, index) => ({
     currency: item.currency.code,
     symbol: item.currency.code === 'USDT' ? '₮' : '$',
     name: item.currency.name,

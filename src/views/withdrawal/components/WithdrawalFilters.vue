@@ -8,7 +8,7 @@
       :prefix-icon="Search"
       @keyup.enter="emit('search')"
     />
-    <el-select v-model="status" placeholder="订单状态" clearable>
+    <el-select v-model="status" placeholder="訂單狀態" clearable>
       <el-option v-for="item in statusOptions" :key="item.value" v-bind="item" />
     </el-select>
     <el-date-picker
@@ -22,7 +22,7 @@
     />
     <div class="filter-bar__actions">
       <el-button type="primary" :loading="loading" :icon="Search" @click="emit('search')"
-        >查询</el-button
+        >查詢</el-button
       >
       <el-button plain :icon="RefreshLeft" @click="emit('reset')">重置</el-button>
     </div>
@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-/** 出金列表筛选：仅维护筛选值，接口请求由 useWithdrawalList 统一负责。 */
+/** 法幣出金列表篩選：僅維護篩選值，接口請求由 useWithdrawalList 統一負責。 */
 import { computed } from 'vue';
 import { RefreshLeft, Search } from '@element-plus/icons-vue';
 
@@ -44,12 +44,12 @@ const emit = defineEmits<{
 }>();
 
 const statusOptions = [
-  { value: 0, label: '待审核' },
-  { value: 1, label: '待补充文件' },
-  { value: 2, label: '付款处理中' },
+  { value: 0, label: '待審核' },
+  { value: 1, label: '待補充文件' },
+  { value: 2, label: '付款處理中' },
   { value: 3, label: '已完成' },
-  { value: 4, label: '已驳回' },
-  { value: 5, label: '付款失败' },
+  { value: 4, label: '已駁回' },
+  { value: 5, label: '付款失敗' },
   { value: 6, label: '已取消' },
 ];
 

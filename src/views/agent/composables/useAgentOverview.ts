@@ -12,8 +12,8 @@ import { businessDetailRoute } from '@/views/transaction/businessDetailRoute';
 import { useListQueryState } from '@/composables/useListQueryState';
 
 /**
- * 代理资产详情页：集中管理概览读取、交易记录导航和邮件动作。
- * 页面组件只负责展示，接口参数均在此处按接口文档组装。
+ * 代理資產詳情頁：集中管理概覽讀取、交易記錄導航和郵件動作。
+ * 頁面組件只負責展示，接口參數均在此處按接口文檔組裝。
  */
 export function useAgentOverview() {
   const route = useRoute();
@@ -32,7 +32,7 @@ export function useAgentOverview() {
   async function loadOverview() {
     const userId = Number(route.params.id);
     if (!Number.isInteger(userId) || userId <= 0) {
-      ElMessage.error('代理账户参数无效');
+      ElMessage.error('代理賬户參數無效');
       await router.replace('/agent');
       return;
     }
@@ -42,14 +42,13 @@ export function useAgentOverview() {
       const response = await fetchAgentAssetOverview(userId);
 
       /**
-       * UAT 接口会按实际配置省略部分概览区块，统一补齐展示默认值，
-       * 避免可选字段缺失时中断 Vue 渲染并留下 Loading 遮罩。
+       * UAT 接口會按實際配置省略部分概覽區塊，統一補齊展示默認值，
+       * 避免可選字段缺失時中斷 Vue 渲染並留下 Loading 遮罩。
        */
       overview.value = {
         ...response,
         assets: response.assets ?? [],
-        wallet_account_address: response.wallet_account_address ?? '',
-        crypto_receiving_addresses: response.crypto_receiving_addresses ?? [],
+        wallet_addresses: response.wallet_addresses ?? [],
         effective_exchange_rates: response.effective_exchange_rates ?? {},
         pending_counts: {
           deposit: response.pending_counts?.deposit ?? 0,
@@ -93,7 +92,7 @@ export function useAgentOverview() {
     return loadRecentTransactions();
   }
 
-  /** 复用业务详情路由，包含人工增减记录的独立详情页。 */
+  /** 複用業務詳情路由，包含人工增減記錄的獨立詳情頁。 */
   async function openTransaction(transaction: AgentRecentTransaction) {
     const target = businessDetailRoute(transaction);
     if (target) await router.push(target);

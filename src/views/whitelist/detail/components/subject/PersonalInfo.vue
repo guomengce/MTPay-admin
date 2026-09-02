@@ -2,7 +2,7 @@
   <section class="subject-section">
     <header class="subject-section__header">
       <span class="subject-section__icon"><el-icon><Postcard /></el-icon></span>
-      <h3>个人资料</h3>
+      <h3>個人資料</h3>
     </header>
     <dl class="subject-section__grid">
       <div v-for="field in fields" :key="field.key" :class="fieldClass(field)">

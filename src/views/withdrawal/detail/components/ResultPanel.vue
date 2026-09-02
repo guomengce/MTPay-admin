@@ -1,12 +1,12 @@
 <template>
   <AdminPanel
     v-if="hasContent"
-    title="处理结果"
-    subtitle="审核、付款执行与资金状态的真实记录"
+    title="處理結果"
+    subtitle="審核、付款執行與資金狀態的真實記錄"
     :icon="CircleCheck"
   >
     <div class="result-sections">
-      <ResultSection title="审核信息" :fields="reviewFields" />
+      <ResultSection title="審核信息" :fields="reviewFields" />
       <ResultSection title="付款信息" :fields="paymentFields" />
     </div>
   </AdminPanel>

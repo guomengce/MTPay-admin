@@ -1,18 +1,18 @@
 <template>
   <section class="order-header">
     <div class="order-header__identity">
-      <small>USD 出金订单</small>
+      <small>法幣出金訂單</small>
       <div>
         <h1>{{ detail.order_no }}</h1>
-        <button type="button" title="复制订单号" aria-label="复制订单号" @click="copyOrderNo">
+        <button type="button" title="複製訂單號" aria-label="複製訂單號" @click="copyOrderNo">
           <el-icon><CopyDocument /></el-icon>
         </button>
       </div>
     </div>
 
     <div class="order-header__meta">
-      <span><small>提交时间</small><strong>{{ detail.submitted_at || '—' }}</strong></span>
-      <span><small>最后更新</small><strong>{{ detail.updated_at || '—' }}</strong></span>
+      <span><small>提交時間</small><strong>{{ detail.submitted_at || '—' }}</strong></span>
+      <span><small>最後更新</small><strong>{{ detail.updated_at || '—' }}</strong></span>
     </div>
 
     <StatusBadge
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-/** 订单顶部摘要：只展示订单标识、关键时间和当前状态。 */
+/** 訂單頂部摘要：只展示訂單標識、關鍵時間和當前狀態。 */
 import { computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CopyDocument } from '@element-plus/icons-vue';
@@ -39,9 +39,9 @@ const statusMeta = computed(() => getWithdrawalStatusMeta(props.detail.status));
 async function copyOrderNo() {
   try {
     await navigator.clipboard.writeText(props.detail.order_no);
-    ElMessage.success('订单号已复制');
+    ElMessage.success('訂單號已複製');
   } catch {
-    ElMessage.error('复制失败，请手动复制');
+    ElMessage.error('複製失敗，請手動複製');
   }
 }
 </script>

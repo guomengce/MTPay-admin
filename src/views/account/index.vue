@@ -1,22 +1,22 @@
 <template>
   <main class="account-page">
-    <h1>账户与安全</h1>
+    <h1>賬户與安全</h1>
     <div class="account-page__grid">
-      <section class="password-card">
+      <!-- <section class="password-card">
         <header class="password-card__header">
           <span class="password-card__header-icon"><el-icon><Lock /></el-icon></span>
-          <h2>修改密码</h2>
+          <h2>修改密碼</h2>
         </header>
         <div class="password-card__body">
           <div class="password-card__item">
             <span class="password-card__item-icon"><el-icon><Key /></el-icon></span>
-            <strong>登录密码</strong>
-            <el-tooltip content="当前管理员修改密码接口尚未提供" placement="top">
-              <span class="password-card__action"><el-button type="primary" plain disabled :icon="EditPen">修改密码</el-button></span>
+            <strong>登錄密碼</strong>
+            <el-tooltip content="當前管理員修改密碼接口尚未提供" placement="top">
+              <span class="password-card__action"><el-button type="primary" plain disabled :icon="EditPen">修改密碼</el-button></span>
             </el-tooltip>
           </div>
         </div>
-      </section>
+      </section> -->
       <TwoFactorCard />
     </div>
   </main>
@@ -27,7 +27,7 @@ import TwoFactorCard from './components/TwoFactorCard.vue';
 </script>
 <style scoped lang="scss">
 .account-page { display: grid; gap: 24px; min-width: 0; h1 { margin: 0; font-size: 24px; } }
-.account-page__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.account-page__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: center; }
 .password-card {
   min-width: 0; overflow: hidden;
   border: 1px solid rgb(192 211 227 / 70%); border-radius: 20px; background: #fff;

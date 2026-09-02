@@ -5,7 +5,7 @@ export interface UseTablePagerOptions {
 }
 
 /**
- * 通用表格分页逻辑 composable
+ * 通用表格分頁邏輯 composable
  * 用法：const { page, size, total, pagedData } = useTablePager(sourceData)
  */
 export function useTablePager<T>(source: T[], options: UseTablePagerOptions = {}) {

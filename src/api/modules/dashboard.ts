@@ -1,7 +1,7 @@
 /**
- * 管理端运营总览 API
+ * 管理端運營總覽 API
  * -----------------------------------------------------------------------------
- * 首页只调用一次聚合接口，禁止前端分别拉取业务列表后自行统计。
+ * 首頁只調用一次聚合接口，禁止前端分別拉取業務列表後自行統計。
  */
 import request from '../request';
 
@@ -29,18 +29,18 @@ export interface OperationBalanceTotal {
 }
 
 export interface OperationPendingBusinesses {
-  deposit: number;
-  exchange: number;
-  whitelist: number;
-  withdrawal: number;
-  total: number;
+  deposit?: number;
+  exchange?: number;
+  whitelist?: number;
+  withdrawal?: number;
+  total?: number;
 }
 
 export interface OperationTrendItem {
   date: string;
-  deposit: number;
-  exchange: number;
-  withdrawal: number;
+  deposit?: number;
+  exchange?: number;
+  withdrawal?: number;
   total: number;
 }
 
@@ -98,7 +98,7 @@ export interface OperationOverview {
   recent_transactions: OperationTransactionItem[];
 }
 
-/** 获取管理端运营总览。GET /admin/getOperationOverview（无参数） */
+/** 獲取管理端運營總覽。GET /admin/getOperationOverview（無參數） */
 export function fetchOperationOverview() {
   return request.get<unknown, OperationOverview>('/admin/getOperationOverview');
 }

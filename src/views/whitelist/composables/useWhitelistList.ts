@@ -1,7 +1,7 @@
 import type { CsvFilters } from '@/api/modules/csvExport';
 import { useListQueryState } from '@/composables/useListQueryState';
 import { toRefs } from 'vue';
-/** 管理端白名单列表：真实后端分页，不做本地假分页或虚构筛选。 */
+/** 管理端白名單列表：真實後端分頁，不做本地假分頁或虛構篩選。 */
 import { reactive, ref } from 'vue';
 
 import { fetchWhitelistList } from '@/api/modules/whitelist';

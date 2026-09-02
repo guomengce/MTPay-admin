@@ -1,4 +1,4 @@
-/** 管理端兑换审核 API：列表、详情、审核。 */
+/** 管理端兑換審核 API：列表、詳情、審核。 */
 import request from '../request';
 import type {
   BusinessUser,
@@ -60,17 +60,17 @@ export interface ReviewExchangePayload {
   review_note?: string;
 }
 
-/** 获取兑换分页列表。GET /admin/getExchangeList */
+/** 獲取兑換分頁列表。GET /admin/getExchangeList */
 export function fetchExchangeList(params: ExchangeListParams) {
   return request.get<unknown, ExchangePageResult>('/admin/getExchangeList', { params });
 }
 
-/** 获取兑换详情。GET /admin/getExchangeInfo?id=... */
+/** 獲取兑換詳情。GET /admin/getExchangeInfo?id=... */
 export function fetchExchangeDetail(id: number) {
   return request.get<unknown, ExchangeOrderDetail>('/admin/getExchangeInfo', { params: { id } });
 }
 
-/** 审核兑换；仅待审核订单允许操作。POST /admin/reviewExchange */
+/** 審核兑換；僅待審核訂單允許操作。POST /admin/reviewExchange */
 export function reviewExchange(payload: ReviewExchangePayload) {
   return request.post<unknown, ExchangeOrderDetail>('/admin/reviewExchange', payload);
 }

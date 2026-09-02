@@ -1,9 +1,9 @@
 import { useListQueryState } from '@/composables/useListQueryState';
 import { toRefs } from 'vue';
 /**
- * 交易记录列表组合逻辑
- * - 统一交易记录接口 /admin/getTransactionList，只读；
- * - 详情跳转使用列表返回的 detail_type / detail_id。
+ * 交易記錄列表組合邏輯
+ * - 統一交易記錄接口 /admin/getTransactionList，只讀；
+ * - 詳情跳轉使用列表返回的 detail_type / detail_id。
  */
 import { reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
@@ -72,7 +72,7 @@ export function useTransactionList() {
 
   function search() {
     if (query.started_at && query.ended_at && query.started_at > query.ended_at) {
-      ElMessage.warning('起始日期不能晚于结束日期');
+      ElMessage.warning('起始日期不能晚於結束日期');
       return;
     }
     page.value = 1;

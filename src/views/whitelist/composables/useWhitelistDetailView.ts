@@ -1,8 +1,8 @@
 /**
- * 白名单详情展示模型
+ * 白名單詳情展示模型
  *
- * 将后端 business_data 按"每个区块"暴露成单独的 computed，便于 SubjectInfo
- * 根据角色 × 主体类型显式组合。同时维护文件分轮和处理时间线。
+ * 將後端 business_data 按"每個區塊"暴露成單獨的 computed，便於 SubjectInfo
+ * 根據角色 × 主體類型顯式組合。同時維護文件分輪和處理時間線。
  */
 import { computed, type Ref } from 'vue';
 
@@ -29,8 +29,8 @@ export interface WhitelistFileRound {
   files: WhitelistFile[];
 }
 
-const COMPANY_TYPES: Record<number, string> = { 1: '非金融机构', 2: '金融机构' };
-const DOCUMENT_TYPES: Record<number, string> = { 1: '身份证件', 2: '护照' };
+const COMPANY_TYPES: Record<number, string> = { 1: '非金融機構', 2: '金融機構' };
+const DOCUMENT_TYPES: Record<number, string> = { 1: '身份證件', 2: '護照' };
 
 function presentValue(key: string, raw: unknown) {
   if (key === 'company_type') return COMPANY_TYPES[Number(raw)] || String(raw);
@@ -57,7 +57,7 @@ export function useWhitelistDetailView(detail: Ref<WhitelistDetail | null>) {
       return {
         key,
         label,
-        value: options.optional ? '未填写' : '接口未返回',
+        value: options.optional ? '未填寫' : '接口未返回',
         missing: true,
         ...options,
       };
@@ -72,82 +72,82 @@ export function useWhitelistDetailView(detail: Ref<WhitelistDetail | null>) {
   /* ---------- 付款人 / 公司 ---------- */
   const companyIdentityFields = computed(() =>
     compact([
-      field('company_name', '公司名称'),
-      field('company_type', '公司类型'),
+      field('company_name', '公司名稱'),
+      field('company_type', '公司類型'),
       field('document_no', '公司編號', { mono: true }),
-      field('registration_date', '注册日期'),
+      field('registration_date', '註冊日期'),
     ]),
   );
 
   const registrationFields = computed(() =>
     compact([
-      field('registration_country', '注册国家／地区'),
-      field('operating_country', '经营国家／地区'),
+      field('registration_country', '註冊國家／地區'),
+      field('operating_country', '經營國家／地區'),
       field('city', '所在城市'),
-      field('address', '详细地址', { wide: true }),
+      field('address', '詳細地址', { wide: true }),
     ]),
   );
 
-  /* ---------- 付款人 / 个人 ---------- */
+  /* ---------- 付款人 / 個人 ---------- */
   const payerIndividualIdentityFields = computed(() =>
     compact([
       field('given_name', '名'),
       field('surname', '姓'),
-      field('nationality', '国籍'),
+      field('nationality', '國籍'),
       field('birth_date', '出生日期'),
-      field('document_type', '证件类型'),
-      field('document_no', '证件编号', { mono: true }),
+      field('document_type', '證件類型'),
+      field('document_no', '證件編號', { mono: true }),
     ]),
   );
 
   const payerIndividualResidenceFields = computed(() =>
     compact([
-      field('residence_country', '居住国家／地区'),
+      field('residence_country', '居住國家／地區'),
       field('city', '所在城市'),
-      field('address', '详细地址', { wide: true }),
+      field('address', '詳細地址', { wide: true }),
     ]),
   );
 
   /* ---------- 收款人 / 公司 ---------- */
-  const payeeCompanyFields = computed(() => compact([field('company_name', '公司名称')]));
+  const payeeCompanyFields = computed(() => compact([field('company_name', '公司名稱')]));
 
   const payeeCompanyLocationFields = computed(() =>
     compact([
-      field('operating_country', '经营国家／地区'),
+      field('operating_country', '經營國家／地區'),
       field('city', '所在城市'),
-      field('address', '详细地址', { wide: true }),
+      field('address', '詳細地址', { wide: true }),
     ]),
   );
 
-  /* ---------- 收款人 / 个人 ---------- */
+  /* ---------- 收款人 / 個人 ---------- */
   const payeeIndividualIdentityFields = computed(() =>
-    compact([field('given_name', '名'), field('surname', '姓'), field('nationality', '国籍')]),
+    compact([field('given_name', '名'), field('surname', '姓'), field('nationality', '國籍')]),
   );
 
   const payeeIndividualResidenceFields = computed(() =>
     compact([
-      field('residence_country', '居住国家／地区'),
+      field('residence_country', '居住國家／地區'),
       field('city', '所在城市'),
-      field('address', '详细地址', { wide: true }),
+      field('address', '詳細地址', { wide: true }),
     ]),
   );
 
-  /* ---------- 收款账户信息（收款人共用） ---------- */
+  /* ---------- 收款賬户信息（收款人共用） ---------- */
   const payeeBankFields = computed(() =>
     compact([
-      field('bank_name', '银行名称'),
-      field('bank_account', '银行账号', { mono: true }),
+      field('bank_name', '銀行名稱'),
+      field('bank_account', '銀行賬號', { mono: true }),
       field('swift', 'SWIFT', { mono: true }),
-      field('intermediary_swift', '中间行 SWIFT（可选）', { mono: true, optional: true }),
-      field('remittance_purpose', '汇款目的', { wide: true }),
-      field('remark', '备注（可选）', { wide: true, optional: true }),
+      field('intermediary_swift', '中間行 SWIFT（可選）', { mono: true, optional: true }),
+      field('remittance_purpose', '匯款目的', { wide: true }),
+      field('remark', '備註（可選）', { wide: true, optional: true }),
     ]),
   );
 
-  /* ---------- 附件 / 时间线 ---------- */
+  /* ---------- 附件 / 時間線 ---------- */
   const fileRounds = computed<WhitelistFileRound[]>(() =>
     (detail.value?.records ?? [])
-      // 代理提交与补件记录即使没有附件也保留，让审核人员明确知道本轮未提交证明文件。
+      // 代理提交與補件記錄即使沒有附件也保留，讓審核人員明確知道本輪未提交證明文件。
       .filter((record) => record.actor_type === 1)
       .map((record) => ({
         key: record.id,

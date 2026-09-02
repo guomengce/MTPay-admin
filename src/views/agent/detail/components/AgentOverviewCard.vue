@@ -1,11 +1,9 @@
 <template>
   <section class="agent-overview-card">
-    <!-- 顶部：身份 + 概览统计 -->
+    <!-- 頂部：身份 + 概覽統計 -->
     <div class="agent-overview-card__top">
       <div class="identity-card">
-        <div class="identity-card__avatar">
-          <el-icon><UserFilled /></el-icon>
-        </div>
+        <AgentAvatar class="identity-card__avatar" :name="user.company_name" size="large" />
         <div class="identity-card__body">
           <h3 class="identity-card__name">{{ user.company_name }}</h3>
           <div class="identity-card__meta">
@@ -24,7 +22,7 @@
           />
         </div>
         <el-button
-          v-if="user.status === 0"
+          v-if="user.status === 0 && canOperate('agents.resendInvite')"
           class="identity-stats__action"
           type="primary"
           :icon="Promotion"
@@ -32,7 +30,7 @@
           @click="emit('send-invitation')"
         >發送激活郵件</el-button>
         <el-button
-          v-else-if="user.status === 1 || user.status === 2"
+          v-else-if="(user.status === 1 || user.status === 2) && canOperate('agents.resetPassword')"
           class="identity-stats__action"
           type="primary"
           :icon="Key"
@@ -44,7 +42,7 @@
 
     <div class="agent-overview-card__divider" />
 
-    <!-- 底部：资产卡片 -->
+    <!-- 底部：資產卡片 -->
     <div class="agent-overview-card__assets">
       <article v-for="asset in assets" :key="asset.currency.id" class="asset-card">
         <header>
@@ -74,8 +72,8 @@
           </div>
         </footer>
         <div class="asset-card__actions">
-          <el-button type="primary" plain size="small" :icon="Plus" @click="emit('adjust-asset', asset, 'increase')">增加資產</el-button>
-          <el-button type="danger" plain size="small" :icon="Minus" @click="emit('adjust-asset', asset, 'decrease')">減少資產</el-button>
+          <el-button v-if="canOperate('agents.balanceIncrease')" type="primary" plain size="small" :icon="Plus" @click="emit('adjust-asset', asset, 'increase')">增加資產</el-button>
+          <el-button v-if="canOperate('agents.balanceDecrease')" type="danger" plain size="small" :icon="Minus" @click="emit('adjust-asset', asset, 'decrease')">減少資產</el-button>
         </div>
       </article>
       <el-empty v-if="!assets.length" description="暫無資產餘額" />
@@ -87,10 +85,12 @@
 import { formatMoney } from '@/utils/formatMoney';
 
 import { computed } from 'vue';
-import { Key, Minus, Plus, Promotion, UserFilled } from '@element-plus/icons-vue';
+import { Key, Minus, Plus, Promotion } from '@element-plus/icons-vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 import type { AgentAssetBalance } from '@/api/modules/agent';
+import { usePermission } from '@/composables/usePermission';
+import AgentAvatar from '../../components/AgentAvatar.vue';
 
 interface BasicUser {
   agent_code: string;
@@ -105,12 +105,14 @@ const props = defineProps<{
   assets: AgentAssetBalance[];
   mailLoading?: boolean;
 }>();
+const { canOperate } = usePermission();
 
 const emit = defineEmits<{
   (event: 'send-invitation'): void;
   (event: 'send-password-reset'): void;
   (event: 'adjust-asset', asset: AgentAssetBalance, mode: 'increase' | 'decrease'): void;
 }>();
+
 
 const accountStatusType = computed<StatusBadgeType>(() => {
   if (props.user.status === 1) return 'success';
@@ -168,19 +170,6 @@ function currencyTone(code: string) {
   align-items: center;
   gap: 26px;
   min-width: 0;
-
-  &__avatar {
-    display: grid;
-    width: 96px;
-    height: 96px;
-    flex: none;
-    place-items: center;
-    border-radius: 50%;
-    color: #1f73f2;
-    background: radial-gradient(circle at 30% 30%, #f0f7ff, #d6e8ff);
-    font-size: 46px;
-    box-shadow: inset 0 0 0 1px rgb(31 115 242 / 12%);
-  }
 
   &__body {
     display: flex;
@@ -444,12 +433,6 @@ function currencyTone(code: string) {
     align-items: center;
     flex-direction: row;
     gap: 14px;
-
-    &__avatar {
-      width: 72px;
-      height: 72px;
-      font-size: 34px;
-    }
 
     &__body { width: auto; flex: 1; gap: 8px; }
     &__name {

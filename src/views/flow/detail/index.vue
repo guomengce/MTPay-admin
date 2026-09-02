@@ -1,7 +1,7 @@
 <template>
   <section class="admin-page flow-detail-page">
     <DetailHero
-      order="资金流水"
+      order="資金流水"
       :title="detail.title"
       :description="detail.description"
       :order-id="detail.id"
@@ -18,7 +18,7 @@
         :status="detail.status ? { type: detail.statusType, effect: detail.statusEffect } : undefined"
       />
 
-      <DetailTimelinePanel title="处理时间线" :items="detail.timeline" />
+      <DetailTimelinePanel title="處理時間線" :items="detail.timeline" />
     </div>
 
     <DetailFundImpact :result="fundResultNode" />
@@ -54,12 +54,12 @@ const detail = computed<FlowDetail>(() => {
 
   return {
     id,
-    title: '资金流水详情',
-    description: '记录交易详情、资金变化与处理时间线',
-    status: '待审核',
+    title: '資金流水詳情',
+    description: '記錄交易詳情、資金變化與處理時間線',
+    status: '待審核',
     statusType: 'warning',
     statusEffect: 'pending',
-    flowType: '兑换',
+    flowType: '數字貨幣兌換',
     agent: '代理B · Bluewave Capital',
     direction: 'USDC → USD',
     payAmount: '5,000.00',
@@ -68,28 +68,28 @@ const detail = computed<FlowDetail>(() => {
     receiveAmount: '4,500.00',
     receiveAsset: 'USD',
     submittedAt: '2026/08/10 17:09:26',
-    fundChangeLabel: '冻结USDC',
+    fundChangeLabel: '凍結USDC',
     fundChangeAmount: '5,000.00',
     timeline: [
       {
         key: 'submit',
-        title: '代理提交兑换',
+        title: '代理提交數字貨幣兌換',
         time: '2026/08/10 17:09:26',
-        description: '申请将5,000.00 USDC兑换为USD。',
+        description: '申請將5,000.00 USDC數字貨幣兌換為USD。',
         state: 'done',
       },
       {
         key: 'freeze',
-        title: 'USDC已冻结',
+        title: 'USDC已凍結',
         time: '2026/08/10 17:09:27',
-        description: '5,000.00 USDC已由可用余额转入冻结余额。',
+        description: '5,000.00 USDC已由可用餘額轉入凍結餘額。',
         state: 'done',
       },
       {
         key: 'reviewing',
-        title: '等待后台审核',
+        title: '等待後台審核',
         time: '2026/08/10 17:09:28',
-        description: '订单将使用提交时的0.9000比例。',
+        description: '訂單將使用提交時的0.9000比例。',
         state: 'active',
       },
     ],
@@ -103,38 +103,38 @@ const heroStatus = computed(() => ({
 }));
 
 const summaryItems = computed<SummaryItem[]>(() => [
-  { label: '流水类型', value: detail.value.flowType, icon: Switch, tone: 'mt' },
+  { label: '流水類型', value: detail.value.flowType, icon: Switch, tone: 'mt' },
   { label: '代理', value: detail.value.agent, icon: UserFilled, tone: 'blue' },
   {
-    label: '交易金额',
+    label: '交易金額',
     value: detail.value.payAmount,
     suffix: detail.value.payAsset,
     icon: Money,
     tone: 'mt',
   },
-  { label: '提交时间', value: detail.value.submittedAt, icon: Clock, tone: 'blue' },
+  { label: '提交時間', value: detail.value.submittedAt, icon: Clock, tone: 'blue' },
 ]);
 
 const businessSections = computed<DetailSection[]>(() => [
   {
-    title: '基础信息',
+    title: '基礎信息',
     icon: Tickets,
     fields: [
-      { label: '交易编号：', value: detail.value.id },
+      { label: '交易編號：', value: detail.value.id },
       { label: '代理：', value: detail.value.agent },
-      { label: '流水类型：', value: detail.value.flowType },
-      { label: '当前状态：', value: detail.value.status, badge: true },
+      { label: '流水類型：', value: detail.value.flowType },
+      { label: '當前狀態：', value: detail.value.status, badge: true },
     ],
   },
   {
-    title: '兑换明细',
+    title: '數字貨幣兌換明細',
     icon: Switch,
     fields: [
-      { label: '兑换方向：', value: detail.value.direction },
-      { label: '支付数量：', value: `${detail.value.payAmount} ${detail.value.payAsset}` },
-      { label: '采用比例：', value: formatExchangeRate(detail.value.rate) },
-      { label: '获得金额：', value: `${detail.value.receiveAmount} ${detail.value.receiveAsset}` },
-      { label: '提交时间：', value: detail.value.submittedAt },
+      { label: '數字貨幣兌換方向：', value: detail.value.direction },
+      { label: '支付數量：', value: `${detail.value.payAmount} ${detail.value.payAsset}` },
+      { label: '採用比例：', value: formatExchangeRate(detail.value.rate) },
+      { label: '獲得金額：', value: `${detail.value.receiveAmount} ${detail.value.receiveAsset}` },
+      { label: '提交時間：', value: detail.value.submittedAt },
     ],
   },
 ]);

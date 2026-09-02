@@ -1,4 +1,4 @@
-/** 管理端出金私有附件：按文件和动作维护 loading，并保留原始文件名。 */
+/** 管理端法幣出金私有附件：按文件和動作維護 loading，並保留原始文件名。 */
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
 
@@ -28,7 +28,7 @@ export function useWithdrawalAttachments() {
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch {
-      ElMessage.error('文件预览失败，请稍后重试');
+      ElMessage.error('文件預覽失敗，請稍後重試');
     } finally {
       activeAction.value = '';
     }
@@ -48,7 +48,7 @@ export function useWithdrawalAttachments() {
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
     } catch {
-      ElMessage.error('文件下载失败，请稍后重试');
+      ElMessage.error('文件下載失敗，請稍後重試');
     } finally {
       activeAction.value = '';
     }

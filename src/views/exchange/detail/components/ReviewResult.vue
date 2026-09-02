@@ -1,8 +1,8 @@
 <template>
   <AdminPanel
     class="review-result"
-    title="审核结果"
-    subtitle="本次审核处理记录"
+    title="審核結果"
+    subtitle="本次審核處理記錄"
     :icon="CircleCheck"
   >
     <dl v-if="items.length" class="review-result__grid">
@@ -17,7 +17,7 @@
     </dl>
     <div v-else class="review-result__placeholder">
       <el-icon><Clock /></el-icon>
-      <p>待审核，审核结果尚未产生</p>
+      <p>待審核，審核結果尚未產生</p>
     </div>
   </AdminPanel>
 </template>

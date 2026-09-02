@@ -5,7 +5,7 @@
     </div>
 
     <template v-if="overview">
-      <!-- 顶部：基本信息 + 资产余额合并卡 -->
+      <!-- 頂部：基本信息 + 資產餘額合併卡 -->
       <AgentOverviewCard
         :user="overview.user"
         :assets="overview.assets"
@@ -16,11 +16,12 @@
       />
 
       <AgentWalletInfo
-        :wallet-account-address="overview.wallet_account_address"
-        :addresses="overview.crypto_receiving_addresses"
+        v-if="authStore.cryptoEnabled && overview.wallet_addresses.length"
+        :safeheron-account-key="overview.user.safeheron_account_key || ''"
+        :addresses="overview.wallet_addresses"
       />
 
-      <!-- 交易记录 -->
+      <!-- 交易記錄 -->
       <RecentOrders
         :orders="recentTransactions"
         :loading="recentTransactionsLoading"
@@ -54,6 +55,8 @@ import { Back } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { usePageLoading } from '@/composables/usePageLoading';
 import { adjustAgentBalance, type AgentAssetBalance } from '@/api/modules/agent';
+import { usePermission } from '@/composables/usePermission';
+import { useAuthStore } from '@/stores/modules/auth';
 import AgentOverviewCard from './components/AgentOverviewCard.vue';
 import AssetAdjustmentDialog from './components/AssetAdjustmentDialog.vue';
 import AgentWalletInfo from './components/AgentWalletInfo.vue';
@@ -84,14 +87,18 @@ const adjustmentVisible = ref(false);
 const adjustmentAsset = ref<AgentAssetBalance | null>(null);
 const adjustmentMode = ref<'increase' | 'decrease'>('increase');
 const adjustmentSubmitting = ref(false);
+const { canOperate } = usePermission();
+const authStore = useAuthStore();
 
 function openAssetAdjustment(asset: AgentAssetBalance, mode: 'increase' | 'decrease') {
+  if (!canOperate(mode === 'increase' ? 'agents.balanceIncrease' : 'agents.balanceDecrease')) return;
   adjustmentAsset.value = asset;
   adjustmentMode.value = mode;
   adjustmentVisible.value = true;
 }
 
 async function handleAssetAdjustment(payload: { asset: AgentAssetBalance; mode: 'increase' | 'decrease'; amount: string; remark: string }) {
+  if (!canOperate(payload.mode === 'increase' ? 'agents.balanceIncrease' : 'agents.balanceDecrease')) return;
   if (!overview.value) return;
   adjustmentSubmitting.value = true;
   try {

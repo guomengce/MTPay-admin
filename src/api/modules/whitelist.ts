@@ -1,10 +1,10 @@
-/** 管理端白名单审核 API：列表、详情、补件要求、审核及鉴权文件。 */
+/** 管理端白名單審核 API：列表、詳情、補件要求、審核及鑑權文件。 */
 import request from '../request';
 
 export type WhitelistStatus = 0 | 1 | 2 | 3;
-/** 白名单角色：1 付款人，2 收款人。 */
+/** 白名單角色：1 付款人，2 收款人。 */
 export type WhitelistRole = 1 | 2;
-/** 主体类型：1 公司，2 个人。该枚举必须与提交白名单接口保持一致。 */
+/** 主體類型：1 公司，2 個人。該枚舉必須與提交白名單接口保持一致。 */
 export type WhitelistEntityType = 1 | 2;
 
 export interface WhitelistUser {
@@ -91,38 +91,42 @@ export interface RequestWhitelistSupplementPayload {
   message: string;
 }
 
-/** 获取白名单分页列表。 */
+/** 獲取白名單分頁列表。 */
 export function fetchWhitelistList(params: WhitelistListParams) {
   return request.get<unknown, WhitelistPageResult>('/admin/getWhitelistList', { params });
 }
 
-/** 获取白名单详情。 */
+/** 獲取白名單詳情。 */
 export function fetchWhitelistDetail(id: number) {
   return request.get<unknown, WhitelistDetail>('/admin/getWhitelistInfo', { params: { id } });
 }
 
-/** 要求代理补件；仅待审核状态可调用。 */
+/** 要求代理補件；僅待審核狀態可調用。 */
 export function requestWhitelistSupplement(payload: RequestWhitelistSupplementPayload) {
   return request.post<unknown, WhitelistDetail>('/admin/requestWhitelistSupplement', payload);
 }
 
-/** 审核白名单；通过仅状态 0，驳回允许状态 0/1。 */
+/** 審核白名單；通過僅狀態 0，駁回允許狀態 0/1。 */
 export function reviewWhitelist(payload: ReviewWhitelistPayload) {
   return request.post<unknown, WhitelistDetail>('/admin/reviewWhitelist', payload);
 }
 
-/** 鉴权预览白名单文件。 */
+/** 鑑權預覽白名單文件。 */
 export function previewWhitelistFile(fileId: number) {
   return request.get<unknown, Blob>('/admin/previewWhitelistFile', {
     params: { file_id: fileId },
     responseType: 'blob',
+    timeout: 120_000,
+    silent: true,
   });
 }
 
-/** 鉴权下载白名单文件。 */
+/** 鑑權下載白名單文件。 */
 export function downloadWhitelistFile(fileId: number) {
   return request.get<unknown, Blob>('/admin/downloadWhitelistFile', {
     params: { file_id: fileId },
     responseType: 'blob',
+    timeout: 120_000,
+    silent: true,
   });
 }

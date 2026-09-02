@@ -14,7 +14,7 @@
         <div class="agent-form__heading">
           <span><el-icon><UserFilled /></el-icon></span>
           <div>
-            <h2>{{ agent ? '修改代理资料' : '新增代理账户' }}</h2>
+            <h2>{{ agent ? '修改代理資料' : '新增代理賬户' }}</h2>
           </div>
         </div>
         <el-button circle text :icon="Close" aria-label="關閉" @click="emit('update:modelValue', false)" />
@@ -83,7 +83,7 @@
             :loading="submitting"
             @click="handleSubmit"
           >
-            {{ agent ? '保存修改' : '创建代理' }}
+            {{ agent ? '保存修改' : '創建代理' }}
           </el-button>
         </div>
       </footer>
@@ -122,12 +122,12 @@ const blank: AgentFormPayload = { company_name: '', email: '', phone: '' };
 const form = reactive<AgentFormPayload>({ ...blank });
 const formRef = ref<FormInstance>();
 const rules: FormRules<AgentFormPayload> = {
-  company_name: [{ required: true, message: '请输入公司名称', trigger: 'blur' }],
+  company_name: [{ required: true, message: '請輸入公司名稱', trigger: 'blur' }],
   email: [
-    { required: true, message: '请输入 Email', trigger: 'blur' },
-    { type: 'email', message: 'Email 格式不正确', trigger: 'blur' },
+    { required: true, message: '請輸入 Email', trigger: 'blur' },
+    { type: 'email', message: 'Email 格式不正確', trigger: 'blur' },
   ],
-  phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
+  phone: [{ required: true, message: '請輸入聯繫電話', trigger: 'blur' }],
 };
 
 watch(

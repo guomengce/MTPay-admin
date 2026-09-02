@@ -1,4 +1,4 @@
-/** 管理端出金展示映射：只格式化接口字段，不制造业务数据。 */
+/** 管理端法幣出金展示映射：只格式化接口字段，不製造業務數據。 */
 import type { WithdrawalOrder, WithdrawalStatus } from '@/api/modules/withdrawal';
 import type { StatusBadgeEffect, StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 
@@ -47,7 +47,7 @@ export interface WithdrawalRow {
 }
 
 function entityTypeName(value: 1 | 2) {
-  return value === 1 ? '公司' : '个人';
+  return value === 1 ? '公司' : '個人';
 }
 
 export function toWithdrawalRow(order: WithdrawalOrder): WithdrawalRow {

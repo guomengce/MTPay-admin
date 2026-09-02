@@ -3,9 +3,9 @@
     <template v-if="detail">
       <DetailHero
         compact
-        order="订单号"
-        title="数字货币兑换审核"
-        description="核对冻结资金与提交时的汇率快照后完成审核"
+        order="訂單號"
+        title="數字貨幣兌換審核"
+        description="核對凍結資金與提交時的匯率快照後完成審核"
         :order-id="detail.order_no"
         :status="heroStatus"
         :actions="heroActions"
@@ -14,7 +14,7 @@
         @reject="openReviewDialog('reject')"
       />
 
-      <!-- 核心信息（兑换流程 + 代理 + 提交时间） -->
+      <!-- 核心信息（數字貨幣兌換流程 + 代理 + 提交時間） -->
       <ExchangeOverviewCard
         :source-amount="detail.source_amount"
         :source-currency="detail.source_currency"
@@ -26,16 +26,16 @@
         :submitted-at="detail.submitted_at"
       />
 
-      <!-- 兑换依据 / 兑换结果 + 处理时间线 -->
+      <!-- 數字貨幣兌換依據 / 數字貨幣兌換結果 + 處理時間線 -->
       <div class="exchange-detail-page__split">
         <div class="exchange-detail-page__split-col">
-          <!-- 审核结果 -->
+          <!-- 審核結果 -->
           <ReviewResult :items="resultItems" />
         </div>
         <Timeline :items="timelineItems" />
       </div>
 
-      <!-- 审核弹框（通过 / 驳回） -->
+      <!-- 審核彈框（通過 / 駁回） -->
       <ExchangeAddDialog
         v-model="dialogVisible"
         :row="reviewRow"
@@ -45,12 +45,12 @@
       />
     </template>
 
-    <el-empty v-else-if="!loading" description="未找到兑换订单" />
+    <el-empty v-else-if="!loading" description="未找到數字貨幣兌換訂單" />
   </section>
 </template>
 
 <script setup lang="ts">
-/** 管理端兑换审核详情：组合 4 个区块组件 + 审核弹框，所有展示模型来自详情接口。 */
+/** 管理端數字貨幣兌換審核詳情：組合 4 個區塊組件 + 審核彈框，所有展示模型來自詳情接口。 */
 import { computed, onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CircleCheck, CircleClose } from '@element-plus/icons-vue';
@@ -58,6 +58,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import DetailHero, { type HeroAction } from '@/components/detail/DetailHero.vue';
 import { usePageLoading } from '@/composables/usePageLoading';
+import { usePermission } from '@/composables/usePermission';
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
 
@@ -72,6 +73,7 @@ import { useExchangeDetail } from '../composables/useExchangeDetail';
 
 const route = useRoute();
 const router = useRouter();
+const { canOperate } = usePermission();
 const { detail, loading, reviewing, loadDetail, submitReview } = useExchangeDetail();
 usePageLoading(loading);
 
@@ -82,16 +84,16 @@ const statusType = computed<StatusBadgeType>(() => {
 });
 
 const heroStatus = computed(() => ({
-  label: detail.value?.status_name || '未知状态',
+  label: detail.value?.status_name || '未知狀態',
   type: statusType.value,
   effect: detail.value?.status === 0 ? ('pending' as const) : undefined,
 }));
 
 const heroActions = computed<HeroAction[]>(() =>
-  detail.value?.status === 0
+  detail.value?.status === 0 && canOperate('cryptoExchange.review')
     ? [
-        { label: '通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
-        { label: '拒绝', icon: CircleClose, type: 'danger', emitName: 'reject' },
+        { label: '通過', icon: CircleCheck, type: 'primary', emitName: 'approve' },
+        { label: '拒絕', icon: CircleClose, type: 'danger', emitName: 'reject' },
       ]
     : [],
 );
@@ -112,17 +114,17 @@ const resultItems = computed<ReviewResultItem[]>(() => {
 
   const items: ReviewResultItem[] = [];
   if (detail.value.status === 1 && detail.value.completed_at) {
-    items.push({ label: '兑换完成时间', value: detail.value.completed_at, accent: true });
+    items.push({ label: '數字貨幣兌換完成時間', value: detail.value.completed_at, accent: true });
   }
   if (detail.value.review?.admin_name) {
-    items.push({ label: '审核人', value: detail.value.review.admin_name });
+    items.push({ label: '審核人', value: detail.value.review.admin_name });
   }
   if (detail.value.review?.reviewed_at) {
-    items.push({ label: '审核时间', value: detail.value.review.reviewed_at });
+    items.push({ label: '審核時間', value: detail.value.review.reviewed_at });
   }
   if (detail.value.review?.note) {
     items.push({
-      label: detail.value.status === 2 ? '驳回原因' : '审核备注',
+      label: detail.value.status === 2 ? '駁回原因' : '審核備註',
       value: detail.value.review.note,
       wide: true,
     });
@@ -171,7 +173,7 @@ async function handleSubmit(payload: {
     decision: payload.mode,
     review_note: payload.mode === 'reject' ? payload.reason?.trim() : undefined,
   });
-  ElMessage.success(payload.mode === 'approve' ? '兑换审核已通过' : '兑换申请已拒绝');
+  ElMessage.success(payload.mode === 'approve' ? '數字貨幣兌換審核已通過' : '數字貨幣兌換申請已拒絕');
   dialogVisible.value = false;
 }
 

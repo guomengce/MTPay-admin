@@ -9,7 +9,7 @@
     @update:model-value="handleVisibleChange"
   >
     <template v-if="row">
-      <p v-if="mode === 'approve'">确认通过此兑换申请？</p>
+      <p v-if="mode === 'approve'">確認通過此數字貨幣兌換申請？</p>
 
       <el-form
         v-if="mode === 'reject'"
@@ -19,12 +19,12 @@
         label-position="top"
         @submit.prevent
       >
-        <el-form-item label="拒绝原因" prop="reason">
+        <el-form-item label="拒絕原因" prop="reason">
           <el-input
             v-model="reasonForm.reason"
             type="textarea"
             :rows="3"
-            placeholder="请输入拒绝原因"
+            placeholder="請輸入拒絕原因"
             maxlength="1000"
             show-word-limit
           />
@@ -40,7 +40,7 @@
         :icon="CircleCheck"
         :loading="submitting"
         @click="handleSubmit"
-        >确认通过</el-button
+        >確認通過</el-button
       >
       <el-button
         v-else
@@ -48,7 +48,7 @@
         :icon="CircleClose"
         :loading="submitting"
         @click="handleSubmit"
-        >确认拒绝</el-button
+        >確認拒絕</el-button
       >
     </template>
   </el-dialog>
@@ -76,7 +76,7 @@ const emit = defineEmits<{
 }>();
 
 const dialogTitle = computed(() =>
-  props.mode === 'approve' ? '审核通过' : '拒绝兑换',
+  props.mode === 'approve' ? '審核通過' : '拒絕數字貨幣兌換',
 );
 
 const formRef = ref<FormInstance>();
@@ -84,8 +84,8 @@ const reasonForm = reactive({ reason: '' });
 
 const rules: FormRules<{ reason: string }> = {
   reason: [
-    { required: true, message: '请填写拒绝原因', trigger: 'blur' },
-    { max: 1000, message: '拒绝原因不能超过 1000 个字符', trigger: 'blur' },
+    { required: true, message: '請填寫拒絕原因', trigger: 'blur' },
+    { max: 1000, message: '拒絕原因不能超過 1000 個字符', trigger: 'blur' },
   ],
 };
 

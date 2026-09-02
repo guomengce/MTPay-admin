@@ -1,7 +1,7 @@
 <template>
   <div class="withdrawal-table-list">
     <el-table v-loading="loading" class="admin-data-table" :data="data" stripe>
-      <el-table-column label="订单号" min-width="190">
+      <el-table-column label="訂單號" min-width="190">
         <template #default="{ row }">
           <div class="row-title">
             <strong>{{ row.id }}</strong>
@@ -19,7 +19,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="交易主体" min-width="350" header-align="center">
+      <el-table-column label="交易主體" min-width="350" header-align="center">
         <template #default="{ row }">
           <WithdrawalPartyFlow
             :payer-name="row.payer"
@@ -30,12 +30,12 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="出金金额" min-width="180">
+      <el-table-column label="法幣出金金額" min-width="180">
         <template #default="{ row }">
           <div class="withdrawal-table-list__amount-block">
             <strong class="withdrawal-table-list__amount">{{ formatMoney(row.amount) }} {{ row.currency }}</strong>
             <div class="withdrawal-table-list__deduction">
-              <span>总扣款 {{ formatMoney(row.totalAmount) }}</span>
+              <span>總扣款 {{ formatMoney(row.totalAmount) }}</span>
             </div>
           </div>
         </template>
@@ -44,12 +44,12 @@
       <el-table-column label="文件" min-width="120" align="center">
         <template #default="{ row }">
           <span class="withdrawal-table-list__files">
-            申请文件 {{ row.applicationFileCount }} <br/> 付款凭证 {{ row.paymentFileCount }}
+            申請文件 {{ row.applicationFileCount }} <br/> 付款憑證 {{ row.paymentFileCount }}
           </span>
         </template>
       </el-table-column>
 
-      <el-table-column label="状态" min-width="120">
+      <el-table-column label="狀態" min-width="120">
         <template #default="{ row }">
           <StatusBadge :label="row.status" :type="row.statusType" :effect="row.statusEffect" />
         </template>
@@ -64,23 +64,23 @@
             <el-button plain :icon="MoreFilled">操作</el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item v-if="row.statusCode === 3" command="cancel-completed" :icon="CircleClose" divided>取消出金</el-dropdown-item>
-                <el-dropdown-item command="view" :icon="View">详情</el-dropdown-item>
+                <el-dropdown-item v-if="row.statusCode === 3 && canOperate('fiatWithdrawal.cancel')" command="cancel-completed" :icon="CircleClose" divided>取消法幣出金</el-dropdown-item>
+                <el-dropdown-item command="view" :icon="View">詳情</el-dropdown-item>
                 <template v-if="row.statusCode === 0">
-                  <el-dropdown-item command="approve" :icon="CircleCheck">通过</el-dropdown-item>
-                  <el-dropdown-item command="supplement" :icon="DocumentAdd">要求补件</el-dropdown-item>
+                  <el-dropdown-item v-if="canOperate('fiatWithdrawal.review')" command="approve" :icon="CircleCheck">通過</el-dropdown-item>
+                  <el-dropdown-item v-if="canOperate('fiatWithdrawal.supplement')" command="supplement" :icon="DocumentAdd">要求補件</el-dropdown-item>
                 </template>
                 <el-dropdown-item
-                  v-if="row.statusCode === 0 || row.statusCode === 1"
+                  v-if="(row.statusCode === 0 || row.statusCode === 1) && canOperate('fiatWithdrawal.review')"
                   command="reject"
                   :icon="CircleClose"
-                >驳回</el-dropdown-item>
+                >駁回</el-dropdown-item>
                 <template v-if="row.statusCode === 2">
-                  <el-dropdown-item command="payment-complete" :icon="CreditCard">付款完成</el-dropdown-item>
-                  <el-dropdown-item command="payment-fail" :icon="CircleClose">付款失败</el-dropdown-item>
+                  <el-dropdown-item v-if="canOperate('fiatWithdrawal.payment')" command="payment-complete" :icon="CreditCard">付款完成</el-dropdown-item>
+                  <el-dropdown-item v-if="canOperate('fiatWithdrawal.payment')" command="payment-fail" :icon="CircleClose">付款失敗</el-dropdown-item>
                 </template>
-                <el-dropdown-item v-if="row.statusCode === 3" command="append" :icon="Upload">
-                  追加凭证
+                <el-dropdown-item v-if="row.statusCode === 3 && canOperate('fiatWithdrawal.appendProof')" command="append" :icon="Upload">
+                  追加憑證
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -98,10 +98,12 @@ import { CircleCheck, CircleClose, CreditCard, DocumentAdd, MoreFilled, Upload, 
 
 import type { WithdrawalPaymentResult } from '@/api/modules/withdrawal';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import { usePermission } from '@/composables/usePermission';
 import type { WithdrawalRow } from '../composables/mapper';
 import WithdrawalPartyFlow from './WithdrawalPartyFlow.vue';
 
 defineProps<{ data: WithdrawalRow[]; loading?: boolean }>();
+const { canOperate } = usePermission();
 const emit = defineEmits<{
   (e: 'cancel-completed', row: WithdrawalRow): void;
   (e: 'view', row: WithdrawalRow): void;

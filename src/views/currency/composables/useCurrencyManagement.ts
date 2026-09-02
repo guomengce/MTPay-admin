@@ -3,10 +3,12 @@ import { onMounted, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   addCurrency,
+  editCurrency,
   editCurrencyStatus,
   getCurrencyList,
   type AddCurrencyPayload,
   type CurrencyItem,
+  type EditCurrencyPayload,
   type CurrencyListParams,
   type CurrencyStatus,
 } from '@/api/modules/currency';
@@ -15,6 +17,7 @@ export function useCurrencyManagement() {
   const list = ref<CurrencyItem[]>([]);
   const loading = ref(false);
   const adding = ref(false);
+  const editing = ref(false);
   const page = ref(1);
   const limit = ref(15);
   const total = ref(0);
@@ -62,6 +65,17 @@ export function useCurrencyManagement() {
     }
   }
 
+  async function updateCurrency(payload: EditCurrencyPayload) {
+    editing.value = true;
+    try {
+      await editCurrency(payload);
+      ElMessage.success('幣種修改成功');
+      await loadList();
+      return true;
+    } finally {
+      editing.value = false;
+    }
+  }
   async function changeStatus(row: CurrencyItem) {
     const nextStatus: CurrencyStatus = row.status === 1 ? 0 : 1;
     const verb = nextStatus === 1 ? '啓用' : '禁用';
@@ -87,7 +101,7 @@ export function useCurrencyManagement() {
   onMounted(loadList);
 
   return {
-    list, loading, adding, page, limit, total, keyword, status,
-    search, resetFilters, createCurrency, changeStatus,
+    list, loading, adding, editing, page, limit, total, keyword, status,
+    search, resetFilters, createCurrency, updateCurrency, changeStatus,
   };
 }

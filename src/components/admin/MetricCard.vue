@@ -50,7 +50,7 @@ withDefaults(
     align-items: center;
     gap: 8px;
     margin: 0 0 14px;
-    padding-right: 76px; /* 给绝对定位的 icon 留出空间，避免文字与图标重叠 */
+    padding-right: 76px; /* 給絕對定位的 icon 留出空間，避免文字與圖標重疊 */
     color: #243554;
     font-weight: 600;
 

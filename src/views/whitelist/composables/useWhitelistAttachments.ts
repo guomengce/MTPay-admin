@@ -1,10 +1,10 @@
 /**
- * 管理端白名单附件操作
+ * 管理端白名單附件操作
  *
- * - API 请求拦截器已直接返回 Blob，禁止再次读取 response.data；
- * - 预览使用新标签页打开鉴权接口返回的临时 Blob URL；
- * - 下载使用后端文件元数据中的原始文件名；
- * - loading 精确到当前文件和操作，避免所有附件按钮同时进入加载状态。
+ * - API 請求攔截器已直接返回 Blob，禁止再次讀取 response.data；
+ * - 預覽使用新標籤頁打開鑑權接口返回的臨時 Blob URL；
+ * - 下載使用後端文件元數據中的原始文件名；
+ * - loading 精確到當前文件和操作，避免所有附件按鈕同時進入加載狀態。
  */
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
@@ -22,12 +22,12 @@ export function useWhitelistAttachments() {
     return activeAction.value === actionKey(fileId, action);
   }
 
-  /** 预览 PDF/图片等浏览器支持的文件格式。 */
+  /** 預覽 PDF/圖片等瀏覽器支持的文件格式。 */
   async function preview(fileId: number) {
     activeAction.value = actionKey(fileId, 'preview');
     try {
       const blob = await previewWhitelistFile(fileId);
-      if (!(blob instanceof Blob) || blob.size === 0) throw new Error('文件内容为空');
+      if (!(blob instanceof Blob) || blob.size === 0) throw new Error('文件內容為空');
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -36,18 +36,18 @@ export function useWhitelistAttachments() {
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch {
-      ElMessage.error('文件预览失败，请稍后重试');
+      ElMessage.error('文件預覽失敗，請稍後重試');
     } finally {
       activeAction.value = '';
     }
   }
 
-  /** 下载文件并保留代理上传时的原始文件名。 */
+  /** 下載文件並保留代理上傳時的原始文件名。 */
   async function download(fileId: number, originalName: string) {
     activeAction.value = actionKey(fileId, 'download');
     try {
       const blob = await downloadWhitelistFile(fileId);
-      if (!(blob instanceof Blob) || blob.size === 0) throw new Error('文件内容为空');
+      if (!(blob instanceof Blob) || blob.size === 0) throw new Error('文件內容為空');
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -57,7 +57,7 @@ export function useWhitelistAttachments() {
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
     } catch {
-      ElMessage.error('文件下载失败，请稍后重试');
+      ElMessage.error('文件下載失敗，請稍後重試');
     } finally {
       activeAction.value = '';
     }

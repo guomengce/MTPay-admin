@@ -1,7 +1,7 @@
 import type { CsvFilters } from '@/api/modules/csvExport';
 import { useListQueryState } from '@/composables/useListQueryState';
 import { toRefs } from 'vue';
-/** 管理端出金列表：后端分页与真实筛选参数。 */
+/** 管理端法幣出金列表：後端分頁與真實篩選參數。 */
 import { reactive, ref } from 'vue';
 
 import { fetchWithdrawalList } from '@/api/modules/withdrawal';

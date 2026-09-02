@@ -1,14 +1,14 @@
 /**
- * API 统一出口
+ * API 統一齣口
  * -----------------------------------------------------------------------------
- * 推荐：`import { request, fetchDepositList } from '@/api';`
- *  - request：axios 实例（封装 token / 拦截器 / 错误处理）
- *  - 各模块导出：fetch<...>
+ * 推薦：`import { request, fetchDepositList } from '@/api';`
+ *  - request：axios 實例（封裝 token / 攔截器 / 錯誤處理）
+ *  - 各模塊導出：fetch<...>
  */
 export { default as request, ApiError } from './request';
 export * from './types';
 
-// 模块接口（命名空间收敛）
+// 模塊接口（命名空間收斂）
 export * as AuthApi from './modules/auth';
 export * as DashboardApi from './modules/dashboard';
 export * as AgentApi from './modules/agent';

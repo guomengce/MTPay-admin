@@ -79,12 +79,14 @@ export function previewFiatFile(file_id: number) {
   return request.get<unknown, Blob>('/admin/previewFiatDepositFile', {
     params: { file_id },
     responseType: 'blob',
+    timeout: 120_000,
   });
 }
 export function downloadFiatFile(file_id: number) {
   return request.get<unknown, Blob>('/admin/downloadFiatDepositFile', {
     params: { file_id },
     responseType: 'blob',
+    timeout: 120_000,
   });
 }
 export function exportFiatCsv(params: Omit<FiatFilters, 'page' | 'limit'>) {

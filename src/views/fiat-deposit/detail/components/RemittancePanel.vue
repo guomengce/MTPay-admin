@@ -1,21 +1,21 @@
 <template>
-  <AdminPanel title="汇款资料" subtitle="付款信息与银行汇款凭证" :icon="CreditCard">
+  <AdminPanel title="匯款資料" subtitle="付款信息與銀行匯款憑證" :icon="CreditCard">
     <dl class="remittance-panel__fields">
       <div><dt>付款人</dt><dd>{{ detail.payer_name || '—' }}</dd></div>
-      <div><dt>付款银行</dt><dd>{{ detail.payer_bank || '—' }}</dd></div>
-      <div><dt>账户后四位</dt><dd class="is-mono">{{ detail.payer_account_last4 || '—' }}</dd></div>
-      <div><dt>汇款参考号</dt><dd class="is-mono">{{ detail.remittance_reference || '—' }}</dd></div>
-      <div><dt>汇款日期</dt><dd>{{ detail.remittance_date || '—' }}</dd></div>
-      <div><dt>最后更新</dt><dd>{{ detail.updated_at || '—' }}</dd></div>
-      <div class="is-wide"><dt>备注</dt><dd>{{ detail.remark || '—' }}</dd></div>
-      <div v-if="detail.review.note" class="is-wide"><dt>{{ detail.status === 2 ? '驳回原因' : '审核备注' }}</dt><dd>{{ detail.review.note }}</dd></div>
+      <div><dt>付款銀行</dt><dd>{{ detail.payer_bank || '—' }}</dd></div>
+      <div><dt>賬户後四位</dt><dd class="is-mono">{{ detail.payer_account_last4 || '—' }}</dd></div>
+      <div><dt>匯款參考號</dt><dd class="is-mono">{{ detail.remittance_reference || '—' }}</dd></div>
+      <div><dt>匯款日期</dt><dd>{{ detail.remittance_date || '—' }}</dd></div>
+      <div><dt>最後更新</dt><dd>{{ detail.updated_at || '—' }}</dd></div>
+      <div class="is-wide"><dt>備註</dt><dd>{{ detail.remark || '—' }}</dd></div>
+      <div v-if="detail.review.note" class="is-wide"><dt>{{ detail.status === 2 ? '駁回原因' : '審核備註' }}</dt><dd>{{ detail.review.note }}</dd></div>
     </dl>
     <section v-if="detail.files.length" class="remittance-panel__files">
-      <h4><el-icon><Document /></el-icon>汇款凭证</h4>
+      <h4><el-icon><Document /></el-icon>匯款憑證</h4>
       <article v-for="file in detail.files" :key="file.file_id">
         <span class="remittance-panel__file-icon"><el-icon><Document /></el-icon></span>
         <div><strong>{{ file.original_name }}</strong><small>{{ file.extension.toUpperCase() }} · {{ formatSize(file.size) }}</small></div>
-        <div class="remittance-panel__actions"><el-button plain type="primary" size="small" :icon="View" @click="emit('preview',file.file_id)">预览</el-button><el-button plain size="small" :icon="Download" @click="emit('download',file.file_id,file.original_name)">下载</el-button></div>
+        <div class="remittance-panel__actions"><el-button plain type="primary" size="small" :icon="View" @click="emit('preview',file.file_id)">預覽</el-button><el-button plain size="small" :icon="Download" @click="emit('download',file.file_id,file.original_name)">下載</el-button></div>
       </article>
     </section>
   </AdminPanel>

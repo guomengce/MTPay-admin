@@ -17,7 +17,6 @@
       <el-option label="待激活" :value="0" />
       <el-option label="正常" :value="1" />
       <el-option label="暫停" :value="2" />
-      <el-option label="停用" :value="3" />
     </el-select>
     <div class="filter-bar__actions">
       <el-button type="primary" :icon="Search" @click="emit('search')">查詢</el-button>

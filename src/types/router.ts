@@ -9,6 +9,9 @@ export interface AppRouteMeta {
   hidden: boolean;
   showPageHeader?: boolean;
   menuGroup?: { path: string; title: string; icon: string };
+  menuPermission?: string;
+  actionPermission?: string;
+  cryptoOnly?: boolean;
 }
 
 export type AppRouteRecordRaw = RouteRecordRaw & {

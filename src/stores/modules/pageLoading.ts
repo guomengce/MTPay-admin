@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-/** 全局页面切换进度，仅用于路由级加载，不替代表格和按钮的局部 loading。 */
+/** 全局頁面切換進度，僅用於路由級加載，不替代表格和按鈕的局部 loading。 */
 export const usePageLoadingStore = defineStore('pageLoading', () => {
   const active = ref(false);
   let pending = 0;

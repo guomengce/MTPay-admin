@@ -3,8 +3,8 @@
     <template v-if="detail">
       <DetailHero
         compact
-        order="白名单编号"
-        title="白名单审核"
+        order="白名單編號"
+        title="白名單審核"
         :order-id="detail.whitelist_no"
         :status="heroStatus"
         :actions="heroActions"
@@ -50,14 +50,14 @@
       />
     </template>
 
-    <el-empty v-else-if="!loading" description="未找到白名单记录">
+    <el-empty v-else-if="!loading" description="未找到白名單記錄">
       <el-button type="primary" @click="goBack">返回</el-button>
     </el-empty>
   </section>
 </template>
 
 <script setup lang="ts">
-/** 管理端白名单详情：按审核工作顺序组织信息。 */
+/** 管理端白名單詳情：按審核工作順序組織信息。 */
 import { computed, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
@@ -69,6 +69,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import DetailHero, { type HeroAction } from '@/components/detail/DetailHero.vue';
 import { usePageLoading } from '@/composables/usePageLoading';
+import { usePermission } from '@/composables/usePermission';
 
 import SubjectInfo from './components/SubjectInfo.vue';
 import Timeline from './components/Timeline.vue';
@@ -81,6 +82,7 @@ import { useWhitelistDetailView } from '../composables/useWhitelistDetailView';
 
 const route = useRoute();
 const router = useRouter();
+const { canOperate } = usePermission();
 const id = computed(() => Number(route.params.id));
 const { loading, submitting, detail, loadDetail, submitReview, requestSupplement } =
   useWhitelistDetail();
@@ -101,21 +103,21 @@ const {
 
 const heroStatus = computed(() => {
   const meta = getWhitelistStatusMeta(detail.value?.status ?? 0);
-  return { label: detail.value?.status_name || '未知状态', ...meta };
+  return { label: detail.value?.status_name || '未知狀態', ...meta };
 });
 
 const heroActions = computed<HeroAction[]>(() => {
   if (detail.value?.status === 0) {
     return [
-      { label: '通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
-      { label: '要求补件', icon: Document, type: 'plain', emitName: 'supplement' },
-      { label: '驳回', icon: CircleClose, type: 'danger', emitName: 'reject' },
-    ];
+      { label: '通過', icon: CircleCheck, type: 'primary', emitName: 'approve' },
+      { label: '要求補件', icon: Document, type: 'plain', emitName: 'supplement' },
+      { label: '駁回', icon: CircleClose, type: 'danger', emitName: 'reject' },
+    ].filter((action) => action.emitName === 'supplement' ? canOperate('whitelist.supplement') : canOperate('whitelist.review')) as HeroAction[];
   }
-  if (detail.value?.status === 1) {
+  if (detail.value?.status === 1 && canOperate('whitelist.review')) {
     return [
-      { label: '通过', icon: CircleCheck, type: 'primary', emitName: 'approve' },
-      { label: '驳回', icon: CircleClose, type: 'danger', emitName: 'reject' },
+      { label: '通過', icon: CircleCheck, type: 'primary', emitName: 'approve' },
+      { label: '駁回', icon: CircleClose, type: 'danger', emitName: 'reject' },
     ];
   }
   return [];
@@ -146,13 +148,13 @@ async function handleSubmit(payload: { row: WhitelistRow; mode: WhitelistActionM
   try {
     if (payload.mode === 'supplement') {
       await requestSupplement({ id: payload.row.businessId, message: payload.message! });
-      ElMessage.success('补件要求已发送');
+      ElMessage.success('補件要求已發送');
     } else {
       await submitReview({ id: payload.row.businessId, decision: payload.mode, review_note: payload.mode === 'reject' ? payload.message : undefined });
-      ElMessage.success(payload.mode === 'approve' ? '白名单审核已通过' : '白名单已驳回');
+      ElMessage.success(payload.mode === 'approve' ? '白名單審核已通過' : '白名單已駁回');
     }
     dialogVisible.value = false;
-  } catch { /* 请求层已提示 */ }
+  } catch { /* 請求層已提示 */ }
 }
 
 async function reload() { if (Number.isInteger(id.value) && id.value > 0) await loadDetail(id.value); }

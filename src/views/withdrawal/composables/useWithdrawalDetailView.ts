@@ -1,4 +1,4 @@
-/** 出金详情展示模型：根据接口真实字段生成主体、审核、付款、资金和时间线信息。 */
+/** 法幣出金詳情展示模型：根據接口真實字段生成主體、審核、付款、資金和時間線信息。 */
 import { computed, type Ref } from 'vue';
 
 import type { WithdrawalFile, WithdrawalOrderDetail, WithdrawalParty } from '@/api/modules/withdrawal';
@@ -64,7 +64,7 @@ const HIDDEN_PARTY_FIELDS = new Set([
   'swift_code',
 ]);
 
-/** 出金场景最关心的银行收款信息，排在主体信息之前。 */
+/** 法幣出金場景最關心的銀行收款信息，排在主體信息之前。 */
 const BANK_FIELDS = new Set([
   'bank_name',
   'bank_address',
@@ -80,12 +80,12 @@ const BANK_FIELDS = new Set([
 
 const PAYER_COMPANY_FIELDS = [
   'company_name',
-  'company_type',
   'registration_country',
   'operating_country',
   'city',
   'address',
   'registration_date',
+  'company_type',
   'document_no',
 ];
 const PAYEE_COMPANY_FIELDS = ['company_name', 'operating_country', 'city', 'address'];
@@ -146,11 +146,7 @@ function collectSnapshot(party: WithdrawalParty | undefined, includeBank: boolea
     ? (includeBank ? PAYEE_PERSON_FIELDS : PAYER_PERSON_FIELDS)
     : (includeBank ? PAYEE_COMPANY_FIELDS : PAYER_COMPANY_FIELDS);
   const expectedKeys = [...subjectKeys, ...(includeBank ? PAYEE_BANK_FIELDS : [])];
-  const extraKeys = Object.keys(merged).filter(
-    (key) => !HIDDEN_PARTY_FIELDS.has(key) && !expectedKeys.includes(key),
-  );
-
-  const entries = [...expectedKeys, ...extraKeys].map((key) => {
+  const entries = expectedKeys.map((key) => {
     const value = merged[key];
     return {
       key,
@@ -192,14 +188,14 @@ export function useWithdrawalDetailView(detail: Ref<WithdrawalOrderDetail | null
     const source = detail.value?.review;
     if (!source) return [];
     const fields: Array<DetailField | null> = [
-      source.admin_name ? { key: 'review_admin', label: '审核人', value: source.admin_name } : null,
+      source.admin_name ? { key: 'review_admin', label: '審核人', value: source.admin_name } : null,
       source.reviewed_at
-        ? { key: 'reviewed_at', label: '审核时间', value: source.reviewed_at }
+        ? { key: 'reviewed_at', label: '審核時間', value: source.reviewed_at }
         : null,
       source.note
         ? {
             key: 'review_note',
-            label: detail.value?.status === 4 ? '驳回原因' : '审核说明',
+            label: detail.value?.status === 4 ? '駁回原因' : '審核説明',
             value: source.note,
             wide: true,
           }
@@ -213,19 +209,19 @@ export function useWithdrawalDetailView(detail: Ref<WithdrawalOrderDetail | null
     if (!source) return [];
     const fields: Array<DetailField | null> = [
       source.admin_name
-        ? { key: 'payment_admin', label: '付款处理人', value: source.admin_name }
+        ? { key: 'payment_admin', label: '付款處理人', value: source.admin_name }
         : null,
       source.processing_at
-        ? { key: 'processing_at', label: '进入付款处理', value: source.processing_at }
+        ? { key: 'processing_at', label: '進入付款處理', value: source.processing_at }
         : null,
       source.completed_at
-        ? { key: 'completed_at', label: '付款完成时间', value: source.completed_at, accent: true }
+        ? { key: 'completed_at', label: '付款完成時間', value: source.completed_at, accent: true }
         : null,
       source.failed_at
-        ? { key: 'failed_at', label: '付款失败时间', value: source.failed_at }
+        ? { key: 'failed_at', label: '付款失敗時間', value: source.failed_at }
         : null,
       source.failure_reason
-        ? { key: 'failure_reason', label: '付款失败原因', value: source.failure_reason, wide: true }
+        ? { key: 'failure_reason', label: '付款失敗原因', value: source.failure_reason, wide: true }
         : null,
     ];
     return fields.filter((item): item is DetailField => item !== null);
@@ -234,7 +230,7 @@ export function useWithdrawalDetailView(detail: Ref<WithdrawalOrderDetail | null
   const timelineItems = computed<AdminTimelineItem[]>(() =>
     (detail.value?.records ?? []).map((record, index) => ({
       key: String(record.id ?? index),
-      title: record.action_name || record.name || record.event || '订单处理',
+      title: record.action_name || record.name || record.event || '訂單處理',
       time: record.created_at || record.time || undefined,
       description: [record.actor_name || record.actor_type_name, record.message]
         .filter(Boolean)
@@ -243,13 +239,13 @@ export function useWithdrawalDetailView(detail: Ref<WithdrawalOrderDetail | null
     })),
   );
 
-  /** 附件按每次处理记录分轮展示，时间线节点直接展示本次关联的文件。 */
+  /** 附件按每次處理記錄分輪展示，時間線節點直接展示本次關聯的文件。 */
   const fileRounds = computed<WithdrawalFileRound[]>(() =>
     (detail.value?.records ?? [])
       .filter((record) => (record.files?.length ?? 0) > 0)
       .map((record) => ({
         key: record.id,
-        title: record.action_name || record.name || record.event || '订单处理',
+        title: record.action_name || record.name || record.event || '訂單處理',
         actor: record.actor_name || record.actor_type_name || '—',
         time: record.created_at || record.time || '—',
         message: record.message || '',
@@ -257,10 +253,10 @@ export function useWithdrawalDetailView(detail: Ref<WithdrawalOrderDetail | null
       })),
   );
 
-  /** 交易记录详情仍依赖该兼容方法；出金审核详情已改用四种独立卡片。 */
+  /** 交易記錄詳情仍依賴該兼容方法；法幣出金審核詳情已改用四種獨立卡片。 */
   function partyType(party: WithdrawalParty | undefined) {
     if (!party) return '—';
-    return party.entity_type === 1 ? '公司' : '个人';
+    return party.entity_type === 1 ? '公司' : '個人';
   }
 
   return {

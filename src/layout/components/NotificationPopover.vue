@@ -12,7 +12,7 @@
   </el-popover>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { Check } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
 import { notificationText as t } from '@/views/notifications/messages';
@@ -30,7 +30,6 @@ async function open(item: AdminNotification) {
   await router.push(target ?? { name: 'Notifications' });
 }
 function openAll() { visible.value = false; void router.push({ name: 'Notifications' }); }
-onMounted(loadSummary);
 </script>
 <style scoped lang="scss">
 .notice-panel {

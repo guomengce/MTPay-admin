@@ -2,13 +2,13 @@
   <section class="login-brand">
     <div class="login-brand__content">
       <div class="login-brand__brand">
-        <span>M</span>
-        <strong>MTPay Admin</strong>
+        <img src="/assets/mtpay-logo.png" alt="MTPay" />
       </div>
       <p class="login-brand__eyebrow">OPERATIONS &amp; REVIEW CONSOLE</p>
-      <h1>集中管理代理与<br />每一笔资金流程。</h1>
+      
+      <h1>集中管理代理與<br />每一筆資金流程。</h1>
       <p class="login-brand__subtitle">
-        从代理配置到资金审核，在一个安全、清晰的工作台中完成全部运营流程。
+        從代理配置到資金審核，在一個安全、清晰的工作台中完成全部運營流程。
       </p>
 
       <div class="login-brand__features">
@@ -16,14 +16,14 @@
           <span>01</span>
           <div>
             <strong>集中管控</strong>
-            <small>代理、费率与权限统一管理</small>
+            <small>代理、費率與權限統一管理</small>
           </div>
         </article>
         <article>
           <span>02</span>
           <div>
             <strong>全程可追溯</strong>
-            <small>关键操作与资金流转清晰留痕</small>
+            <small>關鍵操作與資金流轉清晰留痕</small>
           </div>
         </article>
       </div>
@@ -53,10 +53,36 @@
   }
 
   &__brand {
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
     gap: 20px;
     margin-bottom: clamp(90px, 18vh, 190px);
+
+    &::before {
+      position: absolute;
+      inset: -54px -90px;
+      z-index: -1;
+      background: radial-gradient(
+        ellipse at 38% 50%,
+        rgb(71 202 237 / 28%) 0%,
+        rgb(29 126 190 / 14%) 42%,
+        transparent 72%
+      );
+      content: '';
+      filter: blur(14px);
+      pointer-events: none;
+    }
+
+    img {
+      display: block;
+      width: min(280px, 70%);
+      height: auto;
+      filter:
+        drop-shadow(0 0 8px rgb(73 203 240 / 22%))
+        drop-shadow(0 5px 18px rgb(0 12 38 / 24%));
+    }
 
     span {
       display: grid;
