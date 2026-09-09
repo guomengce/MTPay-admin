@@ -8,6 +8,7 @@ import { computed, type Ref } from 'vue';
 
 import type { WhitelistDetail, WhitelistFile } from '@/api/modules/whitelist';
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
+import { getCountryLabel } from '@/constants/countries';
 import { getRemittancePurposeLabel } from '@/constants/remittancePurposes';
 
 export interface WhitelistDetailField {
@@ -36,6 +37,9 @@ function presentValue(key: string, raw: unknown) {
   if (key === 'company_type') return COMPANY_TYPES[Number(raw)] || String(raw);
   if (key === 'document_type') return DOCUMENT_TYPES[Number(raw)] || String(raw);
   if (key === 'remittance_purpose') return getRemittancePurposeLabel(raw);
+  if (['registration_country', 'operating_country', 'nationality', 'residence_country'].includes(key)) {
+    return getCountryLabel(raw);
+  }
   return String(raw);
 }
 

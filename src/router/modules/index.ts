@@ -184,6 +184,18 @@ export const featureRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/risk', name: 'WithdrawalRisk', component: () => import('@/views/risk/index.vue'),
+    meta: { title: '風控管理', description: '查看及處理法幣出金風控案件', icon: 'WarningFilled', requiresAuth: true, hidden: false, menuPermission: 'riskCases' },
+  },
+  {
+    path: '/risk/detail/:id', name: 'WithdrawalRiskDetail', component: () => import('@/views/risk/detail/index.vue'),
+    meta: { title: '風控案件詳情', icon: 'WarningFilled', requiresAuth: true, hidden: true, activeMenu: '/risk', menuPermission: 'riskCases' },
+  },
+  {
+    path: '/risk/config', name: 'WithdrawalRiskConfig', component: () => import('@/views/risk/config/index.vue'),
+    meta: { title: '風控規則配置', icon: 'WarningFilled', requiresAuth: true, hidden: true, activeMenu: '/risk', menuPermission: 'riskCases', actionPermission: 'riskCases.config' },
+  },
+  {
     path: '/fee',
     name: 'Fee',
     component: () => import('@/views/fee/index.vue'),

@@ -1,6 +1,6 @@
 import { useListQueryState } from '@/composables/useListQueryState';
-import { onMounted, ref, watch } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { h, onMounted, ref, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
   addCurrency,
   editCurrency,
@@ -12,6 +12,7 @@ import {
   type CurrencyListParams,
   type CurrencyStatus,
 } from '@/api/modules/currency';
+import { confirmAdminAction } from '@/utils/adminMessageBox';
 
 export function useCurrencyManagement() {
   const list = ref<CurrencyItem[]>([]);
@@ -79,15 +80,16 @@ export function useCurrencyManagement() {
   async function changeStatus(row: CurrencyItem) {
     const nextStatus: CurrencyStatus = row.status === 1 ? 0 : 1;
     const verb = nextStatus === 1 ? '啓用' : '禁用';
-    try {
-      await ElMessageBox.confirm(`確認要${verb}「${row.name}（${row.code}）」嗎？`, `${verb}幣種`, {
-        type: nextStatus === 1 ? 'info' : 'warning',
-        confirmButtonText: `確認${verb}`,
-        cancelButtonText: '取消',
-      });
-    } catch {
-      return;
-    }
+    const confirmed = await confirmAdminAction({
+      title: `${verb}幣種`,
+      message: h('span', [
+        `確認${verb}「`,
+        h('strong', { class: 'admin-message-box__variable' }, `${row.name}（${row.code}）`),
+        '」嗎？',
+      ]),
+      confirmText: `確認${verb}`,
+    });
+    if (!confirmed) return;
     await editCurrencyStatus({ id: row.id, status: nextStatus });
     ElMessage.success(`已${verb} ${row.code}`);
     await loadList();

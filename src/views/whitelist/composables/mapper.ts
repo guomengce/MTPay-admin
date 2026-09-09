@@ -1,5 +1,6 @@
 import type { WhitelistItem, WhitelistStatus } from '@/api/modules/whitelist';
 import type { StatusBadgeEffect, StatusBadgeType } from '@/components/admin/StatusBadge.vue';
+import { getCountryLabel } from '@/constants/countries';
 
 export interface WhitelistRow {
   businessId: number;
@@ -41,7 +42,7 @@ export function toWhitelistRow(item: WhitelistItem): WhitelistRow {
     entityType: item.entity_type_name,
     type: `${item.role_name} · ${item.entity_type_name}`,
     subject: item.subject_name,
-    country: item.country || '—',
+    country: getCountryLabel(item.country),
     fileCount: item.file_count,
     status: item.status_name,
     statusCode: item.status,

@@ -6,6 +6,7 @@ import { reactive, ref } from 'vue';
 
 import { fetchWhitelistList } from '@/api/modules/whitelist';
 import type { WhitelistEntityType, WhitelistRole } from '@/api/modules/whitelist';
+import type { WhitelistStatus } from '@/api/modules/whitelist';
 import type { WhitelistRow } from './mapper';
 import { toWhitelistRow } from './mapper';
 
@@ -13,6 +14,7 @@ export interface WhitelistQuery {
   keyword: string;
   role?: WhitelistRole;
   entity_type?: WhitelistEntityType;
+  status?: WhitelistStatus;
 }
 
 export function useWhitelistList() {
@@ -22,7 +24,7 @@ export function useWhitelistList() {
   const total = ref(0);
   const page = ref(1);
   const limit = ref(15);
-  const query = reactive<WhitelistQuery>({ keyword: '', role: undefined, entity_type: undefined });
+  const query = reactive<WhitelistQuery>({ keyword: '', role: undefined, entity_type: undefined, status: undefined });
 
   const saveListQuery = useListQueryState({ ...toRefs(query), page, limit }, ["status","role","entity_type"]);
 
@@ -37,6 +39,7 @@ export function useWhitelistList() {
         keyword: filters.keyword.trim() || undefined,
         role: filters.role,
         entity_type: filters.entity_type,
+        status: filters.status,
       });
       list.value = result.data.map(toWhitelistRow);
       total.value = result.total;
@@ -54,7 +57,7 @@ export function useWhitelistList() {
   }
 
   function reset() {
-    Object.assign(query, { keyword: '', role: undefined, entity_type: undefined });
+    Object.assign(query, { keyword: '', role: undefined, entity_type: undefined, status: undefined });
     page.value = 1;
     void loadList();
   }

@@ -39,6 +39,7 @@ import {
   Upload,
   User,
   Wallet,
+  WarningFilled,
 } from '@element-plus/icons-vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -67,6 +68,7 @@ const icons = {
   Upload,
   User,
   Wallet,
+  WarningFilled,
 };
 
 function resolveIcon(name: string) {

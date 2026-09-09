@@ -1,5 +1,12 @@
 <template>
-  <el-dialog :model-value="modelValue" :title="currency ? '修改幣種' : '新增幣種'" width="560px" destroy-on-close @close="close">
+  <AdminDialog
+    :model-value="modelValue"
+    :title="currency ? '修改幣種' : '新增幣種'"
+    :icon="Coin"
+    tone="brand"
+    width="min(560px, calc(100vw - 24px))"
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
       <el-form-item label="幣種類型" prop="type">
         <el-select v-model="form.type" :disabled="Boolean(currency)" placeholder="請選擇幣種類型">
@@ -15,12 +22,14 @@
       </el-form-item>
     </el-form>
     <template #footer><el-button @click="close">取消</el-button><el-button type="primary" :loading="submitting" @click="submit">{{ currency ? '確認修改' : '確認新增' }}</el-button></template>
-  </el-dialog>
+  </AdminDialog>
 </template>
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import { Coin } from '@element-plus/icons-vue';
 import type { AddCurrencyPayload, CurrencyItem, CurrencyType } from '@/api/modules/currency';
+import AdminDialog from '@/components/admin/AdminDialog.vue';
 import { limitDecimalInput } from '@/utils/decimal';
 import { useAuthStore } from '@/stores/modules/auth';
 const props=defineProps<{modelValue:boolean;submitting:boolean;currency?:CurrencyItem|null}>();

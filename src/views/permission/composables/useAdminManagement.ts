@@ -1,7 +1,7 @@
 import { useListQueryState } from '@/composables/useListQueryState';
 import { useDisableAccountTwoFactor } from '@/composables/useDisableAccountTwoFactor';
-import { onMounted, ref, watch } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { h, onMounted, ref, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
   createAdminAccount,
   fetchAdminAccountInfo,
@@ -13,6 +13,7 @@ import {
   type AdminAccountPayload,
 } from '@/api/modules/adminAccount';
 import { useAuthStore } from '@/stores/modules/auth';
+import { confirmAdminAction } from '@/utils/adminMessageBox';
 
 export function useAdminManagement() {
   const authStore = useAuthStore();
@@ -72,19 +73,36 @@ export function useAdminManagement() {
   async function toggleStatus(row: AdminAccount) {
     if (Number(row.id) === 1) return;
     const next = row.status === 1 ? 0 : 1;
+    const action = next === 1 ? '啟用' : '停用';
+    const confirmed = await confirmAdminAction({
+      title: `${action}管理員`,
+      message: h('span', [
+        `確認${action}管理員「`,
+        h('strong', { class: 'admin-message-box__variable' }, row.name || row.email),
+        '」嗎？',
+      ]),
+      confirmText: `確認${action}`,
+    });
+    if (!confirmed) return;
     await updateAdminAccountStatus(row.id, next);
-    ElMessage.success(next ? '管理員已啟用' : '管理員已停用');
+    ElMessage.success(`管理員已${action}`);
     await loadList();
   }
   async function toggleCrypto(row: AdminAccount) {
     if (Number(row.id) === 1) return;
-    await ElMessageBox.confirm(
-      row.crypto_enabled ? '關閉後該管理員將無法查看或操作數字貨幣業務，餘額與歷史訂單不會刪除。' : '確認開啓該管理員的數字貨幣業務？',
-      '數字貨幣業務',
-      { type: 'warning', confirmButtonText: '確認', cancelButtonText: '取消' },
-    );
-    await updateAdminCryptoStatus(row.id, row.crypto_enabled ? 0 : 1);
-    ElMessage.success(row.crypto_enabled ? '數字貨幣業務已關閉' : '數字貨幣業務已開啓');
+    const isDisabling = row.crypto_enabled;
+    const confirmed = await confirmAdminAction({
+      title: isDisabling ? '關閉數字貨幣業務' : '開啓數字貨幣業務',
+      message: h('span', [
+        `確認${isDisabling ? '關閉' : '開啓'}管理員「`,
+        h('strong', { class: 'admin-message-box__variable' }, row.name || row.email),
+        '」的數字貨幣業務嗎？',
+      ]),
+      confirmText: isDisabling ? '確認關閉' : '確認開啓',
+    });
+    if (!confirmed) return;
+    await updateAdminCryptoStatus(row.id, isDisabling ? 0 : 1);
+    ElMessage.success(isDisabling ? '數字貨幣業務已關閉' : '數字貨幣業務已開啓');
     if (String(row.id) === authStore.userInfo?.id) await authStore.refreshCurrentAdmin();
     await loadList();
   }

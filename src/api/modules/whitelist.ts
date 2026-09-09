@@ -74,6 +74,7 @@ export interface WhitelistPageResult {
 
 export interface WhitelistListParams {
   keyword?: string;
+  status?: WhitelistStatus;
   role?: WhitelistRole;
   entity_type?: WhitelistEntityType;
   page: number;

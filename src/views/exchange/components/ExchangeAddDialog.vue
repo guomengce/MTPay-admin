@@ -1,18 +1,16 @@
 <template>
-  <el-dialog
+  <AdminDialog
+    v-if="mode === 'reject'"
     :model-value="modelValue"
-    :title="dialogTitle"
+    title="拒絕數字貨幣兌換"
+    :icon="CircleClose"
+    tone="danger"
     width="min(440px, calc(100vw - 24px))"
-    :close-on-click-modal="false"
-    align-center
     @open="resetForm"
     @update:model-value="handleVisibleChange"
   >
     <template v-if="row">
-      <p v-if="mode === 'approve'">確認通過此數字貨幣兌換申請？</p>
-
       <el-form
-        v-if="mode === 'reject'"
         ref="formRef"
         :model="reasonForm"
         :rules="rules"
@@ -35,15 +33,6 @@
     <template #footer>
       <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
       <el-button
-        v-if="mode === 'approve'"
-        type="primary"
-        :icon="CircleCheck"
-        :loading="submitting"
-        @click="handleSubmit"
-        >確認通過</el-button
-      >
-      <el-button
-        v-else
         type="danger"
         :icon="CircleClose"
         :loading="submitting"
@@ -51,13 +40,15 @@
         >確認拒絕</el-button
       >
     </template>
-  </el-dialog>
+  </AdminDialog>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import { CircleCheck, CircleClose } from '@element-plus/icons-vue';
+import { CircleClose } from '@element-plus/icons-vue';
+import AdminDialog from '@/components/admin/AdminDialog.vue';
+import { confirmAdminAction } from '@/utils/adminMessageBox';
 
 import type { ExchangeRow } from './ExchangeTableList.vue';
 
@@ -74,10 +65,6 @@ const emit = defineEmits<{
   (e: 'update:modelValue', val: boolean): void;
   (e: 'submit', payload: { row: ExchangeRow; mode: 'approve' | 'reject'; reason?: string }): void;
 }>();
-
-const dialogTitle = computed(() =>
-  props.mode === 'approve' ? '審核通過' : '拒絕數字貨幣兌換',
-);
 
 const formRef = ref<FormInstance>();
 const reasonForm = reactive({ reason: '' });
@@ -98,17 +85,27 @@ function resetForm() {
   formRef.value?.clearValidate();
 }
 
+watch(
+  () => props.modelValue,
+  async (visible) => {
+    if (!visible || props.mode !== 'approve' || !props.row) return;
+    const confirmed = await confirmAdminAction({
+      title: '通過數字貨幣兌換',
+      message: '確認通過這筆數字貨幣兌換申請嗎？',
+      confirmText: '確認通過',
+    });
+    emit('update:modelValue', false);
+    if (confirmed) emit('submit', { row: props.row, mode: 'approve' });
+  },
+);
+
 async function handleSubmit() {
   if (!props.row) return;
-  if (props.mode === 'reject') {
-    if (!formRef.value) return;
-    await formRef.value.validate((valid) => {
-      if (valid) {
-        emit('submit', { row: props.row!, mode: 'reject', reason: reasonForm.reason });
-      }
-    });
-    return;
-  }
-  if (props.mode === 'approve') emit('submit', { row: props.row, mode: 'approve' });
+  if (!formRef.value) return;
+  await formRef.value.validate((valid) => {
+    if (valid) {
+      emit('submit', { row: props.row!, mode: 'reject', reason: reasonForm.reason });
+    }
+  });
 }
 </script>

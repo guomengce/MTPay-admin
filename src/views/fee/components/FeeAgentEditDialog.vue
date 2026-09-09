@@ -1,7 +1,9 @@
 <template>
-  <el-dialog
+  <AdminDialog
     :model-value="modelValue"
     title="修改代理專屬比例"
+    :icon="DocumentChecked"
+    tone="brand"
     width="min(520px, calc(100vw - 24px))"
     :close-on-click-modal="false"
     align-center
@@ -42,7 +44,7 @@
         儲存
       </el-button>
     </template>
-  </el-dialog>
+  </AdminDialog>
 </template>
 
 <script setup lang="ts">
@@ -50,6 +52,7 @@ import { reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { DocumentChecked } from '@element-plus/icons-vue';
 
+import AdminDialog from '@/components/admin/AdminDialog.vue';
 import type { FeeAgentRow } from '../composables/useFeeSettings';
 import { limitDecimalInput } from '@/utils/decimal';
 
@@ -120,28 +123,6 @@ async function handleSubmit() {
 
 <style scoped lang="scss">
 .fee-agent-dialog {
-  &__hint {
-    margin: 0 0 18px;
-    color: var(--app-text-label);
-    font-size: 13px;
-    font-weight: 600;
-
-    strong {
-      color: var(--app-text-heading);
-      font-weight: 600;
-    }
-
-    span {
-      margin: 0 4px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      color: #126df0;
-      background: #e8f1ff;
-      font-size: 12px;
-      font-weight: 600;
-    }
-  }
-
   &__form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

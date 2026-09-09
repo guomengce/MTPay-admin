@@ -10,6 +10,7 @@ export function exportBusinessCsv(module: CsvModule, filters: CsvFilters) {
   if (module === 'whitelist') {
     params.role = filters.role == null ? '' : String(filters.role);
     params.entity_type = filters.entity_type == null ? '' : String(filters.entity_type);
+    params.status = filters.status == null ? '' : String(filters.status);
   } else {
     params.started_at = filters.started_at || ''; params.ended_at = filters.ended_at || '';
     if (module !== 'deposit') params.status = filters.status == null ? '' : String(filters.status);

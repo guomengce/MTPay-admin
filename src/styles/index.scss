@@ -3,7 +3,10 @@
 @use './reset.scss';
 @use './element.scss';
 @use './element-overrides.scss';
+@use './dialog.scss';
+@use './message.scss';
 @use './filter-bar.scss';
+@use './progress.scss';
 
 .page {
   min-width: 0;

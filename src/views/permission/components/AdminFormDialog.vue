@@ -1,5 +1,13 @@
 <template>
-  <el-dialog :model-value="modelValue" :title="passwordOnly ? '修改密碼' : admin ? '修改管理員' : '新增管理員'" width="min(520px, calc(100vw - 24px))" destroy-on-close @opened="clearValidation" @update:model-value="emit('update:modelValue', $event)">
+  <AdminDialog
+    :model-value="modelValue"
+    :title="dialogTitle"
+    :icon="passwordOnly ? Lock : UserFilled"
+    tone="brand"
+    width="min(520px, calc(100vw - 24px))"
+    @open="clearValidation"
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <el-form ref="formRef" :model="form" :rules="rules" :validate-on-rule-change="false" label-position="top" autocomplete="off" @submit.prevent>
       <template v-if="!passwordOnly">
         <el-form-item label="管理員名稱" prop="name"><el-input v-model="form.name" autocomplete="off" placeholder="請輸入管理員名稱" /></el-form-item>
@@ -12,20 +20,23 @@
       <el-button @click="emit('update:modelValue', false)">取消</el-button>
       <el-button type="primary" :loading="submitting" @click="handleSubmit">{{ passwordOnly ? '確認修改' : admin ? '儲存修改' : '新增管理員' }}</el-button>
     </template>
-  </el-dialog>
+  </AdminDialog>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import { Lock, UserFilled } from '@element-plus/icons-vue';
 import type { AdminAccount, AdminAccountPayload } from '@/api/modules/adminAccount';
 import { fetchRoleList, type RoleItem } from '@/api/modules/role';
+import AdminDialog from '@/components/admin/AdminDialog.vue';
 
 const props = defineProps<{ modelValue: boolean; admin: AdminAccount | null; submitting?: boolean; passwordOnly?: boolean }>();
 const emit = defineEmits<{ (e: 'update:modelValue', value: boolean): void; (e: 'submit', value: AdminAccountPayload): void }>();
 const formRef = ref<FormInstance>();
 const form = reactive({ name: '', email: '', password: '', role_id: undefined as number | undefined });
 const roles = ref<RoleItem[]>([]);
+const dialogTitle = computed(() => props.passwordOnly ? '修改密碼' : props.admin ? '修改管理員' : '新增管理員');
 const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,20}$/;
 const rules: FormRules = {
   name: [{ required: true, message: '請輸入管理員名稱', trigger: 'blur' }],

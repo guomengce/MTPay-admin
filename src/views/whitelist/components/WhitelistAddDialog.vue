@@ -1,18 +1,16 @@
 <template>
-  <el-dialog
+  <AdminDialog
+    v-if="mode !== 'approve'"
     :model-value="modelValue"
     :title="dialogTitle"
+    :icon="mode === 'reject' ? CircleClose : DocumentAdd"
+    :tone="mode === 'reject' ? 'danger' : 'warning'"
     width="min(440px, calc(100vw - 24px))"
-    :close-on-click-modal="false"
-    align-center
     @open="resetForm"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <template v-if="row">
-      <p v-if="mode === 'approve'">確認通過此白名單申請？</p>
-
       <el-form
-        v-if="mode !== 'approve'"
         ref="formRef"
         :model="formState"
         :rules="rules"
@@ -36,19 +34,21 @@
       <el-button plain @click="emit('update:modelValue', false)">取消</el-button>
       <el-button
         :type="mode === 'reject' ? 'danger' : 'primary'"
-        :icon="mode === 'reject' ? CircleClose : mode === 'approve' ? CircleCheck : DocumentAdd"
+        :icon="mode === 'reject' ? CircleClose : DocumentAdd"
         :loading="submitting"
         @click="handleSubmit"
         >{{ submitLabel }}</el-button
       >
     </template>
-  </el-dialog>
+  </AdminDialog>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import { CircleCheck, CircleClose, DocumentAdd } from '@element-plus/icons-vue';
+import { CircleClose, DocumentAdd } from '@element-plus/icons-vue';
+import AdminDialog from '@/components/admin/AdminDialog.vue';
+import { confirmAdminAction } from '@/utils/adminMessageBox';
 
 import type { WhitelistRow } from '../composables/mapper';
 
@@ -67,10 +67,10 @@ const emit = defineEmits<{
 }>();
 
 const dialogTitle = computed(() =>
-  props.mode === 'approve' ? '審核通過' : props.mode === 'reject' ? '駁回白名單' : '要求補件',
+  props.mode === 'reject' ? '駁回白名單' : '要求補件',
 );
 const submitLabel = computed(() =>
-  props.mode === 'approve' ? '確認通過' : props.mode === 'reject' ? '確認駁回' : '發送補件要求',
+  props.mode === 'reject' ? '確認駁回' : '發送補件要求',
 );
 
 const formRef = ref<FormInstance>();
@@ -84,11 +84,23 @@ function resetForm() {
   formRef.value?.clearValidate();
 }
 
+watch(
+  () => props.modelValue,
+  async (visible) => {
+    if (!visible || props.mode !== 'approve' || !props.row) return;
+    const confirmed = await confirmAdminAction({
+      title: '通過白名單申請',
+      message: '確認通過這筆白名單申請嗎？',
+      confirmText: '確認通過',
+    });
+    emit('update:modelValue', false);
+    if (confirmed) emit('submit', { row: props.row, mode: 'approve' });
+  },
+);
+
 async function handleSubmit() {
   if (!props.row) return;
-  if (props.mode !== 'approve') {
-    if (!formRef.value || !(await formRef.value.validate().catch(() => false))) return;
-  }
+  if (!formRef.value || !(await formRef.value.validate().catch(() => false))) return;
   emit('submit', {
     row: props.row,
     mode: props.mode,

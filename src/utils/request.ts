@@ -8,6 +8,9 @@ import { useAuthStore } from '@/stores/modules/auth';
 const request = axios.create({
   baseURL: appConfig.apiBaseURL,
   timeout: 15000,
+  headers: {
+    'Accept-Language': 'zh-TW',
+  },
 });
 
 request.interceptors.request.use((config: InternalAxiosRequestConfig) => {

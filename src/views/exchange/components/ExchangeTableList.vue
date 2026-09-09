@@ -48,10 +48,10 @@
                 <el-dropdown-item command="view" :icon="View">詳情</el-dropdown-item>
                 <template v-if="row.statusEffect === 'pending'">
                   <el-dropdown-item v-if="canOperate('cryptoExchange.review')" command="approve" :icon="CircleCheck">
-                    <span class="review-command review-command--success">通過</span>
+                    <span class="review-command">通過</span>
                   </el-dropdown-item>
                   <el-dropdown-item v-if="canOperate('cryptoExchange.review')" command="reject" :icon="CircleClose">
-                    <span class="review-command review-command--danger">拒絕</span>
+                    <span class="review-command">拒絕</span>
                   </el-dropdown-item>
                 </template>
               </el-dropdown-menu>
@@ -115,13 +115,5 @@ function handleCommand(command: string | number | object, row: ExchangeRow) {
 
 .review-command {
   font-weight: 600;
-
-  &--success {
-    color: #16a34a;
-  }
-
-  &--danger {
-    color: #dc2626;
-  }
 }
 </style>

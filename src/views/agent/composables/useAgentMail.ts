@@ -1,11 +1,12 @@
-import { ref } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { h, ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
   resendAgentInvitation,
   sendAgentPasswordReset,
   type AgentAccount,
   type MailResult,
 } from '@/api/modules/agent';
+import { confirmAdminAction } from '@/utils/adminMessageBox';
 
 export type AgentMailAction = 'invitation' | 'password-reset';
 type AgentMailTarget = Pick<AgentAccount, 'id' | 'email'>;
@@ -25,14 +26,12 @@ export function useAgentMail() {
   }
 
   async function sendInvitation(agent: AgentMailTarget) {
-    try {
-      await ElMessageBox.confirm(`確認重新發送激活郵件到 ${agent.email} 嗎？`, '重新發送激活郵件', {
-        type: 'warning',
-        confirmButtonText: '確認發送',
-      });
-    } catch {
-      return;
-    }
+    const confirmed = await confirmAdminAction({
+      title: '重新發送激活郵件',
+      message: mailConfirmMessage('確認重新發送激活郵件到', agent.email),
+      confirmText: '確認發送',
+    });
+    if (!confirmed) return;
     mailLoading.value = 'invitation';
     try {
       showMailResult(await resendAgentInvitation(agent.id));
@@ -42,14 +41,12 @@ export function useAgentMail() {
   }
 
   async function sendPasswordReset(agent: AgentMailTarget) {
-    try {
-      await ElMessageBox.confirm(`確認發送密碼重置郵件到 ${agent.email} 嗎？`, '發送密碼重置郵件', {
-        type: 'info',
-        confirmButtonText: '確認發送',
-      });
-    } catch {
-      return;
-    }
+    const confirmed = await confirmAdminAction({
+      title: '發送密碼重置郵件',
+      message: mailConfirmMessage('確認發送密碼重置郵件到', agent.email),
+      confirmText: '確認發送',
+    });
+    if (!confirmed) return;
     mailLoading.value = 'password-reset';
     try {
       showMailResult(await sendAgentPasswordReset(agent.id));
@@ -59,4 +56,12 @@ export function useAgentMail() {
   }
 
   return { mailLoading, sendInvitation, sendPasswordReset };
+}
+
+function mailConfirmMessage(prefix: string, email: string) {
+  return h('span', [
+    `${prefix} `,
+    h('strong', { class: 'admin-message-box__variable' }, email),
+    ' 嗎？',
+  ]);
 }

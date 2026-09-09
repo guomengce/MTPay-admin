@@ -6,6 +6,7 @@ import { reactive, ref } from 'vue';
 
 import { fetchWithdrawalList } from '@/api/modules/withdrawal';
 import type { WithdrawalListParams, WithdrawalStatus } from '@/api/modules/withdrawal';
+import type { RiskLevel, RiskStatus } from '@/api/modules/withdrawalRisk';
 
 import { toWithdrawalRow, type WithdrawalRow } from './mapper';
 
@@ -14,6 +15,8 @@ export interface WithdrawalQuery {
   keyword: string;
   started_at: string;
   ended_at: string;
+  risk_level?: RiskLevel;
+  risk_status?: RiskStatus;
 }
 
 const INITIAL_QUERY: WithdrawalQuery = {
@@ -21,6 +24,8 @@ const INITIAL_QUERY: WithdrawalQuery = {
   keyword: '',
   started_at: '',
   ended_at: '',
+  risk_level: undefined,
+  risk_status: undefined,
 };
 
 export function useWithdrawalList() {
@@ -40,6 +45,8 @@ export function useWithdrawalList() {
       keyword: filters.keyword.trim() || undefined,
       started_at: filters.started_at || undefined,
       ended_at: filters.ended_at || undefined,
+      risk_level: filters.risk_level,
+      risk_status: filters.risk_status,
     };
   }
 

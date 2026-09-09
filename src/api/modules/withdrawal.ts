@@ -2,6 +2,7 @@
 import request from '../request';
 
 import type { BusinessUser, CurrencyRef, ReviewDecision, ReviewInfo } from './deposit';
+import type { RiskAssessment, RiskLevel, RiskStatus } from './withdrawalRisk';
 
 export type WithdrawalStatus = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -69,6 +70,7 @@ export interface WithdrawalOrder {
   payment_file_count: number;
   submitted_at: string | null;
   updated_at: string | null;
+  risk?: RiskAssessment;
 }
 
 export interface WithdrawalOrderDetail extends WithdrawalOrder {
@@ -110,6 +112,8 @@ export interface WithdrawalListParams {
   order_no?: string;
   started_at?: string;
   ended_at?: string;
+  risk_level?: RiskLevel;
+  risk_status?: RiskStatus;
   page: number;
   limit: number;
 }

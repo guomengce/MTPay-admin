@@ -1,0 +1,33 @@
+#nprogress {
+  pointer-events: none;
+
+  .bar {
+    position: fixed;
+    z-index: 10000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--app-primary, #048f8f);
+  }
+
+  .peg {
+    position: absolute;
+    right: 0;
+    display: block;
+    width: 100px;
+    height: 100%;
+    border-radius: 999px;
+    box-shadow:
+      0 0 10px var(--app-primary, #048f8f),
+      0 0 5px var(--app-primary, #048f8f);
+    opacity: 1;
+    transform: rotate(3deg) translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #nprogress .bar {
+    transition: none !important;
+  }
+}

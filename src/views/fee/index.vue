@@ -71,12 +71,13 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { h, onBeforeUnmount, onMounted, ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import { RefreshLeft, Search, UserFilled } from '@element-plus/icons-vue';
 
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import { usePageLoading } from '@/composables/usePageLoading';
+import { confirmAdminAction } from '@/utils/adminMessageBox';
 import TablePager from '@/components/common/TablePager.vue';
 import FeeAgentCardList from './components/FeeAgentCardList.vue';
 import FeeAgentEditDialog from './components/FeeAgentEditDialog.vue';
@@ -152,18 +153,22 @@ async function handleSaveAgent(payload: { user_id: number; usdt_rate: string; us
 }
 
 async function handleClear(row: FeeAgentRow) {
+  const confirmed = await confirmAdminAction({
+    title: '恢復平台默認比例',
+    message: h('span', null, [
+      '確認將 ',
+      h('span', { class: 'admin-message-box__variable' }, row.company_name),
+      ' 的專屬比例恢復為平台默認嗎？',
+    ]),
+    confirmText: '確認恢復',
+  });
+  if (!confirmed) return;
+
   try {
-    await ElMessageBox.confirm(
-      `確認清除 ${row.company_name} 的專屬比例並恢復平台默認嗎？`,
-      '恢復平台默認比例',
-      { type: 'warning', confirmButtonText: '確認恢復', cancelButtonText: '取消' },
-    );
     await clearAgentRates(row.user_id);
-    ElMessage.success(`已清除 ${row.company_name} 的專屬比例，恢復平台默認`);
-  } catch (error) {
-    if (error !== 'cancel' && error !== 'close') {
-      /* 統一請求層已提示 */
-    }
+    ElMessage.success('已恢復平台默認比例');
+  } catch {
+    /* 統一請求層已提示 */
   }
 }
 

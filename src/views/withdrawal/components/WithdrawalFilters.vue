@@ -11,6 +11,8 @@
     <el-select v-model="status" placeholder="訂單狀態" clearable>
       <el-option v-for="item in statusOptions" :key="item.value" v-bind="item" />
     </el-select>
+    <el-select v-model="riskLevel" placeholder="風險等級" clearable><el-option label="低風險" :value="1"/><el-option label="中風險" :value="2"/><el-option label="高風險" :value="3"/></el-select>
+    <el-select v-model="riskStatus" placeholder="風控狀態" clearable><el-option v-for="item in riskStatusOptions" :key="item.value" v-bind="item"/></el-select>
     <el-date-picker
       v-model="dateRange"
       type="daterange"
@@ -35,6 +37,7 @@ import { computed } from 'vue';
 import { RefreshLeft, Search } from '@element-plus/icons-vue';
 
 import type { WithdrawalStatus } from '@/api/modules/withdrawal';
+import type { RiskLevel, RiskStatus } from '@/api/modules/withdrawalRisk';
 import type { WithdrawalQuery } from '../composables/useWithdrawalList';
 
 const props = defineProps<{ query: WithdrawalQuery; loading?: boolean }>();
@@ -52,6 +55,7 @@ const statusOptions = [
   { value: 5, label: '付款失敗' },
   { value: 6, label: '已取消' },
 ];
+const riskStatusOptions = ['系統通過','加強核查','待風控覆核','待補件','已放行','已拒絕'].map((label,index)=>({label,value:index+1}));
 
 const status = computed<WithdrawalStatus | undefined>({
   get: () => props.query.status,
@@ -61,6 +65,8 @@ const keyword = computed({
   get: () => props.query.keyword,
   set: (value: string) => emit('update', { keyword: value }),
 });
+const riskLevel = computed<RiskLevel|undefined>({get:()=>props.query.risk_level,set:value=>emit('update',{risk_level:value})});
+const riskStatus = computed<RiskStatus|undefined>({get:()=>props.query.risk_status,set:value=>emit('update',{risk_status:value})});
 const dateRange = computed<string[]>({
   get: () =>
     props.query.started_at && props.query.ended_at

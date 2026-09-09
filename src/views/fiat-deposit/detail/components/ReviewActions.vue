@@ -1,13 +1,22 @@
 <template>
-  <el-dialog :model-value="modelValue" :title="mode === 'approve' ? '審核通過' : '審核拒絕'" width="440px" append-to-body destroy-on-close @close="close">
-    <p class="review-dialog__message">{{ mode === 'approve' ? '確認通過該法幣入金申請？' : '請填寫拒絕原因。' }}</p>
+  <AdminDialog
+    :model-value="modelValue"
+    :title="mode === 'approve' ? '通過法幣入金' : '拒絕法幣入金'"
+    :icon="mode === 'approve' ? CircleCheck : CircleClose"
+    :tone="mode === 'approve' ? 'success' : 'danger'"
+    width="min(440px, calc(100vw - 24px))"
+    @update:model-value="close"
+  >
+    <p class="review-dialog__message">{{ mode === 'approve' ? '確認通過這筆法幣入金申請嗎？' : '請填寫拒絕原因。' }}</p>
     <el-input v-if="mode === 'reject'" v-model="note" type="textarea" :rows="3" maxlength="1000" show-word-limit placeholder="拒絕原因" />
-    <template #footer><el-button :disabled="submitting" @click="close">取消</el-button><el-button :type="mode === 'approve' ? 'primary' : 'danger'" :loading="submitting" @click="submit">確認</el-button></template>
-  </el-dialog>
+    <template #footer><el-button :disabled="submitting" @click="close">取消</el-button><el-button :type="mode === 'approve' ? 'primary' : 'danger'" :loading="submitting" @click="submit">{{ mode === 'approve' ? '確認通過' : '確認拒絕' }}</el-button></template>
+  </AdminDialog>
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
+import { CircleCheck, CircleClose } from '@element-plus/icons-vue';
+import AdminDialog from '@/components/admin/AdminDialog.vue';
 const props=defineProps<{modelValue:boolean;mode:'approve'|'reject';submitting:boolean}>();
 const emit=defineEmits<{(e:'update:modelValue',value:boolean):void;(e:'review',value:{decision:'approve'|'reject';review_note?:string}):void}>();
 const note=ref('');

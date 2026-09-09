@@ -1,32 +1,18 @@
 <template>
-  <el-dialog
+  <AdminDialog
     :model-value="modelValue"
+    :title="agent ? '修改代理資料' : '新增代理賬户'"
+    :description="agent ? '更新代理公司的聯絡資料' : '建立新的代理企業與管理聯絡方式'"
+    :icon="UserFilled"
+    tone="brand"
     width="min(660px, calc(100vw - 24px))"
-    class="agent-form-dialog"
-    :show-close="false"
-    :close-on-click-modal="false"
-    align-center
     @update:model-value="(value: boolean) => emit('update:modelValue', value)"
     @open="handleOpen"
   >
-    <template #header>
-      <header class="agent-form__header">
-        <div class="agent-form__heading">
-          <span><el-icon><UserFilled /></el-icon></span>
-          <div>
-            <h2>{{ agent ? '修改代理資料' : '新增代理賬户' }}</h2>
-          </div>
-        </div>
-        <el-button circle text :icon="Close" aria-label="關閉" @click="emit('update:modelValue', false)" />
-      </header>
-    </template>
-
-    <div class="agent-form__body">
-
-      <div v-if="agent" class="agent-form__code">
+    <div v-if="agent" class="agent-form__code">
         <div><small>代理郵箱</small><strong>{{ agent.email }}</strong></div>
         <span>{{ agent.status_name }}</span>
-      </div>
+    </div>
 
       <el-form
         ref="formRef"
@@ -71,34 +57,25 @@
           </el-form-item>
         </div>
       </el-form>
-    </div>
-
     <template #footer>
-      <footer class="agent-form__footer">
-        <div>
-          <el-button @click="emit('update:modelValue', false)">取消</el-button>
-          <el-button
-            type="primary"
-            :icon="agent ? DocumentChecked : Plus"
-            :loading="submitting"
-            @click="handleSubmit"
-          >
-            {{ agent ? '保存修改' : '創建代理' }}
-          </el-button>
-        </div>
-      </footer>
+      <el-button @click="emit('update:modelValue', false)">取消</el-button>
+      <el-button
+        type="primary"
+        :icon="agent ? DocumentChecked : Plus"
+        :loading="submitting"
+        @click="handleSubmit"
+      >
+        {{ agent ? '保存修改' : '創建代理' }}
+      </el-button>
     </template>
-  </el-dialog>
+  </AdminDialog>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import {
-  Close,
   DocumentChecked,
-  InfoFilled,
-  Lock,
   Message,
   OfficeBuilding,
   Phone,
@@ -106,6 +83,7 @@ import {
   UserFilled,
 } from '@element-plus/icons-vue';
 import type { AgentAccount, AgentFormPayload } from '@/api/modules/agent';
+import AdminDialog from '@/components/admin/AdminDialog.vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -151,71 +129,20 @@ async function handleSubmit() {
 }
 </script>
 
-<style lang="scss">
-.agent-form-dialog { padding: 0; }
-.agent-form-dialog .el-dialog__header,
-.agent-form-dialog .el-dialog__body,
-.agent-form-dialog .el-dialog__footer { margin: 0; padding: 0; }
-
+<style scoped lang="scss">
 .agent-form {
-  &__header {
-    display: flex;
-    min-height: 90px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px 28px;
-    color: #ffffff;
-    background:
-      radial-gradient(circle at 84% 0, rgb(47 224 211 / 25%), transparent 40%),
-      linear-gradient(135deg, #061d3d, #0b4165);
-  }
-  &__header > .el-button { color: #d9e9f7; font-size: 20px; }
-  &__heading { display: flex; align-items: center; gap: 15px; }
-  &__heading > span {
-    display: grid; width: 50px; height: 50px; place-items: center; border: 1px solid rgb(255 255 255 / 25%);
-    border-radius: 14px; background: linear-gradient(135deg, #2bd8c5, #1498be); font-size: 24px;
-    box-shadow: 0 10px 24px rgb(16 214 196 / 20%);
-  }
-  &__heading h2 { margin: 0; font-size: 22px; }
-  &__heading p { margin: 6px 0 0; color: #b7cce0; font-size: 13px; }
-
-  &__body { padding: 26px 28px 8px; background: #f8fafc; }
-  &__notice {
-    display: flex; align-items: flex-start; gap: 9px; margin-bottom: 20px; padding: 12px 14px;
-    border: 1px solid #cde9e6; border-radius: 11px; color: #39706e; background: #edf9f7;
-    font-size: 13px; font-weight: 500; line-height: 1.65;
-  }
-  &__notice .el-icon { flex: none; margin-top: 3px; color: #0ba49a; font-size: 16px; }
-  &__notice--warning { border-color: #f2dfba; color: #7b6334; background: #fff9ed; }
-  &__notice--warning .el-icon { color: #d39119; }
   &__code {
     display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 14px 16px;
-    border: 1px solid #dde6ef; border-radius: 12px; background: #ffffff;
+    border: 1px solid #cfe5e2; border-radius: 12px; background: #f5fbfa;
   }
   &__code div { display: grid; gap: 4px; }
   &__code small { color: #8795a8; font-size: 12px; font-weight: 600; }
   &__code strong { color: #10233e; font-size: 16px; letter-spacing: .5px; }
   &__code > span { padding: 5px 11px; border-radius: 999px; color: #087e77; background: #e5f7f4; font-size: 12px; font-weight: 600; }
   &__row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  &__footer {
-    display: flex; min-height: 82px; align-items: center; justify-content: flex-end; gap: 16px;
-    padding: 16px 28px; border-top: 1px solid #e3e9f0; background: #ffffff;
-  }
-  &__footer > span { display: flex; align-items: center; gap: 6px; color: #8190a3; font-size: 12px; }
-  &__footer > span .el-icon { color: #0aa097; }
-  &__footer > div { display: flex; gap: 10px; }
 }
 
 @include mobile {
-  .agent-form-dialog { width: calc(100% - 24px) !important; }
-  .agent-form__header { min-height: 94px; padding: 19px; }
-  .agent-form__heading > span { width: 44px; height: 44px; }
-  .agent-form__heading h2 { font-size: 19px; }
-  .agent-form__heading p { display: none; }
-  .agent-form__body { padding: 20px 18px 2px; }
   .agent-form__row { grid-template-columns: 1fr; gap: 0; }
-  .agent-form__footer { align-items: stretch; flex-direction: column; padding: 15px 18px; }
-  .agent-form__footer > span { justify-content: center; }
-  .agent-form__footer > div, .agent-form__footer .el-button { width: 100%; }
 }
 </style>

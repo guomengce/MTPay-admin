@@ -1,11 +1,16 @@
 <template>
   <section class="admin-page">
-    <AdminHero
-      title="法幣出金管理"
-      :icon="Wallet"
-    >
+    <AdminHero title="法幣出金管理" :icon="Wallet">
       <template #extra>
-        <el-button type="primary" plain :icon="Download" :loading="exporting" :disabled="loading || !exportFilters" @click="exportOrders">匯出 CSV</el-button>
+        <el-button
+          type="primary"
+          plain
+          :icon="Download"
+          :loading="exporting"
+          :disabled="loading || !exportFilters"
+          @click="exportOrders"
+          >匯出 CSV</el-button
+        >
       </template>
     </AdminHero>
 
@@ -86,11 +91,25 @@ import { useWithdrawalList } from './composables/useWithdrawalList';
 
 const router = useRouter();
 const { cancelCompleted } = useCancelCompletedWithdrawal(() => loadList());
-const { exportFilters, loading, list, total, page, limit, query, loadList, search, reset, setPage, setLimit } =
-  useWithdrawalList();
+const {
+  exportFilters,
+  loading,
+  list,
+  total,
+  page,
+  limit,
+  query,
+  loadList,
+  search,
+  reset,
+  setPage,
+  setLimit,
+} = useWithdrawalList();
 const { exporting, downloadCsv } = useBusinessCsvExport('withdrawal', () => exportFilters.value);
 
-function exportOrders() { void downloadCsv(); }
+function exportOrders() {
+  void downloadCsv();
+}
 
 function openDetail(row: WithdrawalRow) {
   void router.push({ name: 'WithdrawalDetail', params: { id: row.businessId } });
@@ -100,8 +119,15 @@ const dialogVisible = ref(false);
 const actionMode = ref<WithdrawalActionMode>('approve');
 const actionRow = ref<WithdrawalRow | null>(null);
 const initialResult = ref<WithdrawalPaymentResult | undefined>(undefined);
-const { submitting, uploading, requestSupplement, submitReview, submitPayment, appendPaymentFiles, uploadFile } =
-  useWithdrawalDetail();
+const {
+  submitting,
+  uploading,
+  requestSupplement,
+  submitReview,
+  submitPayment,
+  appendPaymentFiles,
+  uploadFile,
+} = useWithdrawalDetail();
 
 function openDialog(mode: WithdrawalActionMode, row: WithdrawalRow) {
   actionMode.value = mode;
@@ -135,9 +161,13 @@ async function handleSubmit(payload: {
       await submitReview({
         id,
         decision: payload.mode,
-        review_note: payload.mode === 'reject' ? payload.message : undefined,
+        review_note: payload.message,
       });
-      ElMessage.success(payload.mode === 'approve' ? '法幣出金審核已通過，進入付款處理' : '法幣出金已駁回，凍結資金已釋放');
+      ElMessage.success(
+        payload.mode === 'approve'
+          ? '法幣出金審核已通過，進入付款處理'
+          : '法幣出金已駁回，凍結資金已釋放',
+      );
     } else if (payload.mode === 'payment') {
       const fileIds = payload.result === 'complete' ? payload.fileIds : [];
       await submitPayment({
@@ -146,7 +176,9 @@ async function handleSubmit(payload: {
         file_ids: fileIds.length ? fileIds : undefined,
         failure_reason: payload.result === 'fail' ? payload.failureReason : undefined,
       });
-      ElMessage.success(payload.result === 'complete' ? '付款完成已登記' : '付款失敗已登記，凍結資金已釋放');
+      ElMessage.success(
+        payload.result === 'complete' ? '付款完成已登記' : '付款失敗已登記，凍結資金已釋放',
+      );
     } else {
       await appendPaymentFiles({ id, file_ids: payload.fileIds, message: payload.message });
       ElMessage.success('付款憑證已追加');
@@ -154,7 +186,8 @@ async function handleSubmit(payload: {
     dialogVisible.value = false;
     await loadList();
   } catch {
-    /* 統一請求層已顯示後端錯誤 */
+    /* 後端可能因風控狀態變更拒絕操作，立即同步最新列表。 */
+    await loadList();
   }
 }
 

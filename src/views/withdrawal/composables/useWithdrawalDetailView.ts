@@ -1,8 +1,13 @@
 /** 法幣出金詳情展示模型：根據接口真實字段生成主體、審核、付款、資金和時間線信息。 */
 import { computed, type Ref } from 'vue';
 
-import type { WithdrawalFile, WithdrawalOrderDetail, WithdrawalParty } from '@/api/modules/withdrawal';
+import type {
+  WithdrawalFile,
+  WithdrawalOrderDetail,
+  WithdrawalParty,
+} from '@/api/modules/withdrawal';
 import type { AdminTimelineItem } from '@/components/admin/AdminTimeline.vue';
+import { getCountryLabel } from '@/constants/countries';
 import { getRemittancePurposeLabel } from '@/constants/remittancePurposes';
 
 export interface DetailField {
@@ -49,20 +54,6 @@ const FIELD_LABELS: Record<string, string> = {
   remittance_purpose: '匯款目的',
   remark: '備註（可選）',
 };
-
-const HIDDEN_PARTY_FIELDS = new Set([
-  'id',
-  'name',
-  'subject_name',
-  'whitelist_no',
-  'whitelist_id',
-  'role',
-  'role_name',
-  'entity_type',
-  'entity_type_name',
-  'account_no',
-  'swift_code',
-]);
 
 /** 法幣出金場景最關心的銀行收款信息，排在主體信息之前。 */
 const BANK_FIELDS = new Set([
@@ -116,6 +107,7 @@ const PAYEE_BANK_FIELDS = [
   'remittance_purpose',
   'remark',
 ];
+const OPTIONAL_PARTY_FIELDS = new Set(['intermediary_swift', 'remark']);
 
 const COMPANY_TYPES: Record<number, string> = { 1: '非金融機構', 2: '金融機構' };
 const DOCUMENT_TYPES: Record<number, string> = { 1: '身份證件', 2: '護照' };
@@ -125,9 +117,18 @@ function displayValue(key: string, raw: unknown) {
   if (key === 'company_type') return COMPANY_TYPES[Number(raw)] || String(raw);
   if (key === 'document_type') return DOCUMENT_TYPES[Number(raw)] || String(raw);
   if (key === 'remittance_purpose') return getRemittancePurposeLabel(raw);
+  if (
+    ['registration_country', 'operating_country', 'nationality', 'residence_country'].includes(key)
+  ) {
+    return getCountryLabel(raw);
+  }
   if (typeof raw === 'boolean') return raw ? '是' : '否';
   if (typeof raw === 'object') return JSON.stringify(raw);
   return String(raw);
+}
+
+function hasPartyValue(raw: unknown) {
+  return raw !== null && raw !== undefined && (typeof raw !== 'string' || raw.trim() !== '');
 }
 
 function collectSnapshot(party: WithdrawalParty | undefined, includeBank: boolean) {
@@ -142,22 +143,40 @@ function collectSnapshot(party: WithdrawalParty | undefined, includeBank: boolea
   if (!merged.swift && merged.swift_code) merged.swift = merged.swift_code;
   if (!merged.company_name && party?.entity_type === 1) merged.company_name = party.name;
 
-  const subjectKeys = party?.entity_type === 2
-    ? (includeBank ? PAYEE_PERSON_FIELDS : PAYER_PERSON_FIELDS)
-    : (includeBank ? PAYEE_COMPANY_FIELDS : PAYER_COMPANY_FIELDS);
+  const subjectKeys =
+    party?.entity_type === 2
+      ? includeBank
+        ? PAYEE_PERSON_FIELDS
+        : PAYER_PERSON_FIELDS
+      : includeBank
+        ? PAYEE_COMPANY_FIELDS
+        : PAYER_COMPANY_FIELDS;
   const expectedKeys = [...subjectKeys, ...(includeBank ? PAYEE_BANK_FIELDS : [])];
-  const entries = expectedKeys.map((key) => {
-    const value = merged[key];
-    return {
-      key,
-      label: key === 'document_no'
-        ? (party?.entity_type === 1 ? '公司編號' : '證件編號')
-        : (FIELD_LABELS[key] || key.split('_').join(' ')),
-      value: displayValue(key, value) || '—',
-      wide: ['address', 'bank_address', 'remark', 'remittance_purpose'].includes(key),
-      mono: ['document_no', 'bank_account', 'account_no', 'iban', 'swift', 'swift_code', 'intermediary_swift'].includes(key),
-    };
-  });
+  const entries = expectedKeys
+    .filter((key) => !OPTIONAL_PARTY_FIELDS.has(key) || hasPartyValue(merged[key]))
+    .map((key) => {
+      const value = merged[key];
+      return {
+        key,
+        label:
+          key === 'document_no'
+            ? party?.entity_type === 1
+              ? '公司編號'
+              : '證件編號'
+            : FIELD_LABELS[key] || key.split('_').join(' '),
+        value: displayValue(key, value) || '—',
+        wide: ['address', 'bank_address', 'remark', 'remittance_purpose'].includes(key),
+        mono: [
+          'document_no',
+          'bank_account',
+          'account_no',
+          'iban',
+          'swift',
+          'swift_code',
+          'intermediary_swift',
+        ].includes(key),
+      };
+    });
 
   const bank = entries.filter((item) => BANK_FIELDS.has(item.key));
   const subject = entries.filter((item) => !BANK_FIELDS.has(item.key));

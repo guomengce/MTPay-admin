@@ -11,7 +11,6 @@
     />
     <section class="app-layout__body">
       <AppHeader />
-      <PageProgress />
       <AppMain />
     </section>
   </div>
@@ -23,7 +22,6 @@ import { computed, onBeforeUnmount, onMounted, watch } from 'vue';
 import AppAside from './components/AppAside.vue';
 import AppHeader from './components/AppHeader.vue';
 import AppMain from './components/AppMain.vue';
-import PageProgress from './components/PageProgress.vue';
 import { useAppStore } from '@/stores/modules/app';
 import { useRouteStore } from '@/stores/modules/route';
 import { featureRoutes } from '@/router/modules';

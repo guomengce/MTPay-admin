@@ -32,10 +32,12 @@
             <PayeeCompanyCard
               v-if="payee.entity_type === 1"
               :fields="payeeSubjectFields"
+              :bank-fields="payeeBankFields"
             />
             <PayeePersonCard
               v-else-if="payee.entity_type === 2"
               :fields="payeeSubjectFields"
+              :bank-fields="payeeBankFields"
             />
             <PayeeBankCard :fields="payeeBankFields" />
           </div>

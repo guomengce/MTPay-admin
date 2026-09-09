@@ -1,6 +1,7 @@
 /** 管理端法幣出金展示映射：只格式化接口字段，不製造業務數據。 */
 import type { WithdrawalOrder, WithdrawalStatus } from '@/api/modules/withdrawal';
 import type { StatusBadgeEffect, StatusBadgeType } from '@/components/admin/StatusBadge.vue';
+import type { RiskLevel, RiskStatus } from '@/api/modules/withdrawalRisk';
 
 export interface WithdrawalStatusMeta {
   type: StatusBadgeType;
@@ -44,6 +45,12 @@ export interface WithdrawalRow {
   statusCode: WithdrawalStatus;
   statusType: StatusBadgeType;
   statusEffect?: StatusBadgeEffect;
+  riskLevel: RiskLevel;
+  riskStatus: RiskStatus;
+  riskCaseId: number | null;
+  riskCaseNo: string;
+  riskHitCount: number;
+  riskBlocked: boolean;
 }
 
 function entityTypeName(value: 1 | 2) {
@@ -75,5 +82,11 @@ export function toWithdrawalRow(order: WithdrawalOrder): WithdrawalRow {
     statusCode: order.status,
     statusType: statusMeta.type,
     statusEffect: statusMeta.effect,
+    riskLevel: order.risk?.risk_level ?? 0,
+    riskStatus: order.risk?.risk_status ?? 0,
+    riskCaseId: order.risk?.risk_case_id ?? null,
+    riskCaseNo: order.risk?.risk_case_no ?? '—',
+    riskHitCount: order.risk?.hits?.length ?? 0,
+    riskBlocked: [3, 4, 6].includes(order.risk?.risk_status ?? 0),
   };
 }

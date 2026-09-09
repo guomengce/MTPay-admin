@@ -41,13 +41,15 @@
 </template>
 
 <script setup lang="ts">
+import { h } from 'vue';
 import { Plus, UserFilled } from '@element-plus/icons-vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import { updateAgentCryptoStatus, type AgentAccount } from '@/api/modules/agent';
 import { usePermission } from '@/composables/usePermission';
 import AdminHero from '@/components/admin/AdminHero.vue';
 import AdminPanel from '@/components/admin/AdminPanel.vue';
 import TablePager from '@/components/common/TablePager.vue';
+import { confirmAdminAction } from '@/utils/adminMessageBox';
 
 import AgentCardList from './components/AgentCardList.vue';
 import AgentFilters from './components/AgentFilters.vue';
@@ -84,12 +86,18 @@ const {
 const { canOperate } = usePermission();
 
 async function toggleCrypto(row: AgentAccount) {
-  await ElMessageBox.confirm(
-    row.crypto_enabled ? '關閉後該代理將無法查看或使用數字貨幣業務，歷史數據不會刪除。' : '確認開啓該代理的數字貨幣業務？',
-    '數字貨幣業務',
-    { type: 'warning', confirmButtonText: '確認', cancelButtonText: '取消' },
-  );
-  await updateAgentCryptoStatus(row.id, row.crypto_enabled ? 0 : 1);
+  const isDisabling = row.crypto_enabled;
+  const confirmed = await confirmAdminAction({
+    title: isDisabling ? '關閉數字貨幣業務' : '開啓數字貨幣業務',
+    message: h('span', [
+      `確認${isDisabling ? '關閉' : '開啓'}「`,
+      h('strong', { class: 'admin-message-box__variable' }, row.company_name),
+      '」的數字貨幣業務嗎？',
+    ]),
+    confirmText: isDisabling ? '確認關閉' : '確認開啓',
+  });
+  if (!confirmed) return;
+  await updateAgentCryptoStatus(row.id, isDisabling ? 0 : 1);
   ElMessage.success('設置已更新');
   await loadAgents();
 }

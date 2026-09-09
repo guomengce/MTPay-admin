@@ -2,12 +2,10 @@ import { getLoginChallenge, clearLoginChallenge } from '@/utils/loginChallenge';
 import { appConfig } from '@/config';
 import router from '@/router';
 import { useAuthStore } from '@/stores/modules/auth';
-import { usePageLoadingStore } from '@/stores/modules/pageLoading';
-
-let initialNavigation = true;
+import NProgress from '@/utils/progress';
 
 router.beforeEach(async (to) => {
-  if (initialNavigation) usePageLoadingStore().startRoute();
+  NProgress.start();
   const authStore = useAuthStore();
   const title = to.meta?.title ? `${String(to.meta.title)} - ${appConfig.title}` : appConfig.title;
   document.title = title;
@@ -34,7 +32,7 @@ router.beforeEach(async (to) => {
 
   const menuPermission = String(to.meta?.menuPermission || '');
   if (menuPermission && !authStore.canAccessMenu(menuPermission)) {
-    const firstAllowed = ['/dashboard', '/agent', '/currency', '/fiat-deposit', '/whitelist', '/withdrawal', '/transactions', '/permission', '/roles', '/log', '/deposit', '/exchange', '/fee']
+    const firstAllowed = ['/dashboard', '/agent', '/currency', '/fiat-deposit', '/whitelist', '/withdrawal', '/risk', '/transactions', '/permission', '/roles', '/log', '/deposit', '/exchange', '/fee']
       .find((path) => authStore.canAccessMenu(String(router.resolve(path).matched.at(-1)?.meta?.menuPermission || '')));
     return { path: firstAllowed || '/account', replace: true };
   }
@@ -47,12 +45,8 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach(() => {
-  if (!initialNavigation) return;
-  initialNavigation = false;
-  usePageLoadingStore().finishRoute();
+  NProgress.done();
 });
 router.onError(() => {
-  if (!initialNavigation) return;
-  initialNavigation = false;
-  usePageLoadingStore().finishRoute();
+  NProgress.done();
 });

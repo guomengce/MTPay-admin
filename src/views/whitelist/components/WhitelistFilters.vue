@@ -16,6 +16,12 @@
       <el-option label="公司" :value="1" />
       <el-option label="個人" :value="2" />
     </el-select>
+    <el-select v-model="status" placeholder="審核狀態" clearable>
+      <el-option label="待審核" :value="0" />
+      <el-option label="待補交文件" :value="1" />
+      <el-option label="已通過" :value="2" />
+      <el-option label="已駁回" :value="3" />
+    </el-select>
     <div class="filter-bar__actions">
       <el-button type="primary" :icon="Search" :loading="loading" @click="emit('search')">查詢</el-button>
       <el-button :icon="RefreshLeft" @click="emit('reset')">重置</el-button>
@@ -45,6 +51,10 @@ const role = computed({
 const entityType = computed({
   get: () => props.query.entity_type,
   set: (value: 1 | 2 | undefined) => emit('update', { entity_type: value }),
+});
+const status = computed({
+  get: () => props.query.status,
+  set: (value: 0 | 1 | 2 | 3 | undefined) => emit('update', { status: value }),
 });
 </script>
 
