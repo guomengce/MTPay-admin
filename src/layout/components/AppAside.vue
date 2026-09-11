@@ -95,56 +95,40 @@ function resolveIcon(name: string) {
   &__brand {
     position: relative;
     display: flex;
-    min-height: 70px;
+    min-height: 52px;
     align-items: center;
-    justify-content: center;
     gap: 12px;
-    margin-bottom: 14px;
-    padding: 8px 10px 12px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
     border-bottom: 1px solid rgb(125 163 214 / 20%);
   }
 
-  &__brand::before,
-  &__brand::after {
-    position: absolute;
-    inset: -22px -14px -10px;
-    z-index: 0;
-    border-radius: 8px;
-    content: '';
-    pointer-events: none;
-  }
-
   &__brand::before {
-    background:
-      linear-gradient(180deg, rgb(52 175 214 / 54%) 0%, rgb(11 86 151 / 48%) 58%, rgb(5 47 97 / 42%) 100%),
-      radial-gradient(ellipse at 50% 18%, rgb(104 218 237 / 34%), transparent 66%);
-    border: 1px solid rgb(114 211 232 / 18%);
-    box-shadow:
-      0 10px 24px rgb(0 10 30 / 16%),
-      0 0 18px rgb(38 179 217 / 10%);
-  }
-
-  &__brand::after {
-    top: 48px;
-    bottom: 4px;
-    background:
-      linear-gradient(180deg, rgb(83 198 226 / 22%), rgb(127 220 237 / 34%)),
-      radial-gradient(ellipse at 50% 52%, rgb(148 231 241 / 34%), transparent 70%);
-    box-shadow: 0 -10px 26px rgb(96 211 234 / 10%);
+    position: absolute;
+    inset: -24px -14px -12px;
+    z-index: 0;
+    background: radial-gradient(
+      ellipse at 50% 48%,
+      rgb(94 207 239 / 36%) 0%,
+      rgb(48 137 188 / 14%) 48%,
+      transparent 76%
+    );
+    content: '';
+    filter: blur(8px);
+    pointer-events: none;
   }
 
   &__logo {
     position: relative;
-    z-index: 2;
+    z-index: 1;
     display: block;
-    width: 174px;
+    width: 156px;
     max-width: 100%;
     height: auto;
     margin: 0 auto;
     filter:
-      contrast(1.12)
-      saturate(1.08)
-      drop-shadow(0 3px 8px rgb(0 17 45 / 28%));
+      brightness(1.08)
+      drop-shadow(0 2px 7px rgb(71 199 236 / 24%));
   }
 
   &__mark {
