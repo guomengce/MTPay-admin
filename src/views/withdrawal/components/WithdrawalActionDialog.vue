@@ -59,14 +59,16 @@
           :label="mode === 'append' ? '追加付款憑證' : '付款憑證（選填）'"
         >
           <el-upload
+            v-upload-limit="fileList.length >= 5"
             v-model:file-list="fileList"
             :auto-upload="false"
             multiple
             :limit="5"
+            :on-exceed="() => ElMessage.warning('最多上傳 5 個文件')"
             accept=".pdf,.png,.jpg,.jpeg"
             @change="handleFileChange"
           >
-            <el-button plain :icon="Upload">選擇文件</el-button>
+            <el-button plain :icon="Upload" :disabled="fileList.length >= 5">選擇文件</el-button>
             <template #tip>
               <p class="withdrawal-action__file-tip">
                 PDF / PNG / JPG / JPEG，最多 5 個，每個 ≤ 10 MB
@@ -113,6 +115,7 @@ import type {
   UploadUserFile,
 } from 'element-plus';
 import { CircleCheck, CircleClose, DocumentAdd, Upload } from '@element-plus/icons-vue';
+import { vUploadLimit } from '@/directives/uploadLimit';
 
 import type { WithdrawalFile, WithdrawalPaymentResult } from '@/api/modules/withdrawal';
 import AdminDialog from '@/components/admin/AdminDialog.vue';

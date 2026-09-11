@@ -23,6 +23,9 @@ defineProps<{
 
 <style scoped lang="scss">
 .deposit-timeline {
+  height: 700px;
+  overflow-y: auto;
   padding: 24px;
+  overscroll-behavior: contain;
 }
 </style>

@@ -18,21 +18,18 @@ defineProps<{
 <style scoped lang="scss">
 .detail-timeline {
   display: flex;
-  min-height: 480px;
-  max-height: 70vh;
+  height: 700px;
+  min-height: 0;
   flex-direction: column;
   overflow: hidden auto;
+  overscroll-behavior: contain;
   padding: 26px;
 
   @include narrow {
-    min-height: 420px;
     padding: 22px;
   }
 
   @include mobile {
-    min-height: 0;
-    max-height: none;
-    overflow: visible;
     padding: 20px;
   }
 }

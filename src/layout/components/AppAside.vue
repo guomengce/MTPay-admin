@@ -1,7 +1,7 @@
 <template>
   <aside class="app-aside">
     <div class="app-aside__brand">
-      <img class="app-aside__logo" src="/assets/mtpay-logo.png" alt="MTPay" />
+      <img class="app-aside__logo" src="/assets/mtpay-logo.svg" alt="MTPay" />
     </div>
     <el-menu class="app-aside__menu" :default-active="activeMenuPath" :default-openeds="openedMenus" :collapse="isCollapsed" router>
       <template v-for="menu in routeStore.menus" :key="menu.path">

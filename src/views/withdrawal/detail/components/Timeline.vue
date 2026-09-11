@@ -13,10 +13,7 @@
               本次關聯 {{ getFileRound(item.key)?.files.length }} 個文件
             </p>
             <div class="file-list">
-              <article
-                v-for="file in getFileRound(item.key)?.files"
-                :key="file.file_id"
-              >
+              <article v-for="file in getFileRound(item.key)?.files" :key="file.file_id">
                 <span class="file-list__type">{{ file.extension?.toUpperCase() || 'FILE' }}</span>
                 <div class="file-list__info">
                   <strong :title="file.original_name">{{ file.original_name }}</strong>
@@ -70,8 +67,11 @@ const props = defineProps<{
   fileRounds: WithdrawalFileRound[];
 }>();
 
-const { isLoading: isFileLoading, preview: previewFile, download: downloadFile } =
-  useWithdrawalAttachments();
+const {
+  isLoading: isFileLoading,
+  preview: previewFile,
+  download: downloadFile,
+} = useWithdrawalAttachments();
 
 function getFileRound(key: string) {
   return props.fileRounds.find((round) => String(round.key) === key);
@@ -81,12 +81,14 @@ function getFileRound(key: string) {
 <style scoped lang="scss">
 :deep(.admin-panel) {
   display: flex;
-  height: 500px;
+  height: 700px;
   min-height: 0;
   flex-direction: column;
 }
 
-.timeline-panel { padding: 22px; }
+.timeline-panel {
+  padding: 22px;
+}
 
 .timeline-scroll {
   min-height: 0;
@@ -125,7 +127,9 @@ function getFileRound(key: string) {
     border-radius: 9px;
     grid-template-columns: 46px minmax(0, 1fr) auto;
     gap: 12px;
-    &:hover { background: #f1f6fa; }
+    &:hover {
+      background: #f1f6fa;
+    }
   }
   &__type {
     display: inline-flex;
@@ -140,23 +144,45 @@ function getFileRound(key: string) {
   }
   &__info {
     min-width: 0;
-    strong { display: block; overflow: hidden; color: var(--app-text-body); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-    p { margin: 4px 0 0; color: var(--app-text-label); font-size: 12px; }
+    strong {
+      display: block;
+      overflow: hidden;
+      color: var(--app-text-body);
+      font-size: 13px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    p {
+      margin: 4px 0 0;
+      color: var(--app-text-label);
+      font-size: 12px;
+    }
   }
   &__actions {
     display: flex;
     gap: 8px;
-    :deep(.el-button + .el-button) { margin-left: 0; }
-    :deep(.el-button.is-circle) { width: 32px; min-width: 32px; height: 32px; padding: 0; border-radius: 50%; }
+    :deep(.el-button + .el-button) {
+      margin-left: 0;
+    }
+    :deep(.el-button.is-circle) {
+      width: 32px;
+      min-width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 50%;
+    }
   }
 }
 
 @include mobile {
-  :deep(.admin-panel) { display: block; }
-  .timeline-scroll { overflow: visible; }
-  .timeline-panel { padding: 18px 16px; }
+  .timeline-panel {
+    padding: 18px 16px;
+  }
 
-  .file-list { padding: 6px; }
+  .file-list {
+    padding: 6px;
+  }
   .file-list article {
     align-items: start;
     grid-template-columns: 38px minmax(0, 1fr);

@@ -2,7 +2,7 @@
   <section class="login-brand">
     <div class="login-brand__content">
       <div class="login-brand__brand">
-        <img src="/assets/mtpay-logo.png" alt="MTPay" />
+        <img src="/assets/mtpay-logo.svg" alt="MTPay" />
       </div>
       <p class="login-brand__eyebrow">OPERATIONS &amp; REVIEW CONSOLE</p>
       

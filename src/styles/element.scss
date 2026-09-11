@@ -89,3 +89,6 @@
   .el-loading-spinner .path { stroke: var(--el-color-primary); stroke-width: 3; }
   .el-loading-text { margin-top: 12px; color: var(--el-color-primary); font-weight: 700; }
 }
+.el-upload.is-limit-reached {
+  opacity: 0.5;
+}

@@ -1,7 +1,6 @@
 <template>
   <AdminPanel
     v-if="items.length"
-
     title="處理時間線"
     subtitle="本次數字貨幣兌換訂單的處理流程"
     :icon="Clock"
@@ -24,6 +23,9 @@ defineProps<{
 
 <style scoped lang="scss">
 .exchange-timeline {
+  height: 700px;
+  overflow-y: auto;
   padding: 24px;
+  overscroll-behavior: contain;
 }
 </style>
