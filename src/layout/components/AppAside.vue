@@ -104,26 +104,38 @@ function resolveIcon(name: string) {
     border-bottom: 1px solid rgb(125 163 214 / 20%);
   }
 
-  &__brand::before {
+  &__brand::before,
+  &__brand::after {
     position: absolute;
     inset: -22px -14px -10px;
     z-index: 0;
-    background:
-      linear-gradient(180deg, rgb(64 193 224 / 78%) 0%, rgb(15 99 164 / 72%) 54%, rgb(5 51 103 / 62%) 100%),
-      radial-gradient(ellipse at 50% 18%, rgb(122 224 239 / 46%), transparent 64%);
-    border: 1px solid rgb(89 211 232 / 46%);
     border-radius: 8px;
-    box-shadow:
-      0 12px 28px rgb(0 10 30 / 24%),
-      0 0 0 1px rgb(122 224 239 / 20%) inset,
-      0 0 24px rgb(38 179 217 / 18%);
     content: '';
     pointer-events: none;
   }
 
+  &__brand::before {
+    background:
+      linear-gradient(180deg, rgb(52 175 214 / 54%) 0%, rgb(11 86 151 / 48%) 58%, rgb(5 47 97 / 42%) 100%),
+      radial-gradient(ellipse at 50% 18%, rgb(104 218 237 / 34%), transparent 66%);
+    border: 1px solid rgb(114 211 232 / 18%);
+    box-shadow:
+      0 10px 24px rgb(0 10 30 / 16%),
+      0 0 18px rgb(38 179 217 / 10%);
+  }
+
+  &__brand::after {
+    top: 48px;
+    bottom: 4px;
+    background:
+      linear-gradient(180deg, rgb(83 198 226 / 22%), rgb(127 220 237 / 34%)),
+      radial-gradient(ellipse at 50% 52%, rgb(148 231 241 / 34%), transparent 70%);
+    box-shadow: 0 -10px 26px rgb(96 211 234 / 10%);
+  }
+
   &__logo {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     display: block;
     width: 174px;
     max-width: 100%;
