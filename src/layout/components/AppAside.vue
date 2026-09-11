@@ -109,13 +109,14 @@ function resolveIcon(name: string) {
     inset: -22px -14px -10px;
     z-index: 0;
     background:
-      linear-gradient(180deg, rgb(255 255 255 / 94%), rgb(225 242 249 / 88%)),
-      radial-gradient(ellipse at 50% 10%, rgb(73 211 225 / 24%), transparent 62%);
-    border: 1px solid rgb(153 211 231 / 42%);
+      linear-gradient(180deg, rgb(64 193 224 / 78%) 0%, rgb(15 99 164 / 72%) 54%, rgb(5 51 103 / 62%) 100%),
+      radial-gradient(ellipse at 50% 18%, rgb(122 224 239 / 46%), transparent 64%);
+    border: 1px solid rgb(89 211 232 / 46%);
     border-radius: 8px;
     box-shadow:
-      0 12px 28px rgb(0 10 30 / 22%),
-      0 0 0 1px rgb(255 255 255 / 40%) inset;
+      0 12px 28px rgb(0 10 30 / 24%),
+      0 0 0 1px rgb(122 224 239 / 20%) inset,
+      0 0 24px rgb(38 179 217 / 18%);
     content: '';
     pointer-events: none;
   }
@@ -129,9 +130,9 @@ function resolveIcon(name: string) {
     height: auto;
     margin: 0 auto;
     filter:
-      contrast(1.04)
-      saturate(1.02)
-      drop-shadow(0 3px 8px rgb(9 37 72 / 16%));
+      contrast(1.12)
+      saturate(1.08)
+      drop-shadow(0 3px 8px rgb(0 17 45 / 28%));
   }
 
   &__mark {
