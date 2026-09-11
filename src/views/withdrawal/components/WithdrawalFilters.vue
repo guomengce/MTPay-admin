@@ -14,9 +14,11 @@
       clearable
       filterable
       :loading="agentLoading"
+      :filter-method="filterAgentOptions"
+      @visible-change="handleAgentVisibleChange"
     >
       <el-option
-        v-for="item in normalizedAgentOptions"
+        v-for="item in filteredAgentOptions"
         :key="item.value"
         :label="item.label"
         :value="item.value"
@@ -78,6 +80,7 @@ const statusOptions = [
 const riskStatusOptions = ['系統通過','加強核查','待風控覆核','待補件','已放行','已拒絕'].map((label,index)=>({label,value:index+1}));
 
 const agentLoading = ref(false);
+const agentFilterKeyword = ref('');
 const agentOptions = ref<AgentOption[]>([]);
 
 const normalizedAgentOptions = computed(() =>
@@ -96,6 +99,23 @@ const normalizedAgentOptions = computed(() =>
     })
     .filter((item): item is { value: number; companyName: string; meta: string; label: string } => item !== null),
 );
+
+const filteredAgentOptions = computed(() => {
+  const keyword = agentFilterKeyword.value.trim().toLowerCase();
+  if (!keyword) return normalizedAgentOptions.value;
+  return normalizedAgentOptions.value.filter((item) =>
+    [item.companyName, item.meta, item.label, String(item.value)]
+      .some((text) => text.toLowerCase().includes(keyword)),
+  );
+});
+
+function filterAgentOptions(keyword: string) {
+  agentFilterKeyword.value = keyword;
+}
+
+function handleAgentVisibleChange(visible: boolean) {
+  if (!visible) agentFilterKeyword.value = '';
+}
 
 async function loadAgentOptions() {
   agentLoading.value = true;
