@@ -11,6 +11,7 @@ import type { RiskLevel, RiskStatus } from '@/api/modules/withdrawalRisk';
 import { toWithdrawalRow, type WithdrawalRow } from './mapper';
 
 export interface WithdrawalQuery {
+  user_id?: number;
   status?: WithdrawalStatus;
   keyword: string;
   started_at: string;
@@ -20,6 +21,7 @@ export interface WithdrawalQuery {
 }
 
 const INITIAL_QUERY: WithdrawalQuery = {
+  user_id: undefined,
   status: undefined,
   keyword: '',
   started_at: '',
@@ -41,6 +43,7 @@ export function useWithdrawalList() {
     return {
       page: page.value,
       limit: limit.value,
+      user_id: filters.user_id,
       status: filters.status,
       keyword: filters.keyword.trim() || undefined,
       started_at: filters.started_at || undefined,
@@ -50,7 +53,7 @@ export function useWithdrawalList() {
     };
   }
 
-  const saveListQuery = useListQueryState({ ...toRefs(query), page, limit }, ["status","role","entity_type"]);
+  const saveListQuery = useListQueryState({ ...toRefs(query), page, limit }, ["user_id","status","role","entity_type"]);
 
   async function loadList() {
     const filters = { ...query };

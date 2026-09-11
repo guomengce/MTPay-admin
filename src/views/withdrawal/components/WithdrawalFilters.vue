@@ -8,6 +8,25 @@
       :prefix-icon="Search"
       @keyup.enter="emit('search')"
     />
+    <el-select
+      v-model="userId"
+      placeholder="代理用戶"
+      clearable
+      filterable
+      :loading="agentLoading"
+    >
+      <el-option
+        v-for="item in normalizedAgentOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      >
+        <div class="withdrawal-filters__agent-option">
+          <span>{{ item.companyName }}</span>
+          <small>{{ item.meta }}</small>
+        </div>
+      </el-option>
+    </el-select>
     <el-select v-model="status" placeholder="訂單狀態" clearable>
       <el-option v-for="item in statusOptions" :key="item.value" v-bind="item" />
     </el-select>
@@ -33,9 +52,10 @@
 
 <script setup lang="ts">
 /** 法幣出金列表篩選：僅維護篩選值，接口請求由 useWithdrawalList 統一負責。 */
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { RefreshLeft, Search } from '@element-plus/icons-vue';
 
+import { fetchAgentOptions, type AgentOption } from '@/api/modules/agent';
 import type { WithdrawalStatus } from '@/api/modules/withdrawal';
 import type { RiskLevel, RiskStatus } from '@/api/modules/withdrawalRisk';
 import type { WithdrawalQuery } from '../composables/useWithdrawalList';
@@ -57,6 +77,41 @@ const statusOptions = [
 ];
 const riskStatusOptions = ['系統通過','加強核查','待風控覆核','待補件','已放行','已拒絕'].map((label,index)=>({label,value:index+1}));
 
+const agentLoading = ref(false);
+const agentOptions = ref<AgentOption[]>([]);
+
+const normalizedAgentOptions = computed(() =>
+  agentOptions.value
+    .map((item) => {
+      const value = item.value ?? item.user_id ?? item.id;
+      if (value == null) return null;
+      const companyName = item.company_name || item.label || `代理 ${value}`;
+      const meta = [item.agent_code, item.email].filter(Boolean).join(' / ');
+      return {
+        value,
+        companyName,
+        meta,
+        label: meta ? `${companyName}（${meta}）` : companyName,
+      };
+    })
+    .filter((item): item is { value: number; companyName: string; meta: string; label: string } => item !== null),
+);
+
+async function loadAgentOptions() {
+  agentLoading.value = true;
+  try {
+    agentOptions.value = await fetchAgentOptions();
+  } catch {
+    agentOptions.value = [];
+  } finally {
+    agentLoading.value = false;
+  }
+}
+
+const userId = computed<number | undefined>({
+  get: () => props.query.user_id,
+  set: (value) => emit('update', { user_id: value }),
+});
 const status = computed<WithdrawalStatus | undefined>({
   get: () => props.query.status,
   set: (value) => emit('update', { status: value }),
@@ -77,6 +132,8 @@ const dateRange = computed<string[]>({
     ended_at: value?.[1] || '',
   }),
 });
+
+onMounted(loadAgentOptions);
 </script>
 
 <style scoped lang="scss">
@@ -87,6 +144,21 @@ const dateRange = computed<string[]>({
 
   @include mobile {
     .filter-bar__keyword { grid-column: 1 / -1; }
+  }
+}
+
+.withdrawal-filters__agent-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  small {
+    overflow: hidden;
+    color: #8492a6;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>

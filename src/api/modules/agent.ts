@@ -34,6 +34,16 @@ export interface AgentListParams {
   limit: number;
 }
 
+export interface AgentOption {
+  id?: number;
+  user_id?: number;
+  agent_code?: string;
+  company_name?: string;
+  email?: string;
+  label?: string;
+  value?: number;
+}
+
 export interface AgentFormPayload {
   company_name: string;
   email: string;
@@ -111,6 +121,11 @@ export interface AdjustAgentBalancePayload {
 /** 獲取代理賬户分頁列表，可按編號/公司/郵箱/電話及狀態篩選。 */
 export function fetchAgentList(params: AgentListParams) {
   return request.get<unknown, AgentPageResult>('/admin/getUserList', { params });
+}
+
+/** 獲取代理下拉選項。GET /admin/getAgentOptions */
+export function fetchAgentOptions() {
+  return request.get<unknown, AgentOption[]>('/admin/getAgentOptions');
 }
 
 /** 編輯代理前讀取賬户表單資料；該接口不再承擔詳情頁展示。 */

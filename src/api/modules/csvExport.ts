@@ -4,7 +4,7 @@ const paths: Record<CsvModule, string> = {
   deposit: '/admin/exportDepositCsv', exchange: '/admin/exportExchangeCsv',
   whitelist: '/admin/exportWhitelistCsv', withdrawal: '/admin/exportWithdrawalCsv',
 };
-export interface CsvFilters { keyword?: string; status?: number; role?: number; entity_type?: number; started_at?: string; ended_at?: string }
+export interface CsvFilters { keyword?: string; status?: number; role?: number; entity_type?: number; user_id?: number; started_at?: string; ended_at?: string }
 export function exportBusinessCsv(module: CsvModule, filters: CsvFilters) {
   const params: Record<string, string> = { keyword: filters.keyword?.trim() || '' };
   if (module === 'whitelist') {
@@ -13,6 +13,7 @@ export function exportBusinessCsv(module: CsvModule, filters: CsvFilters) {
     params.status = filters.status == null ? '' : String(filters.status);
   } else {
     params.started_at = filters.started_at || ''; params.ended_at = filters.ended_at || '';
+    params.user_id = filters.user_id == null ? '' : String(filters.user_id);
     if (module !== 'deposit') params.status = filters.status == null ? '' : String(filters.status);
   }
   const query = new URLSearchParams(params).toString();
