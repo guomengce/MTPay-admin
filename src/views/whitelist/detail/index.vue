@@ -12,6 +12,7 @@
         @approve="openDialog('approve')"
         @reject="openDialog('reject')"
         @supplement="openDialog('supplement')"
+        @toggle-status="reviewRow && toggleStatus(reviewRow, reload)"
       />
 
       <div class="whitelist-workspace">
@@ -64,6 +65,7 @@ import {
   CircleCheck,
   CircleClose,
   Document,
+  SwitchButton,
 } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -84,7 +86,7 @@ const route = useRoute();
 const router = useRouter();
 const { canOperate } = usePermission();
 const id = computed(() => Number(route.params.id));
-const { loading, submitting, detail, loadDetail, submitReview, requestSupplement } =
+const { loading, submitting, detail, loadDetail, submitReview, requestSupplement, toggleStatus } =
   useWhitelistDetail();
 usePageLoading(loading);
 const {
@@ -118,6 +120,16 @@ const heroActions = computed<HeroAction[]>(() => {
     return [
       { label: '通過', icon: CircleCheck, type: 'primary', emitName: 'approve' },
       { label: '駁回', icon: CircleClose, type: 'danger', emitName: 'reject' },
+    ];
+  }
+  if ((detail.value?.status === 2 || detail.value?.status === 4) && canOperate('whitelist.review')) {
+    return [
+      {
+        label: detail.value.status === 2 ? '停用' : '啟用',
+        icon: SwitchButton,
+        type: detail.value.status === 2 ? 'danger' : 'success',
+        emitName: 'toggle-status',
+      },
     ];
   }
   return [];

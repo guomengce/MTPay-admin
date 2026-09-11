@@ -1,7 +1,8 @@
 /** 管理端白名單審核 API：列表、詳情、補件要求、審核及鑑權文件。 */
 import request from '../request';
 
-export type WhitelistStatus = 0 | 1 | 2 | 3;
+export type WhitelistStatus = 0 | 1 | 2 | 3 | 4;
+export type WhitelistToggleStatus = 2 | 4;
 /** 白名單角色：1 付款人，2 收款人。 */
 export type WhitelistRole = 1 | 2;
 /** 主體類型：1 公司，2 個人。該枚舉必須與提交白名單接口保持一致。 */
@@ -92,6 +93,11 @@ export interface RequestWhitelistSupplementPayload {
   message: string;
 }
 
+export interface EditWhitelistStatusPayload {
+  id: number;
+  status: WhitelistToggleStatus;
+}
+
 /** 獲取白名單分頁列表。 */
 export function fetchWhitelistList(params: WhitelistListParams) {
   return request.get<unknown, WhitelistPageResult>('/admin/getWhitelistList', { params });
@@ -110,6 +116,11 @@ export function requestWhitelistSupplement(payload: RequestWhitelistSupplementPa
 /** 審核白名單；通過僅狀態 0，駁回允許狀態 0/1。 */
 export function reviewWhitelist(payload: ReviewWhitelistPayload) {
   return request.post<unknown, WhitelistDetail>('/admin/reviewWhitelist', payload);
+}
+
+/** 啟用或停用已審核白名單。status: 2 已通過，4 已停用。 */
+export function editWhitelistStatus(payload: EditWhitelistStatusPayload) {
+  return request.post<unknown, WhitelistDetail>('/admin/editWhitelistStatus', payload);
 }
 
 /** 鑑權預覽白名單文件。 */

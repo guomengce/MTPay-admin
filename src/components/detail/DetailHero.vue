@@ -83,7 +83,7 @@ export interface HeroAction {
   label: string;
   icon?: unknown;
   type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'plain';
-  emitName: 'approve' | 'reject' | 'supplement' | 'complete' | 'return' | 'payment' | 'append';
+  emitName: 'approve' | 'reject' | 'supplement' | 'complete' | 'return' | 'payment' | 'append' | 'toggle-status';
 }
 
 export interface HeroStatus {

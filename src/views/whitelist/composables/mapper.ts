@@ -27,6 +27,7 @@ const STATUS_META: Record<WhitelistStatus, { type: StatusBadgeType; effect?: Sta
     1: { type: 'primary' },
     2: { type: 'success' },
     3: { type: 'danger' },
+    4: { type: 'gray' },
   };
 
 export function toWhitelistRow(item: WhitelistItem): WhitelistRow {

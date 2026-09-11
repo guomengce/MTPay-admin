@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { CircleCheck, CircleClose, DocumentAdd, View } from '@element-plus/icons-vue';
+import { CircleCheck, CircleClose, DocumentAdd, SwitchButton, View } from '@element-plus/icons-vue';
 
 import AdminCardList from '@/components/admin/AdminCardList.vue';
 import type { AdminCardItem } from '@/components/admin/AdminCardList.vue';
@@ -22,6 +22,7 @@ const emit = defineEmits<{
   (e: 'approve', row: WhitelistRow): void;
   (e: 'reject', row: WhitelistRow): void;
   (e: 'supplement', row: WhitelistRow): void;
+  (e: 'toggle-status', row: WhitelistRow): void;
 }>();
 
 const cardItems = computed<AdminCardItem[]>(() =>
@@ -69,6 +70,14 @@ const cardItems = computed<AdminCardItem[]>(() =>
         plain: true,
         visible: (row.statusCode === 0 || row.statusCode === 1) && canOperate('whitelist.review'),
       },
+      {
+        key: 'toggle-status',
+        label: row.statusCode === 2 ? '停用' : '啟用',
+        icon: SwitchButton,
+        type: row.statusCode === 2 ? 'danger' : 'success',
+        plain: true,
+        visible: (row.statusCode === 2 || row.statusCode === 4) && canOperate('whitelist.review'),
+      },
     ],
   })),
 );
@@ -85,6 +94,7 @@ function handleCardAction(actionKey: string, itemKey: string) {
   if (actionKey === 'approve') emit('approve', row);
   if (actionKey === 'reject') emit('reject', row);
   if (actionKey === 'supplement') emit('supplement', row);
+  if (actionKey === 'toggle-status') emit('toggle-status', row);
 }
 </script>
 

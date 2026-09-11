@@ -21,6 +21,7 @@
       <el-option label="待補交文件" :value="1" />
       <el-option label="已通過" :value="2" />
       <el-option label="已駁回" :value="3" />
+      <el-option label="已停用" :value="4" />
     </el-select>
     <div class="filter-bar__actions">
       <el-button type="primary" :icon="Search" :loading="loading" @click="emit('search')">查詢</el-button>
@@ -54,7 +55,7 @@ const entityType = computed({
 });
 const status = computed({
   get: () => props.query.status,
-  set: (value: 0 | 1 | 2 | 3 | undefined) => emit('update', { status: value }),
+  set: (value: 0 | 1 | 2 | 3 | 4 | undefined) => emit('update', { status: value }),
 });
 </script>
 

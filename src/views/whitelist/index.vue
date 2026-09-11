@@ -26,6 +26,7 @@
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
         @supplement="openDialog('supplement', $event)"
+        @toggle-status="toggleStatus($event, loadList)"
       />
       <WhitelistCardList
         :data="list"
@@ -33,6 +34,7 @@
         @approve="openDialog('approve', $event)"
         @reject="openDialog('reject', $event)"
         @supplement="openDialog('supplement', $event)"
+        @toggle-status="toggleStatus($event, loadList)"
       />
       <TablePager
         :model-value="page"
@@ -77,7 +79,7 @@ import { useWhitelistList } from './composables/useWhitelistList';
 const router = useRouter();
 const { exportFilters, loading, list, total, page, limit, query, loadList, search, reset, setPage, setLimit } =
   useWhitelistList();
-const { submitting, submitReview, requestSupplement } = useWhitelistDetail();
+const { submitting, submitReview, requestSupplement, toggleStatus } = useWhitelistDetail();
 const { exporting, downloadCsv } = useBusinessCsvExport('whitelist', () => exportFilters.value);
 
 const dialogVisible = ref(false);

@@ -61,6 +61,12 @@
                   :icon="CircleClose"
                   >駁回</el-dropdown-item
                 >
+                <el-dropdown-item
+                  v-if="(row.statusCode === 2 || row.statusCode === 4) && canOperate('whitelist.review')"
+                  command="toggle-status"
+                  :icon="SwitchButton"
+                  divided
+                >{{ row.statusCode === 2 ? '停用' : '啟用' }}</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -71,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { CircleCheck, CircleClose, DocumentAdd, MoreFilled, View } from '@element-plus/icons-vue';
+import { CircleCheck, CircleClose, DocumentAdd, MoreFilled, SwitchButton, View } from '@element-plus/icons-vue';
 
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import type { StatusBadgeType } from '@/components/admin/StatusBadge.vue';
@@ -83,7 +89,7 @@ export type { WhitelistRow } from '../composables/mapper';
 defineProps<{ data: WhitelistRow[]; loading?: boolean }>();
 const { canOperate } = usePermission();
 const emit = defineEmits<{
-  (e: 'view' | 'approve' | 'reject' | 'supplement', row: WhitelistRow): void;
+  (e: 'view' | 'approve' | 'reject' | 'supplement' | 'toggle-status', row: WhitelistRow): void;
 }>();
 
 function handleCommand(command: string | number | object, row: WhitelistRow) {
@@ -91,7 +97,8 @@ function handleCommand(command: string | number | object, row: WhitelistRow) {
     command === 'view' ||
     command === 'approve' ||
     command === 'reject' ||
-    command === 'supplement'
+    command === 'supplement' ||
+    command === 'toggle-status'
   ) {
     emit(command, row);
   }
