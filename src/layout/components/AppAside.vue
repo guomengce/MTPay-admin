@@ -105,16 +105,16 @@ function resolveIcon(name: string) {
 
   &__brand::before {
     position: absolute;
-    inset: -34px -34px -22px;
+    inset: -46px -56px -34px;
     z-index: 0;
     background: radial-gradient(
       ellipse at 50% 48%,
-      rgb(94 207 239 / 42%) 0%,
-      rgb(48 137 188 / 20%) 54%,
-      transparent 84%
+      rgb(94 207 239 / 46%) 0%,
+      rgb(48 137 188 / 23%) 60%,
+      transparent 90%
     );
     content: '';
-    filter: blur(12px);
+    filter: blur(16px);
     pointer-events: none;
   }
 
