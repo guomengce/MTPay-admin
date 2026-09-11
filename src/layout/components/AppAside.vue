@@ -95,26 +95,28 @@ function resolveIcon(name: string) {
   &__brand {
     position: relative;
     display: flex;
-    min-height: 52px;
+    min-height: 70px;
     align-items: center;
+    justify-content: center;
     gap: 12px;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+    margin-bottom: 14px;
+    padding: 8px 10px 12px;
     border-bottom: 1px solid rgb(125 163 214 / 20%);
   }
 
   &__brand::before {
     position: absolute;
-    inset: -24px -14px -12px;
+    inset: -22px -14px -10px;
     z-index: 0;
-    background: radial-gradient(
-      ellipse at 50% 48%,
-      rgb(94 207 239 / 36%) 0%,
-      rgb(48 137 188 / 14%) 48%,
-      transparent 76%
-    );
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 94%), rgb(225 242 249 / 88%)),
+      radial-gradient(ellipse at 50% 10%, rgb(73 211 225 / 24%), transparent 62%);
+    border: 1px solid rgb(153 211 231 / 42%);
+    border-radius: 8px;
+    box-shadow:
+      0 12px 28px rgb(0 10 30 / 22%),
+      0 0 0 1px rgb(255 255 255 / 40%) inset;
     content: '';
-    filter: blur(8px);
     pointer-events: none;
   }
 
@@ -122,13 +124,14 @@ function resolveIcon(name: string) {
     position: relative;
     z-index: 1;
     display: block;
-    width: 156px;
+    width: 174px;
     max-width: 100%;
     height: auto;
     margin: 0 auto;
     filter:
-      brightness(1.08)
-      drop-shadow(0 2px 7px rgb(71 199 236 / 24%));
+      contrast(1.04)
+      saturate(1.02)
+      drop-shadow(0 3px 8px rgb(9 37 72 / 16%));
   }
 
   &__mark {
